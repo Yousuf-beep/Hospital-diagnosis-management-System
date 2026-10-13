@@ -1,4 +1,4 @@
-# MediAI — Health Diagnostic System
+# Hospital Diagnosis Management System (MediAI)
 
 Flask web app: ML symptom diagnosis (Random Forest + Naive Bayes + SVM), chatbot,
 symptom diary, doctor/lab workflow, video consultations, and role-based access control.
