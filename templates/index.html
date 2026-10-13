@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Health Diagnostic System{% endblock %}
+
+{% block extra_style %}
+.hero { display:grid; grid-template-columns:1fr 1fr; min-height:calc(100vh - 65px); }
+.hero-left { padding:72px 64px; display:flex; flex-direction:column; justify-content:center; border-right:1.5px solid var(--border); }
+.eyebrow { font-size:0.72rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--red); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.eyebrow::before { content:''; width:32px; height:1.5px; background:var(--red); display:inline-block; }
+h1 { font-family:'Syne',sans-serif; font-size:clamp(2.4rem,3.8vw,3.6rem); font-weight:800; line-height:1.05; letter-spacing:-0.04em; margin-bottom:24px; }
+h1 em { font-style:normal; color:var(--teal); display:block; }
+.hero-desc { font-size:1rem; color:var(--muted); line-height:1.75; max-width:420px; margin-bottom:40px; font-weight:300; }
+.cta-group { display:flex; gap:14px; flex-wrap:wrap; }
+.btn-primary { background:var(--ink); color:#fff; border:none; padding:14px 28px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; border-radius:6px; transition:background .2s,transform .15s; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+.btn-primary:hover { background:var(--red); transform:translateY(-1px); }
+.btn-outline { background:transparent; color:var(--ink); border:1.5px solid var(--border); padding:13px 24px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; border-radius:6px; transition:border-color .2s,color .2s; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+.btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+.stats-row { display:flex; gap:40px; margin-top:56px; padding-top:40px; border-top:1.5px solid var(--border); }
+.stat-item .num { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.04em; }
+.stat-item .lbl { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px; }
+
+/* Right panel */
+.hero-right { display:flex; flex-direction:column; padding:48px 40px; background:var(--cream); }
+.panel-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:-0.02em; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; }
+.panel-sub { font-size:0.8rem; color:var(--muted); margin-bottom:18px; }
+.search-wrap { position:relative; margin-bottom:14px; }
+.search-wrap i { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:0.82rem; }
+#search { width:100%; padding:10px 13px 10px 36px; background:#fff; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:0.88rem; outline:none; transition:border-color .2s; }
+#search:focus { border-color:var(--teal2); }
+.symptom-grid { flex:1; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:5px; max-height:340px; padding-right:4px; }
+.symptom-grid::-webkit-scrollbar { width:3px; }
+.symptom-grid::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.sym-label { display:flex; align-items:center; gap:8px; padding:7px 11px; background:#fff; border:1.5px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.78rem; color:var(--ink); transition:all .12s; user-select:none; }
+.sym-label:hover { border-color:var(--teal2); background:rgba(10,124,110,.04); }
+.sym-label input[type=checkbox] { accent-color:var(--teal); width:13px; height:13px; flex-shrink:0; }
+.sym-label.checked { border-color:var(--teal); background:rgba(10,124,110,.08); font-weight:500; }
+.selected-bar { margin-top:14px; padding:11px 14px; background:#fff; border:1.5px solid var(--border); border-radius:6px; font-size:0.8rem; color:var(--muted); display:flex; align-items:center; justify-content:space-between; }
+.selected-bar .count { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; color:var(--teal); }
+.form-actions { display:flex; gap:10px; margin-top:14px; }
+.btn-predict { flex:1; background:var(--red); color:#fff; border:none; padding:13px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; border-radius:6px; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-predict:hover { background:#c5290e; }
+.btn-chat { flex:1; background:var(--teal); color:#fff; border:none; padding:13px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; border-radius:6px; transition:background .2s; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-chat:hover { background:var(--teal2); }
+.error-banner { background:#fff0ee; border:1.5px solid #f3a39a; color:#b02a1c; padding:11px 14px; border-radius:6px; font-size:0.83rem; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.features { display:grid; grid-template-columns:repeat(3,1fr); border-top:1.5px solid var(--border); }
+.feat { padding:36px 48px; border-right:1.5px solid var(--border); }
+.feat:last-child { border-right:none; }
+.feat-icon { width:38px; height:38px; background:var(--ink); color:#fff; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:0.95rem; margin-bottom:14px; }
+.feat h3 { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; margin-bottom:8px; }
+.feat p { font-size:0.83rem; color:var(--muted); line-height:1.6; }
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero-left{padding:40px 24px;border-right:none;border-bottom:1.5px solid var(--border)}
+  .hero-right{padding:28px 24px}
+  .features{grid-template-columns:1fr}
+  .feat{border-right:none;border-bottom:1.5px solid var(--border);padding:28px 24px}
+}
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">AI-Powered Health Analysis</div>
+    <h1>Describe your<br><em>symptoms.</em><br>We'll help.</h1>
+    <p class="hero-desc">Our ensemble ML engine (Random Forest + Naive Bayes + SVM) analyzes your symptom patterns and identifies the most likely conditions — instantly.</p>
+    <div class="cta-group">
+      <a href="/chatbot" class="btn-primary"><i class="fa-solid fa-robot"></i> Start Chatbot</a>
+      <a href="/diary" class="btn-outline"><i class="fa-solid fa-book-medical"></i> Symptom Diary</a>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="num">41</div><div class="lbl">Diseases</div></div>
+      <div class="stat-item"><div class="num">130+</div><div class="lbl">Symptoms</div></div>
+      <div class="stat-item"><div class="num">3x</div><div class="lbl">ML Ensemble</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="panel-title">Select Symptoms <span style="font-family:'DM Sans';font-weight:400;font-size:0.78rem;color:var(--muted);">Min. 3 required</span></div>
+    <div class="panel-sub">Check all symptoms you are currently experiencing</div>
+    {% if error %}<div class="error-banner"><i class="fa-solid fa-triangle-exclamation"></i>{{ error }}</div>{% endif %}
+
+    <form action="/predict_form" method="POST" id="symptom-form" data-loading>
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="search" type="text" placeholder="Search symptoms…">
+      </div>
+      <div class="symptom-grid" id="sym-grid">
+        {% for s in symptoms %}
+        <label class="sym-label">
+          <input type="checkbox" name="symptom" value="{{ s }}" onchange="updateCount(this)">
+          {{ s.replace('_',' ').title() }}
+        </label>
+        {% endfor %}
+      </div>
+      <div class="selected-bar">
+        <span>Selected</span>
+        <span><span class="count" id="sym-count">0</span> / 3+ needed</span>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-predict"><i class="fa-solid fa-stethoscope"></i> Predict Disease</button>
+        <a href="/chatbot" class="btn-chat"><i class="fa-solid fa-comments"></i> Use Chatbot</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="features">
+  <div class="feat"><div class="feat-icon"><i class="fa-solid fa-brain"></i></div><h3>Ensemble AI Model</h3><p>RF + Naive Bayes + SVM voting classifier for highest accuracy differential diagnosis.</p></div>
+  <div class="feat"><div class="feat-icon" style="background:var(--teal)"><i class="fa-solid fa-comments"></i></div><h3>Smart Chatbot</h3><p>Conversational diagnosis with severity questions, free-text input, and progress tracking.</p></div>
+  <div class="feat"><div class="feat-icon" style="background:var(--red)"><i class="fa-solid fa-database"></i></div><h3>SQLite + Role-Based Access</h3><p>Relational DB with views, triggers, indexes and patient history — every page guarded by role permissions.</p></div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+  let count = 0;
+  function updateCount(cb) {
+    count += cb.checked ? 1 : -1;
+    document.getElementById('sym-count').textContent = count;
+    cb.closest('.sym-label').classList.toggle('checked', cb.checked);
+  }
+  document.getElementById('search').addEventListener('input', function() {
+    const val = this.value.toLowerCase();
+    document.querySelectorAll('.sym-label').forEach(el => {
+      el.style.display = el.textContent.toLowerCase().includes(val) ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}

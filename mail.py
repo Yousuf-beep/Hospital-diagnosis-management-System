@@ -1,0 +1,108 @@
+"""
+mail.py — Flask-Mail diagnosis summary email
+Credentials come from environment variables (see .env.example).
+"""
+
+import logging
+from html import escape
+from flask_mail import Mail, Message
+
+import config
+
+mail = Mail()
+
+
+class MailNotConfigured(RuntimeError):
+    pass
+
+
+# ── Call this in app.py: configure_mail(app) ──
+def configure_mail(app):
+    app.config["MAIL_SERVER"]   = config.MAIL_SERVER
+    app.config["MAIL_PORT"]     = config.MAIL_PORT
+    app.config["MAIL_USE_TLS"]  = config.MAIL_USE_TLS
+    app.config["MAIL_USERNAME"] = config.MAIL_USERNAME
+    app.config["MAIL_PASSWORD"] = config.MAIL_PASSWORD   # Gmail: use an App Password
+    app.config["MAIL_DEFAULT_SENDER"] = config.MAIL_SENDER
+    mail.init_app(app)
+
+
+def notify(to_email, subject, heading, body_text):
+    """Best-effort notification email. Returns True if sent; never raises."""
+    if not config.MAIL_ENABLED or not to_email:
+        return False
+    html_body = f"""
+    <div style="font-family:'Segoe UI',sans-serif;max-width:600px;margin:auto;background:#f5f3ef;padding:32px;border-radius:12px;">
+      <div style="background:#0d1117;padding:20px 28px;border-radius:8px;margin-bottom:24px;">
+        <h1 style="color:#fff;font-size:1.3rem;margin:0;">Medi<span style="color:#e8341c;">AI</span></h1>
+      </div>
+      <h2 style="font-size:1.1rem;color:#0d1117;">{escape(heading)}</h2>
+      <p style="color:#3a3630;font-size:0.92rem;line-height:1.7;white-space:pre-line;">{escape(body_text)}</p>
+    </div>
+    """
+    try:
+        mail.send(Message(subject=subject, recipients=[to_email], html=html_body))
+        return True
+    except Exception:
+        logging.getLogger("mediai.mail").warning("Notification email to %s failed", to_email, exc_info=True)
+        return False
+
+
+def send_diagnosis_email(to_email, patient_name, disease, confidence,
+                         doctor, precautions, risk, symptoms):
+    """Send a diagnosis summary email to the patient."""
+    if not config.MAIL_ENABLED:
+        raise MailNotConfigured("Email is not configured on this server.")
+
+    patient_name, disease, doctor = escape(patient_name), escape(disease), escape(doctor)
+    prec_html = "".join(f"<li>{escape(p)}</li>" for p in precautions if p)
+    sym_html  = escape(", ".join(s.replace("_", " ").title() for s in symptoms))
+
+    risk_color = "#16a34a" if risk < 20 else ("#d97706" if risk < 40 else "#e8341c")
+    risk_label = "Low" if risk < 20 else ("Moderate" if risk < 40 else "High")
+
+    html_body = f"""
+    <div style="font-family:'Segoe UI',sans-serif;max-width:600px;margin:auto;background:#f5f3ef;padding:32px;border-radius:12px;">
+      <div style="background:#0d1117;padding:20px 28px;border-radius:8px;margin-bottom:24px;">
+        <h1 style="color:#fff;font-size:1.4rem;margin:0;">Medi<span style="color:#e8341c;">AI</span> — Diagnosis Report</h1>
+      </div>
+
+      <p style="color:#3a3630;font-size:0.95rem;">Hello <strong>{patient_name}</strong>,</p>
+      <p style="color:#6b6660;font-size:0.9rem;line-height:1.7;">
+        Here is a summary of your recent AI health diagnosis. Please consult a licensed physician for professional advice.
+      </p>
+
+      <div style="background:#fff;border:1.5px solid #d4cfc8;border-radius:8px;padding:20px;margin:20px 0;">
+        <h2 style="font-size:1.3rem;color:#0d1117;margin:0 0 8px;">{disease}</h2>
+        <p style="margin:0;color:#6b6660;font-size:0.85rem;">Top AI prediction — {confidence}% confidence</p>
+        <div style="margin-top:12px;display:inline-block;padding:6px 16px;border-radius:20px;
+                    background:{risk_color}22;border:1px solid {risk_color};color:{risk_color};font-size:0.8rem;font-weight:600;">
+          {risk_label} Risk (Score: {risk})
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid #d4cfc8;border-radius:8px;padding:20px;margin:16px 0;">
+        <h3 style="font-size:0.85rem;color:#6b6660;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 10px;">Reported Symptoms</h3>
+        <p style="margin:0;font-size:0.9rem;color:#0d1117;">{sym_html}</p>
+      </div>
+
+      <div style="background:#0a7c6e;border-radius:8px;padding:20px;margin:16px 0;color:#fff;">
+        <h3 style="margin:0 0 6px;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;opacity:.7;">Recommended Specialist</h3>
+        <p style="margin:0;font-size:1rem;font-weight:600;">{doctor}</p>
+      </div>
+
+      {'<div style="background:#fff;border:1.5px solid #d4cfc8;border-radius:8px;padding:20px;margin:16px 0;"><h3 style="font-size:0.85rem;color:#6b6660;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 10px;">Precautions</h3><ul style="margin:0;padding-left:20px;font-size:0.88rem;color:#3a3630;line-height:1.8;">' + prec_html + '</ul></div>' if prec_html else ''}
+
+      <p style="font-size:0.75rem;color:#aaa;margin-top:24px;text-align:center;">
+        This is an AI-generated report and does not replace professional medical advice.<br>
+        Generated by MediAI Health Diagnostic System.
+      </p>
+    </div>
+    """
+
+    msg = Message(
+        subject=f"Your MediAI Diagnosis: {disease}",
+        recipients=[to_email],
+        html=html_body
+    )
+    mail.send(msg)

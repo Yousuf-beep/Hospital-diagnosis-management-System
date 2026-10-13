@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Doctor Dashboard{% endblock %}
+{% block extra_style %}
+.page{max-width:1200px;margin:0 auto;padding:40px 32px}
+.dash-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px}
+.dash-hdr h1{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-.04em}
+.dash-hdr p{font-size:.85rem;color:var(--muted);margin-top:4px}
+.doc-badge{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 18px}
+.doc-avatar{width:44px;height:44px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;flex-shrink:0}
+.doc-info .name{font-weight:700;font-size:.92rem}
+.doc-info .spec{font-size:.76rem;color:var(--muted)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:9px;padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+.s-pending::before{background:var(--amber)}
+.s-review::before{background:var(--teal)}
+.s-done::before{background:var(--green)}
+.s-total::before{background:var(--ink)}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+.stat-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:4px}
+.section-title{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;margin-top:28px;display:flex;align-items:center;gap:8px}
+.section-title .count{background:var(--cream);padding:3px 10px;border-radius:20px;font-size:.7rem}
+.case-list{display:flex;flex-direction:column;gap:12px;margin-bottom:8px}
+.case-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:20px 22px;display:flex;align-items:center;gap:20px;transition:border-color .15s;text-decoration:none;color:inherit}
+.case-card:hover{border-color:var(--teal2);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.case-body{flex:1;min-width:0}
+.patient-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:4px}
+.case-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.77rem;color:var(--muted);margin-bottom:8px}
+.case-meta span{display:flex;align-items:center;gap:5px}
+.disease-tag{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:600;display:inline-block}
+.status-badge{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.06em;margin-left:8px}
+.st-pending{background:rgba(217,119,6,.1);color:var(--amber)}
+.st-in_review{background:rgba(10,124,110,.1);color:var(--teal)}
+.st-completed{background:rgba(22,163,74,.1);color:var(--green)}
+.conf-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.conf-track{flex:1;height:4px;background:var(--cream);border-radius:2px;overflow:hidden;max-width:140px}
+.conf-fill{height:100%;border-radius:2px;background:var(--teal)}
+.risk-pill{padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:700;margin-left:6px}
+.r-low{background:rgba(22,163,74,.1);color:var(--green)}
+.r-med{background:rgba(217,119,6,.1);color:var(--amber)}
+.r-high{background:rgba(232,52,28,.1);color:var(--red)}
+.btn-review{background:var(--ink);color:#fff;border:none;padding:10px 20px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;transition:background .2s}
+.btn-review:hover{background:var(--teal)}
+.btn-review.green{background:var(--green)}
+.btn-review.green:hover{background:#15803d}
+.empty{text-align:center;padding:48px 24px;color:var(--muted);background:var(--cream);border-radius:10px}
+.empty i{font-size:2rem;opacity:.25;display:block;margin-bottom:10px}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}.page{padding:24px 16px}.case-card{flex-direction:column;align-items:flex-start}}
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="dash-hdr">
+    <div>
+      <h1>Doctor Dashboard</h1>
+      <p>Review AI predictions · Add clinical notes · Order lab tests</p>
+    </div>
+    {% if doc %}
+    <div class="doc-badge">
+      <div class="doc-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+      <div class="doc-info">
+        <div class="name">Dr. {{ doc.full_name }}</div>
+        <div class="spec">{{ doc.specialty }}{% if doc.qualification %} · {{ doc.qualification }}{% endif %}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-row">
+    <div class="stat-card s-pending">
+      <div class="stat-num">{{ pending|length }}</div>
+      <div class="stat-lbl">Pending</div>
+    </div>
+    <div class="stat-card s-review">
+      <div class="stat-num">{{ active|length }}</div>
+      <div class="stat-lbl">In Review</div>
+    </div>
+    <div class="stat-card s-done">
+      <div class="stat-num">{{ done|length }}</div>
+      <div class="stat-lbl">Completed</div>
+    </div>
+    <div class="stat-card s-total">
+      <div class="stat-num">{{ (pending|length) + (active|length) + (done|length) }}</div>
+      <div class="stat-lbl">Total Cases</div>
+    </div>
+  </div>
+
+  <!-- Pending -->
+  {% if pending %}
+  <div class="section-title">
+    <i class="fa-solid fa-clock" style="color:var(--amber)"></i> Pending Review
+    <span class="count">{{ pending|length }}</span>
+  </div>
+  <div class="case-list">
+    {% for c in pending %}
+    {% set risk_cls = 'r-low' if c.risk_score < 20 else ('r-med' if c.risk_score < 40 else 'r-high') %}
+    {% set risk_lbl = 'Low' if c.risk_score < 20 else ('Moderate' if c.risk_score < 40 else 'High') %}
+    <a href="/doctor/consultation/{{ c.id }}" class="case-card">
+      <div class="case-body">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+          <span class="patient-name">{{ c.patient_name or '—' }}</span>
+          <span class="status-badge st-pending"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> New</span>
+        </div>
+        <div class="case-meta">
+          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
+          {% if c.gender %}<span><i class="fa-solid fa-venus-mars"></i> {{ c.gender }}</span>{% endif %}
+          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
+          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
+        </div>
+        <span class="disease-tag">AI: {{ c.top_disease }}</span>
+        <span class="risk-pill {{ risk_cls }}">{{ risk_lbl }} Risk</span>
+        <div class="conf-row">
+          <span style="font-size:.72rem;color:var(--muted)">Confidence {{ c.confidence }}%</span>
+          <div class="conf-track"><div class="conf-fill" style="width:{{ c.confidence }}%"></div></div>
+        </div>
+      </div>
+      <span class="btn-review"><i class="fa-solid fa-stethoscope"></i> Review</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- In Review -->
+  {% if active %}
+  <div class="section-title">
+    <i class="fa-solid fa-magnifying-glass" style="color:var(--teal)"></i> In Review
+    <span class="count">{{ active|length }}</span>
+  </div>
+  <div class="case-list">
+    {% for c in active %}
+    <a href="/doctor/consultation/{{ c.id }}" class="case-card">
+      <div class="case-body">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+          <span class="patient-name">{{ c.patient_name or '—' }}</span>
+          <span class="status-badge st-in_review"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> In Review</span>
+        </div>
+        <div class="case-meta">
+          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
+          {% if c.gender %}<span><i class="fa-solid fa-venus-mars"></i> {{ c.gender }}</span>{% endif %}
+          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
+          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
+        </div>
+        <span class="disease-tag">AI: {{ c.top_disease }}</span>
+        <div class="conf-row">
+          <span style="font-size:.72rem;color:var(--muted)">Confidence {{ c.confidence }}%</span>
+          <div class="conf-track"><div class="conf-fill" style="width:{{ c.confidence }}%"></div></div>
+        </div>
+      </div>
+      <span class="btn-review"><i class="fa-solid fa-pen-nib"></i> Continue</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Completed -->
+  {% if done %}
+  <div class="section-title">
+    <i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Completed
+    <span class="count">{{ done|length }}</span>
+  </div>
+  <div class="case-list">
+    {% for c in done %}
+    <a href="/doctor/consultation/{{ c.id }}" class="case-card" style="opacity:.8">
+      <div class="case-body">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+          <span class="patient-name">{{ c.patient_name or '—' }}</span>
+          <span class="status-badge st-completed"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> Done</span>
+        </div>
+        <div class="case-meta">
+          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
+          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
+          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
+        </div>
+        <span class="disease-tag">AI: {{ c.top_disease }}</span>
+        {% if c.final_diagnosis %}<span style="font-size:.78rem;color:var(--muted);margin-left:8px;">→ {{ c.final_diagnosis }}</span>{% endif %}
+      </div>
+      <span class="btn-review green"><i class="fa-solid fa-eye"></i> View</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not pending and not active and not done %}
+  <div class="empty">
+    <i class="fa-solid fa-inbox"></i>
+    <p>No consultations yet. Patients are auto-assigned after completing a diagnosis.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

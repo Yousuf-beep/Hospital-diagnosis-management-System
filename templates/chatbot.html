@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Symptom Chatbot{% endblock %}
+
+{% block extra_style %}
+body { background: var(--ink); }
+nav  { background: var(--ink); border-bottom-color: rgba(255,255,255,.1); }
+.logo { color: #fff; }
+.nav-link { color: rgba(255,255,255,.5); }
+.nav-link:hover, .nav-link.active { color: #fff; }
+.nav-btn { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.2); }
+.nav-btn.outline { background: transparent; color: rgba(255,255,255,.7); border-color: rgba(255,255,255,.2); }
+
+.chat-wrapper { flex:1; display:grid; grid-template-columns:260px 1fr; max-width:1000px; width:100%; margin:0 auto; min-height:calc(100vh - 65px); }
+.chat-sidebar { padding:36px 24px; border-right:1px solid rgba(255,255,255,.1); }
+.sidebar-title { font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:18px; }
+.how-step { display:flex; gap:12px; align-items:flex-start; margin-bottom:18px; }
+.step-num { width:22px; height:22px; flex-shrink:0; background:rgba(255,255,255,.08); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:700; color:rgba(255,255,255,.55); }
+.step-text { font-size:0.8rem; color:rgba(255,255,255,.55); line-height:1.6; }
+.sidebar-divider { border:none; border-top:1px solid rgba(255,255,255,.1); margin:24px 0; }
+.sym-confirmed-list { display:flex; flex-wrap:wrap; gap:6px; }
+.sym-confirmed-tag { background:rgba(10,124,110,.3); border:1px solid rgba(18,176,160,.4); color:var(--teal2); border-radius:20px; padding:3px 11px; font-size:0.71rem; font-weight:500; }
+.no-sym { font-size:0.78rem; color:rgba(255,255,255,.28); font-style:italic; }
+
+.chat-main { display:flex; flex-direction:column; padding:36px 36px 24px; }
+.chat-intro { margin-bottom:24px; }
+.chat-intro h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; letter-spacing:-0.03em; color:#fff; margin-bottom:5px; }
+.chat-intro p { font-size:0.83rem; color:rgba(255,255,255,.45); }
+
+/* Progress bar */
+.progress-wrap { margin-bottom:20px; }
+.progress-top { display:flex; justify-content:space-between; font-size:0.72rem; color:rgba(255,255,255,.4); margin-bottom:6px; }
+.progress-track { height:4px; background:rgba(255,255,255,.1); border-radius:2px; }
+.progress-fill  { height:100%; border-radius:2px; background:var(--teal2); transition:width .5s ease; }
+
+.chat-feed { flex:1; display:flex; flex-direction:column; gap:14px; overflow-y:auto; padding-right:4px; margin-bottom:24px; max-height:280px; }
+.chat-feed::-webkit-scrollbar { width:3px; }
+.chat-feed::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15); }
+.bubble { max-width:78%; padding:12px 16px; border-radius:14px; font-size:0.88rem; line-height:1.6; animation:fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.bubble.ai { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-bottom-left-radius:4px; align-self:flex-start; color:#fff; }
+.bubble.ai .ai-label { font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--teal2); margin-bottom:5px; font-weight:700; }
+.bubble.user { background:var(--teal); color:#fff; border-bottom-right-radius:4px; align-self:flex-end; }
+
+.question-card { background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.14); border-radius:14px; padding:22px 24px; }
+.q-label { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,.38); margin-bottom:8px; font-weight:600; }
+.q-text { font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700; letter-spacing:-0.02em; margin-bottom:18px; line-height:1.3; color:#fff; }
+.q-text .sym-hl { color:var(--teal2); }
+.answer-btns { display:flex; gap:10px; margin-bottom:14px; }
+.btn-yes,.btn-no { flex:1; padding:13px; border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:500; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:9px; }
+.btn-yes { background:var(--teal); color:#fff; }
+.btn-yes:hover { background:var(--teal2); transform:translateY(-1px); }
+.btn-no  { background:rgba(255,255,255,.08); color:rgba(255,255,255,.8); border:1.5px solid rgba(255,255,255,.14); }
+.btn-no:hover  { background:rgba(232,52,28,.18); border-color:rgba(232,52,28,.45); color:#fff; }
+
+/* Severity */
+.sev-section { margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); }
+.sev-label { font-size:0.72rem; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; font-weight:600; }
+.sev-question { font-size:0.85rem; color:rgba(255,255,255,.8); margin-bottom:10px; }
+.sev-opts { display:flex; flex-wrap:wrap; gap:7px; }
+.sev-opt { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.7); border-radius:20px; padding:5px 14px; font-family:'DM Sans',sans-serif; font-size:0.77rem; cursor:pointer; transition:all .15s; }
+.sev-opt:hover,.sev-opt.selected { background:rgba(10,124,110,.3); border-color:var(--teal2); color:var(--teal2); }
+#sev-hidden { display:none; }
+
+/* Start phase */
+.sym-input-wrap { margin-bottom:12px; }
+#sym-input { width:100%; background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.2); border-radius:9px; padding:15px 18px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:#fff; outline:none; transition:border-color .2s; }
+#sym-input::placeholder { color:rgba(255,255,255,.28); }
+#sym-input:focus { border-color:var(--teal2); }
+.sym-suggestions { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+.sug-chip { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.65); border-radius:20px; padding:5px 13px; font-family:'DM Sans',sans-serif; font-size:0.76rem; cursor:pointer; transition:all .14s; }
+.sug-chip:hover,.sug-chip.active { background:rgba(10,124,110,.3); border-color:var(--teal2); color:var(--teal2); }
+.btn-start { width:100%; background:var(--teal); color:#fff; border:none; padding:14px; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:500; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:9px; }
+.btn-start:hover { background:var(--teal2); }
+
+.warn-box { background:rgba(217,119,6,.15); border:1px solid rgba(217,119,6,.3); border-radius:7px; padding:9px 14px; font-size:0.78rem; color:#fbbf24; margin-bottom:14px; display:flex; align-items:center; gap:9px; }
+.possible-count { font-size:0.75rem; color:rgba(255,255,255,.35); text-align:right; margin-top:8px; }
+
+@media(max-width:700px){ .chat-wrapper{grid-template-columns:1fr} .chat-sidebar{display:none} .chat-main{padding:24px 16px 16px} }
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper" style="display:flex;flex-direction:row;">
+  <!-- Sidebar -->
+  <div class="chat-sidebar">
+    <div class="sidebar-title">How it works</div>
+    <div class="how-step"><div class="step-num">1</div><div class="step-text">Type your <strong style="color:rgba(255,255,255,.8)">main symptom</strong> to begin.</div></div>
+    <div class="how-step"><div class="step-num">2</div><div class="step-text">Answer follow-up Yes/No questions. Rate severity when asked.</div></div>
+    <div class="how-step"><div class="step-num">3</div><div class="step-text">After 3+ confirmed symptoms, get your diagnosis.</div></div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-title" style="margin-bottom:10px;">Confirmed Symptoms</div>
+    <div class="sym-confirmed-list" id="confirmed-list"><span class="no-sym">None yet</span></div>
+  </div>
+
+  <!-- Main -->
+  <div class="chat-main">
+    {% if phase == 'start' %}
+    <div class="chat-intro">
+      <h2>What's bothering you?</h2>
+      <p>Describe your main symptom and we'll guide you from there.</p>
+    </div>
+    <div class="chat-feed" id="chat-feed">
+      <div class="bubble ai"><div class="ai-label">MediAI</div>Hello! I'm your AI health assistant. Please tell me your <strong>primary symptom</strong> — what concerns you most right now?</div>
+    </div>
+    {% if error %}<div class="warn-box"><i class="fa-solid fa-circle-info"></i>{{ error }}</div>{% endif %}
+    <div class="question-card">
+      <div class="q-label">Your Main Symptom</div>
+      <form action="/chat_start" method="post">
+        <div class="sym-input-wrap">
+          <input type="text" id="sym-input" name="first_symptom" list="sym-datalist" placeholder="e.g. fever, headache, chest pain…" autocomplete="off" required>
+          <datalist id="sym-datalist">
+            {% for s in symptoms %}<option value="{{ s }}">{{ s.replace('_',' ').title() }}</option>{% endfor %}
+          </datalist>
+        </div>
+        <div class="sym-suggestions" id="sym-suggestions"></div>
+        <button type="submit" class="btn-start"><i class="fa-solid fa-arrow-right"></i> Start Diagnosis</button>
+      </form>
+    </div>
+
+    {% else %}
+    <div class="chat-intro">
+      <h2>Symptom Check</h2>
+      <p>Answer each question — the AI narrows down your condition.</p>
+    </div>
+
+    <!-- Progress -->
+    {% set pct = [((step|default(1)) / 12 * 100), 100]|min|round %}
+    <div class="progress-wrap">
+      <div class="progress-top"><span>Progress</span><span>Step {{ step|default(1) }} of ~12</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:{{ pct }}%"></div></div>
+    </div>
+
+    <div class="chat-feed" id="chat-feed"></div>
+    {% if message %}<div class="warn-box"><i class="fa-solid fa-circle-info"></i>{{ message }}</div>{% endif %}
+
+    <div class="question-card">
+      <div class="q-label">Current Symptom — Step {{ step|default(1) }}</div>
+      <div class="q-text">Are you also experiencing <span class="sym-hl">{{ question.replace('_',' ') }}</span>?</div>
+      <form action="/chat_answer" method="post" id="chat-form">
+        <input type="hidden" name="symptom" value="{{ question }}">
+        <input type="hidden" name="severity_note" id="sev-hidden">
+        <div class="answer-btns">
+          <button type="submit" name="answer" value="yes" class="btn-yes" onclick="recordAnswer('{{ question }}','yes')"><i class="fa-solid fa-check"></i> Yes</button>
+          <button type="submit" name="answer" value="no"  class="btn-no"  onclick="recordAnswer('{{ question }}','no')"><i class="fa-solid fa-xmark"></i> No</button>
+        </div>
+        {% if sev_q %}
+        <div class="sev-section">
+          <div class="sev-label">Severity</div>
+          <div class="sev-question">{{ sev_q }}</div>
+          <div class="sev-opts">
+            {% for opt in sev_opts %}
+            <button type="button" class="sev-opt" onclick="selectSeverity(this,'{{ opt }}')">{{ opt }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </form>
+      {% if possible is defined and possible > 0 %}
+      <div class="possible-count">~{{ possible }} possible condition{{ 's' if possible != 1 }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+const HK = 'mediAI_chat', CK = 'mediAI_confirmed';
+{% if phase == 'start' %}
+  sessionStorage.removeItem(HK); sessionStorage.removeItem(CK);
+  const common = ['high_fever','headache','cough','fatigue','nausea','vomiting','chest_pain','back_pain','dizziness','itching'];
+  const box = document.getElementById('sym-suggestions');
+  common.forEach(s => {
+    const c = document.createElement('button');
+    c.type='button'; c.className='sug-chip'; c.textContent=s.replace(/_/g,' ');
+    c.onclick = () => { document.getElementById('sym-input').value=s; document.querySelectorAll('.sug-chip').forEach(x=>x.classList.remove('active')); c.classList.add('active'); };
+    box.appendChild(c);
+  });
+{% else %}
+  let hist = JSON.parse(sessionStorage.getItem(HK)||'[]');
+  let conf = JSON.parse(sessionStorage.getItem(CK)||'[]');
+  {% if first_symptom %}
+  if (hist.length===0) {
+    hist.push({type:'ai',text:"Hello! I'm your AI health assistant. Tell me your primary symptom."});
+    hist.push({type:'user',text:'My main symptom is <strong>{{ first_symptom.replace("_"," ") }}</strong>'});
+    hist.push({type:'ai',text:"Got it! I'll now ask follow-up questions to narrow down your condition."});
+    conf.push('{{ first_symptom }}');
+    sessionStorage.setItem(HK,JSON.stringify(hist)); sessionStorage.setItem(CK,JSON.stringify(conf));
+  }
+  {% endif %}
+  function renderHistory(){
+    const feed=document.getElementById('chat-feed'); feed.innerHTML='';
+    hist.forEach(m=>{
+      const d=document.createElement('div'); d.className='bubble '+m.type;
+      d.innerHTML=m.type==='ai'?'<div class="ai-label">MediAI</div>'+m.text:m.text;
+      feed.appendChild(d);
+    });
+    feed.scrollTop=feed.scrollHeight;
+  }
+  function renderConfirmed(){
+    const l=document.getElementById('confirmed-list');
+    l.innerHTML=conf.length===0?'<span class="no-sym">None yet</span>':conf.map(s=>`<span class="sym-confirmed-tag">${s.replace(/_/g,' ')}</span>`).join('');
+  }
+  function recordAnswer(sym,ans){
+    hist.push({type:'ai',text:`Do you also have <strong>${sym.replace(/_/g,' ')}</strong>?`});
+    hist.push({type:'user',text:ans==='yes'?'✓ Yes':'✗ No'});
+    if(ans==='yes') conf.push(sym);
+    sessionStorage.setItem(HK,JSON.stringify(hist)); sessionStorage.setItem(CK,JSON.stringify(conf));
+  }
+  function selectSeverity(el,val){
+    document.querySelectorAll('.sev-opt').forEach(x=>x.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('sev-hidden').value=val;
+  }
+  renderHistory(); renderConfirmed();
+{% endif %}
+</script>
+{% endblock %}

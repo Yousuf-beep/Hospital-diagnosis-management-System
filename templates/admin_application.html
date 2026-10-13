@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Application #{{ a.id }}{% endblock %}
+
+{% block extra_style %}
+.page { max-width:1150px; margin:0 auto; padding:40px 24px; }
+.back { font-size:.8rem; color:var(--muted); text-decoration:none; display:inline-flex; gap:6px; align-items:center; margin-bottom:14px; }
+.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:24px; }
+.hdr h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.04em; }
+.hdr p { font-size:.85rem; color:var(--muted); margin-top:4px; }
+.badge { padding:6px 14px; border-radius:20px; font-size:.78rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+.st-submitted, .st-under_review { background:rgba(2,132,199,.1); color:#0284c7; }
+.st-info_requested { background:rgba(217,119,6,.12); color:var(--amber); }
+.st-interview_scheduled, .st-interviewed { background:rgba(124,58,237,.1); color:#7c3aed; }
+.st-approved { background:rgba(22,163,74,.12); color:var(--green); }
+.st-rejected { background:rgba(232,52,28,.1); color:var(--red); }
+.grid { display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; }
+.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:22px; margin-bottom:18px; }
+.card-title { font-family:'Syne',sans-serif; font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+.kv { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+.kv .k { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; }
+.kv .v { font-size:.88rem; margin-top:3px; word-break:break-word; }
+.chip { display:inline-block; background:var(--cream); border-radius:20px; padding:3px 10px; font-size:.74rem; margin:2px; }
+.verify-hint { font-size:.74rem; color:var(--amber); margin-top:4px; }
+.check { display:flex; gap:10px; align-items:flex-start; font-size:.84rem; padding:9px 0; border-bottom:1px solid var(--cream); }
+.check input { margin-top:3px; accent-color:var(--teal); width:15px; height:15px; }
+.f label { display:block; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:10px 0 5px; }
+.f input, .f select, .f textarea { width:100%; padding:9px 11px; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.86rem; outline:none; background:#fff; }
+.f textarea { resize:vertical; }
+.btn { border:none; border-radius:6px; padding:10px 16px; font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:7px; margin-top:10px; text-decoration:none; }
+.btn-ink { background:var(--ink); color:#fff; } .btn-teal { background:var(--teal); color:#fff; }
+.btn-green { background:var(--green); color:#fff; } .btn-red { background:var(--red); color:#fff; }
+.btn-amber { background:var(--amber); color:#fff; } .btn-purple { background:#7c3aed; color:#fff; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+details.act { border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+details.act summary { cursor:pointer; font-weight:600; font-size:.86rem; list-style:none; display:flex; align-items:center; gap:8px; }
+details.act summary::-webkit-details-marker { display:none; }
+.note-box { background:var(--cream); border-radius:8px; padding:12px 14px; font-size:.84rem; line-height:1.6; white-space:pre-line; }
+.timeline { list-style:none; border-left:2px solid var(--cream); margin-left:6px; }
+.timeline li { position:relative; padding:0 0 14px 18px; font-size:.82rem; }
+.timeline li::before { content:''; position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--teal); border:2px solid #fff; }
+.timeline li.internal::before { background:var(--muted); }
+.timeline .t { font-size:.7rem; color:var(--muted); }
+.timeline .a { font-weight:600; text-transform:capitalize; }
+.tag-int { font-size:.62rem; background:var(--cream); color:var(--muted); padding:1px 7px; border-radius:10px; margin-left:6px; text-transform:uppercase; letter-spacing:.06em; }
+@media(max-width:900px){ .grid { grid-template-columns:1fr; } }
+{% endblock %}
+
+{% block content %}
+{% set fmt = '%d %b %Y, %I:%M %p' %}
+<div class="page">
+  <a href="/admin" class="back"><i class="fa-solid fa-arrow-left"></i> Back to Admin Panel</a>
+  <div class="hdr">
+    <div>
+      <h1>{{ 'Dr. ' if a.role == 'doctor' }}{{ a.full_name }}</h1>
+      <p>Application #{{ a.id }} · {{ 'Doctor' if a.role == 'doctor' else 'Lab Technician' }} · @{{ a.username }} · submitted {{ a.submitted_at.strftime(fmt) }}
+        {% if a.reviewer_username %} · last handled by @{{ a.reviewer_username }}{% endif %}</p>
+    </div>
+    <span class="badge st-{{ a.status }}"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> {{ a.status_label }}</span>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: applicant details -->
+    <div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-id-card"></i> Applicant</div>
+        <div class="kv">
+          <div><div class="k">Email</div><div class="v">{{ a.email }}</div></div>
+          <div><div class="k">Phone</div><div class="v">{{ a.phone }}</div></div>
+          <div><div class="k">Qualification</div><div class="v">{{ a.qualification }}</div></div>
+          <div><div class="k">Experience</div><div class="v">{{ a.experience_yrs }} years</div></div>
+          {% if a.role == 'doctor' %}
+          <div><div class="k">Specialty</div><div class="v">{{ a.specialty }}</div></div>
+          <div><div class="k">Hospital / Clinic</div><div class="v">{{ a.hospital or '—' }}</div></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-certificate"></i> {{ 'Medical Registration' if a.role == 'doctor' else 'Licence & Accreditation' }}</div>
+        <div class="kv">
+          <div><div class="k">{{ 'Registration No.' if a.role == 'doctor' else 'Lab Licence No.' }}</div><div class="v"><b>{{ a.license_number }}</b></div></div>
+          <div><div class="k">Issued by</div><div class="v">{{ a.license_authority }}</div></div>
+          {% if a.role == 'lab' %}
+          <div><div class="k">Accreditation</div><div class="v">{{ (a.accreditation_body ~ ' ' ~ a.accreditation_number) if a.accreditation_number else 'None provided' }}</div></div>
+          {% endif %}
+        </div>
+        <div class="verify-hint"><i class="fa-solid fa-magnifying-glass"></i>
+          {% if a.role == 'doctor' %}Verify this number on the National Medical Commission / state council register.
+          {% else %}Verify the licence with the issuing authority{% if a.accreditation_number %} and the accreditation on the NABL directory{% endif %}.{% endif %}</div>
+      </div>
+
+      {% if a.role == 'lab' %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-flask"></i> Laboratory</div>
+        <div class="kv">
+          <div><div class="k">Lab Name</div><div class="v">{{ a.lab_name }}</div></div>
+          <div><div class="k">Address</div><div class="v">{{ a.lab_address }}, {{ a.lab_city }}</div></div>
+          <div><div class="k">Lab Phone</div><div class="v">{{ a.lab_phone or '—' }}</div></div>
+          <div><div class="k">Hours</div><div class="v">{{ a.operating_hours or '—' }}</div></div>
+        </div>
+        <div style="margin-top:12px;"><div class="kv"><div><div class="k">Tests offered ({{ a.tests|length }})</div><div class="v">{% for t in a.tests %}<span class="chip">{{ t }}</span>{% endfor %}</div></div></div></div>
+      </div>
+      {% endif %}
+
+      {% if a.statement %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-quote-left"></i> Statement</div>
+        <div class="note-box">{{ a.statement }}</div>
+      </div>
+      {% endif %}
+
+      {% if a.interview_notes %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-clipboard-check"></i> Interview Assessment <span class="tag-int">internal</span></div>
+        <div class="note-box">{{ a.interview_notes }}</div>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Audit Trail</div>
+        <ul class="timeline">
+          {% for e in events %}
+          <li class="{{ '' if e.visible_to_applicant else 'internal' }}">
+            <div class="t">{{ e.created_at.strftime(fmt) }} · @{{ e.actor_username or 'system' }}</div>
+            <div class="a">{{ e.action.replace('_', ' ') }}{% if not e.visible_to_applicant %}<span class="tag-int">internal</span>{% endif %}</div>
+            {% if e.note %}<div style="color:var(--muted);">{{ e.note }}</div>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- RIGHT: verification & decisions -->
+    <div>
+      {% if a.status == 'interview_scheduled' %}
+      <div class="card" style="border-color:#c4b5fd;background:#faf5ff;">
+        <div class="card-title" style="color:#7c3aed;"><i class="fa-solid fa-calendar-check"></i> Scheduled Interview</div>
+        <div style="font-size:.9rem;"><b>{{ a.mode_label }}</b><br>{{ a.interview_at.strftime('%A, %d %b %Y at %I:%M %p') }}</div>
+        {% if a.interview_location %}<div style="font-size:.84rem;color:var(--muted);margin-top:4px;">{{ a.interview_location }}</div>{% endif %}
+        {% if a.interview_mode == 'video' %}
+        <a href="/interview/{{ a.id }}/call" target="_blank" class="btn btn-purple"><i class="fa-solid fa-video"></i> Start / Join Interview Call</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if a.is_open %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-list-check"></i> Verification Checklist</div>
+        <form method="post" action="/admin/applications/{{ a.id }}/checklist">
+          {% for key, label in a.checklist_items %}
+          <label class="check"><input type="checkbox" name="checks" value="{{ key }}" {% if a.checks.get(key) %}checked{% endif %}> {{ label }}</label>
+          {% endfor %}
+          <button type="submit" class="btn btn-ink"><i class="fa-solid fa-floppy-disk"></i> Save Checklist</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-gavel"></i> Actions</div>
+
+        {% if a.status == 'submitted' %}
+        <form method="post" action="/admin/applications/{{ a.id }}/action/start_review">
+          <button type="submit" class="btn btn-teal" style="margin:0 0 12px;"><i class="fa-solid fa-magnifying-glass"></i> Start Review</button>
+        </form>
+        {% endif %}
+
+        {% if a.status in ('submitted', 'under_review', 'interview_scheduled') %}
+        <details class="act" {% if a.status == 'under_review' %}open{% endif %}>
+          <summary><i class="fa-solid fa-calendar-plus" style="color:#7c3aed;"></i> {{ 'Reschedule' if a.status == 'interview_scheduled' else 'Schedule' }} Interview</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/schedule_interview" class="f">
+            <label>Date &amp; time</label>
+            <input type="datetime-local" name="interview_at" required min="{{ now.strftime('%Y-%m-%dT%H:%M') }}">
+            <label>Mode</label>
+            <select name="interview_mode" required onchange="this.form.querySelector('.loc').hidden = this.value === 'video'">
+              {% for k, label in interview_modes.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}
+            </select>
+            <div class="loc" hidden><label>Phone number / address</label><input type="text" name="interview_location" maxlength="200"></div>
+            <label>Message to applicant (optional)</label>
+            <textarea name="note" rows="2" maxlength="1000" placeholder="e.g. Please keep your registration certificate and ID ready."></textarea>
+            <button type="submit" class="btn btn-purple"><i class="fa-solid fa-paper-plane"></i> Send Invitation</button>
+          </form>
+        </details>
+        {% endif %}
+
+        {% if a.status == 'interview_scheduled' %}
+        <details class="act" open>
+          <summary><i class="fa-solid fa-clipboard-check" style="color:var(--teal);"></i> Record Interview Outcome</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/complete_interview" class="f">
+            <label>Assessment (internal — not shown to applicant)</label>
+            <textarea name="note" rows="4" required maxlength="3000" placeholder="Communication, clinical knowledge, document checks done during the call…"></textarea>
+            <button type="submit" class="btn btn-teal"><i class="fa-solid fa-check"></i> Mark Interview Complete</button>
+          </form>
+        </details>
+        {% endif %}
+
+        {% if a.status == 'interviewed' %}
+        <details class="act" open>
+          <summary><i class="fa-solid fa-circle-check" style="color:var(--green);"></i> Approve</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/approve" class="f">
+            {% if not a.checklist_done %}<div class="verify-hint"><i class="fa-solid fa-triangle-exclamation"></i> Complete every verification check first.</div>{% endif %}
+            <label>Welcome message (optional)</label>
+            <textarea name="note" rows="2" maxlength="1000"></textarea>
+            <button type="submit" class="btn btn-green" {% if not a.checklist_done %}disabled{% endif %}><i class="fa-solid fa-user-check"></i> Approve &amp; Activate Account</button>
+          </form>
+        </details>
+        {% elif a.status != 'info_requested' %}
+        <p style="font-size:.76rem;color:var(--muted);margin:4px 0 12px;"><i class="fa-solid fa-circle-info"></i> Approval unlocks after the interview is completed and every check is ticked.</p>
+        {% endif %}
+
+        {% if a.status != 'info_requested' %}
+        <details class="act">
+          <summary><i class="fa-solid fa-circle-question" style="color:var(--amber);"></i> Request More Information</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/request_info" class="f">
+            <label>What does the applicant need to provide or correct?</label>
+            <textarea name="note" rows="3" required maxlength="1000"></textarea>
+            <button type="submit" class="btn btn-amber"><i class="fa-solid fa-reply"></i> Send Request</button>
+          </form>
+        </details>
+        {% else %}
+        <p style="font-size:.8rem;color:var(--amber);margin-bottom:12px;"><i class="fa-solid fa-hourglass-half"></i> Waiting for the applicant to update: “{{ a.info_request }}”</p>
+        {% endif %}
+
+        <details class="act">
+          <summary><i class="fa-solid fa-circle-xmark" style="color:var(--red);"></i> Reject</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/reject" class="f"
+                onsubmit="return confirm('Reject this application? This cannot be undone.')">
+            <label>Reason (shown to applicant)</label>
+            <textarea name="note" rows="3" required maxlength="1000"></textarea>
+            <button type="submit" class="btn btn-red"><i class="fa-solid fa-ban"></i> Reject Application</button>
+          </form>
+        </details>
+      </div>
+      {% else %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-flag-checkered"></i> Decision</div>
+        <div style="font-size:.9rem;"><b>{{ a.status_label }}</b> on {{ a.decided_at.strftime(fmt) if a.decided_at else '—' }}</div>
+        {% if a.decision_reason %}<div class="note-box" style="margin-top:10px;">{{ a.decision_reason }}</div>{% endif %}
+        {% if a.status == 'approved' %}<p style="font-size:.8rem;color:var(--muted);margin-top:10px;">Manage this account from the {{ 'Doctors' if a.role == 'doctor' else 'Lab Technicians' }} tab of the admin panel.</p>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-note-sticky"></i> Internal Notes <span class="tag-int">admins only</span></div>
+        <form method="post" action="/admin/applications/{{ a.id }}/notes" class="f">
+          <textarea name="internal_notes" rows="4" maxlength="5000" placeholder="Verification calls made, documents received…">{{ a.internal_notes or '' }}</textarea>
+          <button type="submit" class="btn btn-ink"><i class="fa-solid fa-floppy-disk"></i> Save Notes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

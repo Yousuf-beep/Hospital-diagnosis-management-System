@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}MediAI{% endblock %}</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --ink:    #0d1117;
+  --paper:  #f5f3ef;
+  --cream:  #ede9e1;
+  --red:    #e8341c;
+  --red2:   #ff6b4a;
+  --teal:   #0a7c6e;
+  --teal2:  #12b0a0;
+  --amber:  #d97706;
+  --green:  #16a34a;
+  --muted:  #6b6660;
+  --border: #d4cfc8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+/* ── NAV ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 48px;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--paper);
+  position: sticky; top: 0; z-index: 200;
+}
+.logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; letter-spacing:-0.03em; color:var(--ink); text-decoration:none; }
+.logo span { color: var(--red); }
+.nav-links { display:flex; gap:28px; align-items:center; }
+.nav-link { font-size:0.82rem; font-weight:500; color:var(--muted); text-decoration:none; letter-spacing:0.05em; text-transform:uppercase; transition:color .2s; }
+.nav-link:hover, .nav-link.active { color:var(--ink); }
+.nav-btn {
+  background: var(--ink); color:#fff; border:none; padding:9px 20px;
+  border-radius:6px; font-family:'DM Sans',sans-serif; font-size:0.82rem;
+  font-weight:500; cursor:pointer; text-decoration:none; transition:background .2s;
+}
+.nav-btn:hover { background: var(--red); }
+.nav-btn.outline {
+  background:transparent; color:var(--ink);
+  border:1.5px solid var(--border);
+}
+.nav-btn.outline:hover { border-color:var(--ink); background:transparent; }
+.nav-user { font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:8px; }
+.nav-user i { color:var(--teal); }
+
+/* ── FLASH MESSAGES ── */
+.flash-wrap { position:fixed; top:72px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+.flash-msg {
+  padding:12px 18px; border-radius:8px; font-size:0.85rem; font-weight:500;
+  display:flex; align-items:center; gap:10px;
+  animation: slideIn .3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  max-width: 320px;
+}
+@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+.flash-success { background:#f0fdf4; border:1px solid #86efac; color:#166534; }
+.flash-danger  { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; }
+.flash-warning { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; }
+.flash-info    { background:#eff6ff; border:1px solid #93c5fd; color:#1e40af; }
+
+/* ── LOADING SPINNER ── */
+#global-spinner {
+  display:none; position:fixed; inset:0; background:rgba(13,17,23,.6);
+  z-index:9999; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+}
+#global-spinner.active { display:flex; }
+.spinner-ring {
+  width:56px; height:56px; border:4px solid rgba(255,255,255,.2);
+  border-top-color:#fff; border-radius:50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+#global-spinner p { color:#fff; font-size:0.9rem; font-weight:500; }
+
+{% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+
+<!-- Loading Spinner -->
+<div id="global-spinner">
+  <div class="spinner-ring"></div>
+  <p>Analyzing symptoms…</p>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-wrap">
+  {% for cat, msg in messages %}
+  <div class="flash-msg flash-{{ cat }}">
+    <i class="fa-solid fa-{% if cat=='success' %}check-circle{% elif cat=='danger' %}triangle-exclamation{% elif cat=='warning' %}circle-info{% else %}circle-info{% endif %}"></i>
+    {{ msg }}
+  </div>
+  {% endfor %}
+</div>
+<script>
+  setTimeout(() => document.querySelectorAll('.flash-msg').forEach(el => el.remove()), 4000);
+</script>
+{% endif %}
+{% endwith %}
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="logo">Medi<span>AI</span></a>
+  <div class="nav-links">
+    {% if can('diagnosis.run') %}
+    <a href="/"          class="nav-link {% if request.path=='/' %}active{% endif %}">Diagnose</a>
+    <a href="/chatbot"   class="nav-link {% if request.path=='/chatbot' %}active{% endif %}">Chatbot</a>
+    {% endif %}
+    {% if can('diary.manage') %}
+    <a href="/diary" class="nav-link {% if request.path=='/diary' %}active{% endif %}">Diary</a>
+    {% endif %}
+    {% if can('consultation.view_own') %}
+    <a href="/my_consultations" class="nav-link {% if request.path=='/my_consultations' %}active{% endif %}">My Doctor</a>
+    {% endif %}
+    {% if can('application.manage_own') %}
+    <a href="/application" class="nav-link {% if request.path=='/application' %}active{% endif %}">My Application</a>
+    {% endif %}
+    {% if can('analytics.view') %}
+    <a href="/analytics" class="nav-link {% if request.path=='/analytics' %}active{% endif %}">Analytics</a>
+    {% endif %}
+    {% if session.get('user_id') %}
+      <a href="/profile" class="nav-link {% if request.path=='/profile' %}active{% endif %}">
+        <i class="fa-solid fa-user" style="color:var(--teal)"></i> {{ session.username }}
+      </a>
+      {% if can('consultation.review') %}<a href="/doctor" class="nav-btn outline">Doctor Panel</a>{% endif %}
+      {% if can('lab.process') %}<a href="/lab" class="nav-btn outline">Lab Panel</a>{% endif %}
+      {% if can('staff.manage') %}<a href="/admin" class="nav-btn outline">Admin Panel</a>{% endif %}
+      <a href="/logout" class="nav-btn outline">Logout</a>
+    {% else %}
+      <a href="/apply"    class="nav-link {% if request.path=='/apply' %}active{% endif %}">Join as Staff</a>
+      <a href="/login"    class="nav-link">Login</a>
+      <a href="/register" class="nav-btn">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<script>
+// CSRF: add the token to every POST form and every same-origin fetch()
+(() => {
+  const token = document.querySelector('meta[name="csrf-token"]').content;
+  document.querySelectorAll('form').forEach(form => {
+    if ((form.method || '').toLowerCase() !== 'post' || form.querySelector('input[name="csrf_token"]')) return;
+    const input = document.createElement('input');
+    input.type = 'hidden'; input.name = 'csrf_token'; input.value = token;
+    form.appendChild(input);
+  });
+  const origFetch = window.fetch;
+  window.fetch = (resource, init = {}) => {
+    const url = new URL(typeof resource === 'string' ? resource : resource.url, location.href);
+    if (url.origin === location.origin) {
+      init.headers = new Headers(init.headers || {});
+      init.headers.set('X-CSRFToken', token);
+    }
+    return origFetch(resource, init);
+  };
+})();
+
+// Show spinner on form submit
+document.querySelectorAll('form[data-loading]').forEach(form => {
+  form.addEventListener('submit', () => {
+    document.getElementById('global-spinner').classList.add('active');
+  });
+});
+</script>
+{% block extra_script %}{% endblock %}
+</body>
+</html>

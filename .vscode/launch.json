@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "MediAI (development)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "env": { "MEDIAI_DEBUG": "0" },
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "MediAI (production server)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/serve.py",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "gevent": true,
+            "console": "integratedTerminal"
+        }
+    ]
+}

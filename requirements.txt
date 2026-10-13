@@ -1,0 +1,10 @@
+Flask==3.1.2
+Flask-SocketIO==5.6.1
+Flask-Mail==0.10.0
+python-dotenv==1.1.1
+pandas==2.3.2
+scikit-learn==1.8.0
+joblib>=1.4
+reportlab==4.4.10
+gevent==25.9.1
+simple-websocket==1.1.0

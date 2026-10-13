@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Login{% endblock %}
+
+{% block extra_style %}
+.auth-wrap {
+  min-height: calc(100vh - 65px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+.auth-card {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 48px;
+  width: 100%; max-width: 420px;
+}
+.auth-logo { text-align:center; margin-bottom:32px; }
+.auth-logo h2 { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; letter-spacing:-0.03em; }
+.auth-logo p  { font-size:0.85rem; color:var(--muted); margin-top:6px; }
+.field { margin-bottom:18px; }
+.field label { display:block; font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:6px; }
+.field input {
+  width:100%; padding:12px 14px;
+  border:1.5px solid var(--border); border-radius:7px;
+  font-family:'DM Sans',sans-serif; font-size:0.92rem; color:var(--ink);
+  outline:none; transition:border-color .2s;
+}
+.field input:focus { border-color:var(--teal2); }
+.btn-auth {
+  width:100%; background:var(--ink); color:#fff; border:none;
+  padding:14px; border-radius:7px; font-family:'DM Sans',sans-serif;
+  font-size:0.95rem; font-weight:500; cursor:pointer; transition:background .2s;
+  margin-top:8px;
+}
+.btn-auth:hover { background:var(--teal); }
+.auth-foot { text-align:center; margin-top:20px; font-size:0.85rem; color:var(--muted); }
+.auth-foot a { color:var(--teal); text-decoration:none; font-weight:500; }
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h2>Medi<span style="color:var(--red)">AI</span></h2>
+      <p>Sign in to your account</p>
+    </div>
+    <form method="POST" action="/login">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter username" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn-auth"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+    </form>
+    <div class="auth-foot">Don't have an account? <a href="/register">Register here</a></div>
+    <div class="auth-foot" style="margin-top:8px;">Doctor or lab technician? <a href="/apply">Apply to join</a></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}MediAI — My Consultations{% endblock %}
+{% block extra_style %}
+.page{max-width:900px;margin:0 auto;padding:48px 32px}
+.page-hdr{margin-bottom:32px}
+.page-hdr h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.04em}
+.page-hdr p{font-size:.87rem;color:var(--muted);margin-top:6px}
+.consult-list{display:flex;flex-direction:column;gap:16px}
+.consult-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:22px 24px}
+.c-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+.disease{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
+.status-badge{padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase}
+.st-pending{background:rgba(217,119,6,.1);color:var(--amber)}
+.st-in_review{background:rgba(10,124,110,.1);color:var(--teal)}
+.st-lab_ordered{background:rgba(124,58,237,.1);color:#7c3aed}
+.st-results_ready{background:rgba(2,132,199,.1);color:#0284c7}
+.st-completed{background:rgba(22,163,74,.1);color:var(--green)}
+.doc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream);border-radius:8px;margin-bottom:12px}
+.doc-av{width:36px;height:36px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;flex-shrink:0}
+.doc-name{font-weight:700;font-size:.88rem}
+.doc-spec{font-size:.74rem;color:var(--muted)}
+.meta-row{display:flex;gap:16px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.meta-row span{display:flex;align-items:center;gap:5px}
+.lab-progress{margin-top:10px}
+.lab-bar-wrap{background:var(--cream);border-radius:4px;height:6px;overflow:hidden;margin-top:4px}
+.lab-bar{height:100%;background:var(--teal);border-radius:4px;transition:width .8s ease}
+.notes-preview{background:var(--cream);border-radius:6px;padding:10px 13px;font-size:.83rem;color:#3a3630;margin-top:10px;line-height:1.6}
+.conf-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;background:rgba(10,124,110,.08);color:var(--teal)}
+.empty{text-align:center;padding:60px;color:var(--muted)}
+.empty i{font-size:2.5rem;opacity:.25;display:block;margin-bottom:14px}
+.btn-diag{display:inline-flex;align-items:center;gap:7px;background:var(--ink);color:#fff;padding:10px 22px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:500;margin-top:14px;transition:background .2s}
+.btn-diag:hover{background:var(--teal)}
+{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-hdr">
+    <h1>My Consultations</h1>
+    <p>Track your AI diagnoses, assigned doctors, lab tests and results.</p>
+  </div>
+
+  {% if consults %}
+  <div class="consult-list">
+    {% for c in consults %}
+    <div class="consult-card">
+      <div class="c-hdr">
+        <div>
+          <div class="disease">{{ c.top_disease }}</div>
+          <span class="conf-badge"><i class="fa-solid fa-circle-check"></i> {{ c.confidence }}% confidence</span>
+        </div>
+        <span class="status-badge st-{{ c.status }}">
+          <i class="fa-solid fa-circle" style="font-size:.4rem"></i>
+          {{ c.status.replace('_',' ').title() }}
+        </span>
+      </div>
+
+      <div class="doc-row">
+        <div class="doc-av"><i class="fa-solid fa-user-doctor"></i></div>
+        <div>
+          <div class="doc-name">Dr. {{ c.doctor_name }}</div>
+          <div class="doc-spec">{{ c.specialty }}{% if c.hospital %} · {{ c.hospital }}{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <span><i class="fa-solid fa-chart-simple"></i> Risk Score {{ c.risk_score }}</span>
+        <span><i class="fa-solid fa-clock"></i> {{ c.created_at|string|truncate(16,true,'') }}</span>
+        {% if c.lab_count > 0 %}
+        <span><i class="fa-solid fa-flask"></i> {{ c.lab_done }}/{{ c.lab_count }} tests done</span>
+        {% endif %}
+      </div>
+
+      {% if c.lab_count > 0 %}
+      <div class="lab-progress">
+        <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--muted);margin-bottom:3px">
+          <span>Lab Progress</span><span>{{ c.lab_done }}/{{ c.lab_count }}</span>
+        </div>
+        <div class="lab-bar-wrap">
+          <div class="lab-bar" style="width:{{ ((c.lab_done / c.lab_count) * 100)|round }}%"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if c.status == 'completed' %}
+      <div class="notes-preview">
+        <i class="fa-solid fa-circle-check" style="color:var(--green)"></i>
+        <strong>Consultation complete.</strong>
+        {% if c.followup_date %} Follow-up: {{ c.followup_date }}.{% endif %}
+      </div>
+      {% elif c.status == 'results_ready' %}
+      <div class="notes-preview" style="background:rgba(2,132,199,.06);border:1px solid rgba(2,132,199,.2)">
+        <i class="fa-solid fa-vials" style="color:#0284c7"></i>
+        <strong>Lab results are ready</strong> — your doctor is reviewing them.
+      </div>
+      {% elif c.status == 'lab_ordered' %}
+      <div class="notes-preview" style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2)">
+        <i class="fa-solid fa-flask" style="color:#7c3aed"></i>
+        <strong>Lab tests ordered</strong> — please visit the lab for your tests.
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <i class="fa-solid fa-stethoscope"></i>
+    <p>No consultations yet. Run a diagnosis to get assigned to a doctor.</p>
+    <a href="/" class="btn-diag"><i class="fa-solid fa-plus"></i> Start Diagnosis</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

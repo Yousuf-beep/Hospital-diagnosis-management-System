@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+{% block title %}MediAI — {{ call.title }} #{{ call.id }}{% endblock %}
+
+{% block extra_style %}
+* { box-sizing: border-box; }
+.vc-page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+.vc-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+.vc-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; display: flex; align-items: center; gap: 10px; }
+.vc-meta { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+.live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(232,52,28,.1); color: var(--red); border: 1px solid rgba(232,52,28,.25); padding: 4px 12px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+.live-dot { width: 7px; height: 7px; background: var(--red); border-radius: 50%; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Layout */
+.vc-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; height: 580px; }
+.vc-videos { display: flex; flex-direction: column; gap: 10px; position: relative; background: #0d1117; border-radius: 12px; overflow: hidden; }
+.video-remote { flex: 1; width: 100%; background: #111827; object-fit: cover; display: block; }
+.video-local  { position: absolute; bottom: 80px; right: 14px; width: 140px; height: 100px; border-radius: 8px; object-fit: cover; border: 2px solid rgba(255,255,255,.2); background: #1f2937; z-index: 10; }
+.waiting-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,.4); gap: 14px; }
+.waiting-screen i { font-size: 2.5rem; opacity: .3; }
+.waiting-screen p { font-size: .88rem; }
+.spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--teal); border-radius: 50%; animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Controls bar */
+.vc-controls { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px; background: linear-gradient(transparent, rgba(0,0,0,.7)); }
+.ctrl-btn { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .95rem; transition: all .15s; }
+.ctrl-btn.active   { background: rgba(255,255,255,.15); color: #fff; }
+.ctrl-btn.active:hover { background: rgba(255,255,255,.25); }
+.ctrl-btn.muted    { background: rgba(232,52,28,.3); color: var(--red); }
+.ctrl-btn.end-call { background: var(--red); color: #fff; width: 52px; height: 52px; font-size: 1.1rem; }
+.ctrl-btn.end-call:hover { background: #c82333; }
+.ctrl-label { font-size: .6rem; color: rgba(255,255,255,.5); margin-top: 2px; text-align: center; }
+.ctrl-wrap  { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+
+/* Sidebar */
+.vc-sidebar { display: flex; flex-direction: column; gap: 12px; }
+.vc-info-card { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; }
+.vc-info-card h3 { font-family: 'Syne', sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.person-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.person-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+.avatar-doc { background: var(--teal); color: #fff; }
+.avatar-pat { background: var(--ink); color: #fff; }
+.person-name { font-size: .84rem; font-weight: 600; }
+.person-role { font-size: .72rem; color: var(--muted); }
+.info-row { display: flex; justify-content: space-between; font-size: .77rem; padding: 4px 0; border-bottom: 1px solid var(--cream); }
+.info-row:last-child { border-bottom: none; }
+.info-key { color: var(--muted); }
+.info-val { font-weight: 600; color: var(--ink); }
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.dot-green { background: var(--green); }
+.dot-grey  { background: #9ca3af; }
+
+/* Chat */
+.vc-chat { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.chat-header { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msg { max-width: 85%; }
+.chat-msg .sender { font-size: .65rem; color: var(--muted); margin-bottom: 2px; font-weight: 600; }
+.chat-msg .bubble { padding: 7px 11px; border-radius: 10px; font-size: .78rem; line-height: 1.5; }
+.chat-msg.me { align-self: flex-end; }
+.chat-msg.me .bubble { background: var(--teal); color: #fff; border-bottom-right-radius: 2px; }
+.chat-msg.them .bubble { background: var(--cream); color: var(--ink); border-bottom-left-radius: 2px; }
+.chat-msg.system .bubble { background: transparent; color: var(--muted); font-style: italic; font-size: .72rem; text-align: center; }
+.chat-msg.system { align-self: center; }
+.chat-input-row { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--border); }
+.chat-input-row input { flex: 1; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: .82rem; outline: none; }
+.chat-input-row input:focus { border-color: var(--teal2); }
+.chat-input-row button { background: var(--teal); color: #fff; border: none; padding: 8px 13px; border-radius: 6px; cursor: pointer; font-size: .82rem; transition: background .15s; }
+.chat-input-row button:hover { background: var(--teal2); }
+
+/* Status */
+.conn-status { font-size: .72rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+.cs-connecting { background: rgba(217,119,6,.1); color: var(--amber); }
+.cs-connected   { background: rgba(22,163,74,.1);  color: var(--green); }
+.cs-ended       { background: rgba(107,114,128,.1); color: #6b7280; }
+
+/* Back link */
+.back-link { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; color: var(--muted); text-decoration: none; margin-bottom: 16px; }
+.back-link:hover { color: var(--ink); }
+
+@media(max-width:860px) {
+  .vc-layout { grid-template-columns: 1fr; height: auto; }
+  .vc-videos { height: 380px; }
+  .vc-sidebar { flex-direction: row; flex-wrap: wrap; }
+  .vc-info-card, .vc-chat { flex: 1; min-width: 240px; }
+  .vc-chat { height: 280px; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="vc-page">
+  <a href="{{ call.return_url }}" class="back-link">
+    <i class="fa-solid fa-arrow-left"></i> Back to {{ call.label }}
+  </a>
+
+  <div class="vc-topbar">
+    <div>
+      <div class="vc-title">
+        <i class="fa-solid fa-video" style="color:var(--teal)"></i>
+        {{ call.title }} &nbsp;#{{ call.id }}
+      </div>
+      <div class="vc-meta">
+        {% if started_at %}Started: {{ started_at }}{% else %}Starting now...{% endif %}
+        &nbsp;·&nbsp; {{ call.label }} #{{ call.id }}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="conn-status cs-connecting" id="conn-status">⏳ Connecting...</span>
+      <span class="live-badge" id="live-badge" style="display:none;"><span class="live-dot"></span> LIVE</span>
+    </div>
+  </div>
+
+  <div class="vc-layout">
+
+    <!-- Video area -->
+    <div class="vc-videos">
+      <div class="waiting-screen" id="waiting-screen">
+        <div class="spinner"></div>
+        <p id="waiting-msg">
+          {% if call.is_host %}Waiting for {{ call.guest_label|lower }} to join...{% else %}Waiting for {{ call.host_label|lower }} to start the call...{% endif %}
+        </p>
+      </div>
+      <video id="remote-video" class="video-remote" autoplay playsinline style="display:none;"></video>
+      <video id="local-video"  class="video-local"  autoplay playsinline muted></video>
+
+      <!-- Controls -->
+      <div class="vc-controls">
+        <div class="ctrl-wrap">
+          <button class="ctrl-btn active" id="btn-mic" onclick="toggleMic()">
+            <i class="fa-solid fa-microphone" id="mic-icon"></i>
+          </button>
+          <span class="ctrl-label">Mic</span>
+        </div>
+        <div class="ctrl-wrap">
+          <button class="ctrl-btn active" id="btn-cam" onclick="toggleCam()">
+            <i class="fa-solid fa-video" id="cam-icon"></i>
+          </button>
+          <span class="ctrl-label">Camera</span>
+        </div>
+        <div class="ctrl-wrap">
+          <button class="ctrl-btn end-call" onclick="endCall()">
+            <i class="fa-solid fa-phone-slash"></i>
+          </button>
+          <span class="ctrl-label" style="color:rgba(255,255,255,.5)">End</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="vc-sidebar">
+
+      <!-- Participants -->
+      <div class="vc-info-card">
+        <h3><i class="fa-solid fa-users"></i> Participants</h3>
+        <div class="person-row">
+          <div class="person-avatar avatar-doc"><i class="fa-solid {{ call.host_icon }}"></i></div>
+          <div>
+            <div class="person-name">{{ call.host_name }}</div>
+            <div class="person-role" id="doc-status">
+              <span class="status-dot dot-grey" id="doc-dot"></span>
+              {% if call.is_host %}You{% else %}{{ call.host_label }}{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="person-avatar avatar-pat"><i class="fa-solid fa-user"></i></div>
+          <div>
+            <div class="person-name">{{ call.guest_name }}</div>
+            <div class="person-role" id="pat-status">
+              <span class="status-dot dot-grey" id="pat-dot"></span>
+              {% if not call.is_host %}You{% else %}{{ call.guest_label }}{% endif %}
+            </div>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--cream);margin:10px 0;">
+        <div class="info-row"><span class="info-key">{{ call.label }}</span><span class="info-val">#{{ call.id }}</span></div>
+        <div class="info-row"><span class="info-key">Your role</span><span class="info-val" style="text-transform:capitalize;">{{ role }}</span></div>
+        {% if started_at %}
+        <div class="info-row"><span class="info-key">Started</span><span class="info-val">{{ started_at }}</span></div>
+        {% endif %}
+      </div>
+
+      <!-- Chat -->
+      <div class="vc-chat">
+        <div class="chat-header"><i class="fa-solid fa-comments"></i> In-call Chat</div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg system"><div class="bubble">Chat is end-to-end in this session only</div></div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChat()">
+          <button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const ROOM     = { kind: {{ call.kind|tojson }}, id: {{ call.id|tojson }} };
+const IS_HOST  = {{ call.is_host|tojson }};
+const ROLE     = {{ role|tojson }};
+const CALL_URLS = { start: {{ call.start_url|tojson }}, end: {{ call.end_url|tojson }}, back: {{ call.return_url|tojson }} };
+const USERNAME = {{ username|tojson }};
+
+// WebRTC config — using public STUN servers (Google + Cloudflare)
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun.cloudflare.com:3478" },
+  ]
+};
+
+let localStream  = null;
+let pc           = null;   // RTCPeerConnection
+let micOn        = true;
+let camOn        = true;
+let callActive   = false;
+
+const socket     = io();
+const localVideo = document.getElementById("local-video");
+const remoteVideo= document.getElementById("remote-video");
+const waitScreen = document.getElementById("waiting-screen");
+const waitMsg    = document.getElementById("waiting-msg");
+const connStatus = document.getElementById("conn-status");
+const liveBadge  = document.getElementById("live-badge");
+
+// ── 1. Get local camera + mic on page load ────────────────────────────────
+async function startLocalStream() {
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    localVideo.srcObject = localStream;
+  } catch(e) {
+    console.warn("Camera/mic error:", e);
+    addChatMsg("system", "", "Could not access camera/microphone. Check browser permissions.");
+  }
+}
+
+// ── 2. Create RTCPeerConnection ───────────────────────────────────────────
+function createPC() {
+  pc = new RTCPeerConnection(RTC_CONFIG);
+
+  // Add local tracks to connection
+  if (localStream) {
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+  }
+
+  // When remote track arrives — show remote video
+  pc.ontrack = (e) => {
+    remoteVideo.srcObject = e.streams[0];
+    remoteVideo.style.display = "block";
+    waitScreen.style.display  = "none";
+    connStatus.textContent    = "✅ Connected";
+    connStatus.className      = "conn-status cs-connected";
+    liveBadge.style.display   = "flex";
+    callActive = true;
+    setParticipantOnline(IS_HOST ? "pat" : "doc", true);
+  };
+
+  // Send ICE candidates to peer via signaling server
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      socket.emit("ice_candidate", { ...ROOM, candidate: e.candidate });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
+      showDisconnected();
+    }
+  };
+}
+
+// ── 3. Doctor creates offer ───────────────────────────────────────────────
+async function makeOffer() {
+  createPC();
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  socket.emit("offer", { ...ROOM, sdp: offer });
+  connStatus.textContent = {{ ("⏳ Waiting for " ~ call.guest_label|lower ~ "...")|tojson }};
+}
+
+// ── SocketIO events ───────────────────────────────────────────────────────
+socket.on("connect", () => {
+  socket.emit("join", { ...ROOM });
+});
+
+socket.on("user_joined", async (data) => {
+  addChatMsg("system", "", `${data.username} joined the call`);
+  setParticipantOnline(data.host ? "doc" : "pat", true);
+  // The host makes the offer when the guest joins
+  if (IS_HOST && !data.host) {
+    await makeOffer();
+  }
+});
+
+socket.on("offer", async (data) => {
+  if (IS_HOST) return; // host made the offer, ignore
+  addChatMsg("system", "", `${data.username} started the call`);
+  createPC();
+  await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  socket.emit("answer", { ...ROOM, sdp: answer });
+  connStatus.textContent = "⏳ Connecting...";
+});
+
+socket.on("answer", async (data) => {
+  if (pc) await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+});
+
+socket.on("ice_candidate", async (data) => {
+  if (pc && data.candidate) {
+    try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); }
+    catch(e) { console.warn("ICE error:", e); }
+  }
+});
+
+socket.on("user_left", (data) => {
+  addChatMsg("system", "", `${data.username} left the call`);
+  showDisconnected();
+});
+
+socket.on("chat_message", (data) => {
+  const isMe = data.username === USERNAME;
+  addChatMsg(isMe ? "me" : "them", isMe ? "You" : data.username, data.msg);
+});
+
+// ── Controls ──────────────────────────────────────────────────────────────
+function toggleMic() {
+  if (!localStream) return;
+  micOn = !micOn;
+  localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+  document.getElementById("btn-mic").className  = `ctrl-btn ${micOn ? "active" : "muted"}`;
+  document.getElementById("mic-icon").className = `fa-solid fa-microphone${micOn ? "" : "-slash"}`;
+}
+
+function toggleCam() {
+  if (!localStream) return;
+  camOn = !camOn;
+  localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+  document.getElementById("btn-cam").className  = `ctrl-btn ${camOn ? "active" : "muted"}`;
+  document.getElementById("cam-icon").className = `fa-solid fa-video${camOn ? "" : "-slash"}`;
+}
+
+function endCall() {
+  socket.emit("leave", { ...ROOM });
+  if (pc) { pc.close(); pc = null; }
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); }
+  if (IS_HOST && CALL_URLS.end) {
+    fetch(CALL_URLS.end, { method: "POST" });
+  }
+  connStatus.textContent  = "Call ended";
+  connStatus.className    = "conn-status cs-ended";
+  liveBadge.style.display = "none";
+  remoteVideo.style.display = "none";
+  waitScreen.style.display  = "flex";
+  waitMsg.textContent = "Call has ended.";
+  // Redirect back after 2s
+  setTimeout(() => {
+    window.location.href = CALL_URLS.back;
+  }, 2000);
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────
+function sendChat() {
+  const input = document.getElementById("chat-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+  socket.emit("chat_message", { ...ROOM, msg });
+  input.value = "";
+}
+
+function addChatMsg(type, sender, text) {
+  const box = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+  div.className = `chat-msg ${type}`;
+  const esc = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  div.innerHTML = type !== "system"
+    ? `<div class="sender">${esc(sender)}</div><div class="bubble">${esc(text)}</div>`
+    : `<div class="bubble">${esc(text)}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setParticipantOnline(who, online) {
+  const dot = document.getElementById(`${who}-dot`);
+  if (dot) {
+    dot.className = `status-dot ${online ? "dot-green" : "dot-grey"}`;
+  }
+}
+
+function showDisconnected() {
+  if (!callActive) return;
+  callActive = false;
+  connStatus.textContent = "⚠ Disconnected";
+  connStatus.className   = "conn-status cs-connecting";
+  liveBadge.style.display = "none";
+  remoteVideo.style.display = "none";
+  waitScreen.style.display  = "flex";
+  waitMsg.textContent = "The other participant disconnected.";
+  setParticipantOnline("doc", false);
+  setParticipantOnline("pat", false);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+(async () => {
+  await startLocalStream();
+  // The host marks the call as started in the DB
+  if (IS_HOST && CALL_URLS.start) {
+    await fetch(CALL_URLS.start, { method: "POST" });
+  }
+  setParticipantOnline(IS_HOST ? "doc" : "pat", true);
+})();
+</script>
+{% endblock %}

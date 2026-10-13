@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Analytics{% endblock %}
+
+{% block extra_style %}
+.page { max-width:1140px; margin:0 auto; padding:48px 32px; }
+.page-hdr { margin-bottom:36px; display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.page-hdr h1 { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.04em; }
+.page-hdr p  { font-size:0.87rem; color:var(--muted); margin-top:6px; }
+.filter-row { display:flex; gap:8px; }
+.filter-btn { padding:8px 16px; border-radius:6px; border:1.5px solid var(--border); background:transparent; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:500; cursor:pointer; color:var(--muted); transition:all .2s; text-decoration:none; }
+.filter-btn:hover,.filter-btn.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px; }
+.stat-card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:22px 24px; position:relative; overflow:hidden; }
+.stat-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+.stat-card:nth-child(1)::before { background:var(--ink); }
+.stat-card:nth-child(2)::before { background:var(--teal); }
+.stat-card:nth-child(3)::before { background:var(--amber); }
+.stat-card:nth-child(4)::before { background:var(--red); }
+.s-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:8px; }
+.s-num   { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; letter-spacing:-0.04em; line-height:1; }
+.s-sub   { font-size:0.75rem; color:var(--muted); margin-top:5px; }
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px; }
+.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; }
+.card-title { font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:7px; }
+.full-width { grid-column:1/-1; }
+.rec-table { width:100%; border-collapse:collapse; }
+.rec-table th { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); text-align:left; padding:0 0 10px; border-bottom:1.5px solid var(--border); }
+.rec-table td { padding:11px 0; font-size:0.82rem; border-bottom:1px solid var(--cream); vertical-align:middle; }
+.rec-table tr:last-child td { border-bottom:none; }
+.dis-tag { background:var(--cream); border-radius:20px; padding:3px 10px; font-size:0.73rem; font-weight:500; }
+.mode-badge { padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:500; display:inline-block; }
+.mode-form    { background:rgba(10,124,110,.1); color:var(--teal); }
+.mode-chatbot { background:rgba(232,52,28,.1); color:var(--red); }
+.schema-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+.schema-item { background:var(--cream); border-radius:8px; padding:14px; }
+.schema-item .tbl-name { font-family:'Syne',sans-serif; font-size:0.8rem; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+.schema-item p { font-size:0.74rem; color:var(--muted); line-height:1.5; }
+@media(max-width:900px){ .stat-grid{grid-template-columns:1fr 1fr} .dash-grid{grid-template-columns:1fr} }
+@media(max-width:600px){ .stat-grid{grid-template-columns:1fr} }
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-hdr">
+    <div>
+      <h1>Analytics Dashboard</h1>
+      <p>Live statistics from the MediAI SQLite database</p>
+    </div>
+    <div class="filter-row">
+      <a href="/analytics" class="filter-btn {% if not days or days==0 %}active{% endif %}">All time</a>
+      <a href="/analytics?days=7"  class="filter-btn {% if days==7 %}active{% endif %}">7 days</a>
+      <a href="/analytics?days=30" class="filter-btn {% if days==30 %}active{% endif %}">30 days</a>
+      <a href="/analytics?days=90" class="filter-btn {% if days==90 %}active{% endif %}">90 days</a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-grid">
+    <div class="stat-card"><div class="s-label"><i class="fa-solid fa-stethoscope"></i> Diagnoses</div><div class="s-num">{{ summary.total_diagnoses }}</div><div class="s-sub">Total predictions run</div></div>
+    <div class="stat-card"><div class="s-label"><i class="fa-solid fa-user"></i> Patients</div><div class="s-num">{{ summary.total_patients }}</div><div class="s-sub">Registered accounts</div></div>
+    <div class="stat-card"><div class="s-label"><i class="fa-solid fa-comments"></i> Sessions</div><div class="s-num">{{ summary.total_sessions }}</div><div class="s-sub">Form + chatbot sessions</div></div>
+    <div class="stat-card"><div class="s-label"><i class="fa-solid fa-database"></i> Adaptive</div><div class="s-num">{{ summary.total_adaptive }}</div><div class="s-sub">User-confirmed cases</div></div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- Daily trend chart -->
+    <div class="card full-width">
+      <div class="card-title"><i class="fa-solid fa-chart-line"></i> Daily Diagnosis Trend (last {{ trend_days }} days)</div>
+      <canvas id="trendChart" height="80"></canvas>
+    </div>
+
+    <!-- Top symptoms -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-virus"></i> Most Reported Symptoms</div>
+      <canvas id="symptomsChart" height="220"></canvas>
+    </div>
+
+    <!-- Disease distribution -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-chart-pie"></i> Top Diagnosed Diseases</div>
+      <canvas id="diseaseChart" height="220"></canvas>
+    </div>
+
+    <!-- Recent diagnoses table -->
+    <div class="card full-width">
+      <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Diagnoses</div>
+      {% if recent %}
+      <table class="rec-table">
+        <thead><tr><th>Disease</th><th>Confidence</th><th>Risk</th><th>Doctor</th><th>Mode</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for r in recent %}
+          <tr>
+            <td><span class="dis-tag">{{ r.top_disease }}</span></td>
+            <td style="font-family:'Syne',sans-serif;font-weight:700;">{{ r.confidence }}%</td>
+            <td>{{ r.risk_score }}</td>
+            <td style="font-size:0.78rem;color:var(--muted);">{{ r.doctor_type or '—' }}</td>
+            <td><span class="mode-badge mode-{{ r.mode }}">{{ r.mode.title() }}</span></td>
+            <td style="font-size:0.76rem;color:var(--muted);">{{ r.created_at|string|truncate(16,true,'') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="font-size:0.85rem;color:var(--muted);">No diagnoses recorded yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- DB Schema -->
+    <div class="card full-width">
+      <div class="card-title"><i class="fa-solid fa-table"></i> Database Schema (SQLite — mediai.db)</div>
+      <div class="schema-grid">
+        {% for name,desc in [
+          ('users','Stores login credentials, roles, and timestamps with password hashing'),
+          ('patients','Patient profiles: name, age, gender, city — linked to users via FK'),
+          ('sessions','Every visit tracked with session key, mode, user FK, and timestamps'),
+          ('diagnoses','Full results: symptoms JSON, predictions JSON, confidence, risk score'),
+          ('adaptive_cases','User-confirmed diagnoses for adaptive learning (replaces CSV)'),
+          ('doctor_map','Disease → specialist lookup, 41 entries, DB-backed'),
+          ('symptom_stats','Running frequency counter per symptom across all sessions'),
+          ('roles / permissions','RBAC: roles, permissions and the role_permissions join table'),
+          ('consultations / lab_*','Doctor review workflow, lab orders and lab results'),
+        ] %}
+        <div class="schema-item">
+          <div class="tbl-name"><i class="fa-solid fa-table" style="color:var(--teal);font-size:0.72rem;"></i>{{ name }}</div>
+          <p>{{ desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const TEAL = '#0a7c6e', RED = '#e8341c', AMBER = '#d97706', INK = '#0d1117';
+
+// Daily trend
+const daily = {{ daily|tojson }};
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: daily.map(d => d.date),
+    datasets: [{
+      label: 'Diagnoses',
+      data: daily.map(d => d.cnt),
+      borderColor: TEAL, backgroundColor: 'rgba(10,124,110,.08)',
+      tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: TEAL,
+    }]
+  },
+  options: { plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'}}, x:{grid:{display:false}} } }
+});
+
+// Symptoms bar
+const symptoms = {{ top_symptoms|tojson }};
+new Chart(document.getElementById('symptomsChart'), {
+  type: 'bar',
+  data: {
+    labels: symptoms.map(s => s.symptom.replace(/_/g,' ')),
+    datasets: [{ data: symptoms.map(s => s.frequency), backgroundColor: TEAL, borderRadius: 5 }]
+  },
+  options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'}}, y:{grid:{display:false}} } }
+});
+
+// Disease doughnut
+const diseases = {{ disease_dist|tojson }};
+const palette  = [RED, TEAL, AMBER, INK, '#7c3aed','#0284c7','#16a34a','#db2777','#ea580c','#0891b2'];
+new Chart(document.getElementById('diseaseChart'), {
+  type: 'doughnut',
+  data: {
+    labels: diseases.map(d => d.top_disease),
+    datasets: [{ data: diseases.map(d => d.cnt), backgroundColor: palette, borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, padding:12 } } }, cutout:'65%' }
+});
+</script>
+{% endblock %}

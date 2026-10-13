@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Submit Lab Result{% endblock %}
+
+{% block extra_style %}
+.page { max-width:700px; margin:0 auto; padding:48px 32px; }
+.back-link { display:inline-flex; align-items:center; gap:8px; font-size:.8rem; color:var(--muted); text-decoration:none; margin-bottom:24px; transition:color .2s; }
+.back-link:hover { color:var(--ink); }
+.page-title { font-family:'Syne',sans-serif; font-size:1.7rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:6px; }
+.order-info-card { background:var(--cream); border-radius:10px; padding:20px 22px; margin-bottom:24px; }
+.order-info-card h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:12px; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.info-item .lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; margin-bottom:2px; }
+.info-item .val { font-size:.88rem; font-weight:500; }
+.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; }
+.card-title { font-family:'Syne',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:7px; }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:5px; }
+.field input, .field textarea { width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:.9rem; outline:none; transition:border-color .2s; }
+.field input:focus, .field textarea:focus { border-color:var(--teal2); }
+.field textarea { resize:vertical; min-height:90px; }
+.row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.abnormal-toggle { display:flex; gap:10px; }
+.abn-btn { flex:1; padding:12px; border:1.5px solid var(--border); border-radius:7px; background:#fff; font-family:'DM Sans',sans-serif; font-size:.88rem; cursor:pointer; transition:all .15s; text-align:center; font-weight:500; }
+.abn-btn:hover { border-color:var(--ink); }
+.abn-btn.normal-active { background:var(--green); border-color:var(--green); color:#fff; }
+.abn-btn.abnormal-active { background:var(--red); border-color:var(--red); color:#fff; }
+.btn-submit { width:100%; background:#7c3aed; color:#fff; border:none; padding:14px; border-radius:7px; font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:500; cursor:pointer; margin-top:8px; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:9px; }
+.btn-submit:hover { background:#6d28d9; }
+.urgent-warn { background:#fff0f0; border:1.5px solid rgba(232,52,28,.3); border-radius:8px; padding:11px 15px; font-size:.83rem; color:var(--red); margin-bottom:20px; display:flex; align-items:center; gap:9px; }
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <a href="/lab" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Lab Dashboard</a>
+  <div class="page-title">Enter Test Result</div>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:24px;">Submit the result for this lab order. The doctor will be notified immediately.</p>
+
+  {% if order.priority == 'urgent' %}
+  <div class="urgent-warn"><i class="fa-solid fa-triangle-exclamation"></i> This is an <b>URGENT</b> test — please process and submit results immediately.</div>
+  {% endif %}
+
+  <!-- Order Info -->
+  <div class="order-info-card">
+    <h3><i class="fa-solid fa-vial" style="color:#7c3aed;margin-right:8px;"></i>{{ order.test_type }}</h3>
+    <div class="info-grid">
+      <div class="info-item"><div class="lbl">Patient</div><div class="val">{{ order.patient_name }}{% if order.age %}, {{ order.age }}y {{ order.gender or '' }}{% endif %}</div></div>
+      <div class="info-item"><div class="lbl">Ordered By</div><div class="val">Dr. {{ order.doctor_name }}</div></div>
+      <div class="info-item"><div class="lbl">AI Diagnosis</div><div class="val">{{ order.top_disease }}</div></div>
+      <div class="info-item"><div class="lbl">Ordered At</div><div class="val">{{ order.created_at|string|truncate(16,true,'') }}</div></div>
+      {% if order.test_notes %}
+      <div class="info-item" style="grid-column:1/-1;"><div class="lbl">Doctor's Instructions</div><div class="val" style="font-style:italic;">{{ order.test_notes }}</div></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Result Form -->
+  <div class="card">
+    <div class="card-title"><i class="fa-solid fa-file-medical"></i> Test Results</div>
+    <form action="/lab/order/{{ order.id }}" method="post">
+      <div class="field">
+        <label>Result Summary</label>
+        <textarea name="result_text" placeholder="Describe the test findings in detail…" required></textarea>
+      </div>
+      <div class="row3">
+        <div class="field">
+          <label>Result Value</label>
+          <input type="text" name="result_value" placeholder="e.g. 12.5">
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <input type="text" name="unit" placeholder="e.g. g/dL, mg/L">
+        </div>
+        <div class="field">
+          <label>Normal Range</label>
+          <input type="text" name="normal_range" placeholder="e.g. 11–16 g/dL">
+        </div>
+      </div>
+      <div class="field">
+        <label>Abnormal Result?</label>
+        <div class="abnormal-toggle">
+          <button type="button" class="abn-btn normal-active" id="btn-normal" onclick="setAbnormal(0)"><i class="fa-solid fa-check"></i> Normal</button>
+          <button type="button" class="abn-btn" id="btn-abnormal" onclick="setAbnormal(1)"><i class="fa-solid fa-triangle-exclamation"></i> Abnormal</button>
+        </div>
+        <input type="hidden" name="is_abnormal" id="is-abnormal-val" value="0">
+      </div>
+      <div class="field">
+        <label>Additional Remarks</label>
+        <textarea name="remarks" placeholder="Any additional notes, recommendations, or observations…" style="min-height:70px;"></textarea>
+      </div>
+      <button type="submit" class="btn-submit"><i class="fa-solid fa-paper-plane"></i> Submit Result to Doctor</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+function setAbnormal(val) {
+  document.getElementById('is-abnormal-val').value = val;
+  document.getElementById('btn-normal').className   = 'abn-btn' + (val===0?' normal-active':'');
+  document.getElementById('btn-abnormal').className = 'abn-btn' + (val===1?' abnormal-active':'');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Diagnosis Result{% endblock %}
+
+{% block extra_style %}
+.page { max-width:1100px; margin:0 auto; padding:48px 32px; }
+.breadcrumb { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+.breadcrumb a { color:var(--muted); text-decoration:none; }
+.result-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:32px; gap:24px; flex-wrap:wrap; }
+h1.disease-name { font-family:'Syne',sans-serif; font-size:clamp(2rem,4vw,3rem); font-weight:800; letter-spacing:-0.04em; line-height:1.05; }
+.conf-badge { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:5px 15px; border-radius:20px; font-size:0.8rem; font-weight:600; border:1.5px solid; }
+.conf-high { background:rgba(22,163,74,.08); border-color:var(--green); color:var(--green); }
+.conf-medium { background:rgba(217,119,6,.08); border-color:var(--amber); color:var(--amber); }
+.conf-low { background:rgba(232,52,28,.08); border-color:var(--red); color:var(--red); }
+.conf-warn { background:#fffbeb; border:1.5px solid #fcd34d; border-radius:8px; padding:11px 15px; font-size:0.83rem; color:#92400e; margin-top:10px; display:flex; align-items:center; gap:9px; max-width:500px; }
+.risk-badge { display:flex; flex-direction:column; align-items:center; justify-content:center; width:96px; height:96px; border-radius:50%; border:3px solid; flex-shrink:0; text-align:center; }
+.risk-badge .risk-num { font-family:'Syne',sans-serif; font-size:1.65rem; font-weight:800; line-height:1; }
+.risk-badge .risk-lbl { font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-top:2px; }
+.risk-low { border-color:var(--green); } .risk-low .risk-num { color:var(--green); }
+.risk-medium { border-color:var(--amber); } .risk-medium .risk-num { color:var(--amber); }
+.risk-high { border-color:var(--red); } .risk-high .risk-num { color:var(--red); }
+
+/* EMERGENCY TRIAGE */
+.emergency-banner { border-radius:10px; padding:20px 24px; margin-bottom:24px; display:flex; align-items:flex-start; gap:16px; animation:pulse 2s infinite; }
+.emergency-critical { background:#fff0f0; border:2px solid var(--red); }
+.emergency-high     { background:#fff8ec; border:2px solid var(--amber); }
+.emergency-moderate { background:#f0fdf4; border:2px solid var(--green); }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(232,52,28,.3)} 50%{box-shadow:0 0 0 8px rgba(232,52,28,0)} }
+.emg-icon { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+.emergency-critical .emg-icon { background:var(--red); color:#fff; }
+.emergency-high     .emg-icon { background:var(--amber); color:#fff; }
+.emergency-moderate .emg-icon { background:var(--green); color:#fff; }
+.emg-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; margin-bottom:4px; }
+.emg-action { font-size:0.85rem; line-height:1.6; }
+.emergency-critical .emg-title { color:var(--red); }
+.emergency-high     .emg-title { color:var(--amber); }
+.btn-112 { display:inline-flex; align-items:center; gap:7px; background:var(--red); color:#fff; padding:9px 18px; border-radius:6px; text-decoration:none; font-size:0.83rem; font-weight:600; margin-top:10px; }
+
+/* REGIONAL ALERTS */
+.regional-alerts { margin-bottom:22px; }
+.regional-header { font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.alert-chips { display:flex; flex-wrap:wrap; gap:9px; }
+.alert-chip { display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; font-size:0.82rem; font-weight:500; border:1.5px solid; }
+.alert-HIGH     { background:rgba(232,52,28,.07); border-color:rgba(232,52,28,.3); color:var(--red); }
+.alert-MODERATE { background:rgba(217,119,6,.07); border-color:rgba(217,119,6,.3); color:var(--amber); }
+.alert-chip .dot { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+.result-grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; }
+.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; }
+.card-title { font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:7px; }
+.pred-item { margin-bottom:12px; }
+.pred-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+.pred-name { font-size:0.85rem; font-weight:500; }
+.pred-pct  { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; }
+.pred-bar  { width:100%; background:var(--cream); border-radius:4px; height:6px; overflow:hidden; }
+.pred-fill { height:100%; border-radius:4px; background:var(--ink); transition:width 1s ease; }
+.pred-item:first-child .pred-fill { background:var(--red); }
+.pred-item:nth-child(2) .pred-fill { background:var(--amber); }
+.desc-text { font-size:0.87rem; line-height:1.8; color:#3a3630; }
+.precaution-list { list-style:none; }
+.precaution-list li { display:flex; align-items:flex-start; gap:11px; padding:8px 0; border-bottom:1px solid var(--cream); font-size:0.85rem; line-height:1.5; }
+.precaution-list li:last-child { border-bottom:none; }
+.precaution-list li i { color:var(--teal); margin-top:2px; flex-shrink:0; }
+.doctor-card { background:var(--ink); color:#fff; border-radius:10px; padding:24px; }
+.doctor-card .card-title { color:rgba(255,255,255,.4); }
+.doctor-icon { width:46px; height:46px; background:rgba(255,255,255,.1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:11px; }
+.doctor-specialty { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:6px; }
+.doctor-note { font-size:0.78rem; color:rgba(255,255,255,.5); line-height:1.65; margin-bottom:12px; }
+.btn-book { display:inline-flex; align-items:center; gap:7px; background:var(--teal); color:#fff; padding:9px 16px; border-radius:6px; text-decoration:none; font-size:0.8rem; font-weight:500; transition:background .2s; }
+.btn-book:hover { background:var(--teal2); }
+.sym-tags { display:flex; flex-wrap:wrap; gap:7px; }
+.sym-tag { background:var(--cream); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:500; }
+.action-strip { margin-top:26px; background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.action-strip h4 { font-family:'Syne',sans-serif; font-size:0.92rem; font-weight:700; margin-bottom:3px; }
+.action-strip p  { font-size:0.78rem; color:var(--muted); }
+.action-btns { display:flex; gap:9px; flex-wrap:wrap; }
+.btn-sm { padding:9px 17px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:500; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:7px; transition:all .2s; text-decoration:none; }
+.btn-sm.green  { background:var(--teal);  color:#fff; }
+.btn-sm.green:hover { background:var(--teal2); }
+.btn-sm.dark   { background:var(--ink);   color:#fff; }
+.btn-sm.amber  { background:var(--amber); color:#fff; }
+.btn-sm.red    { background:var(--red);   color:#fff; }
+.btn-sm.outline{ background:transparent; color:var(--ink); border:1.5px solid var(--border); }
+.btn-sm.outline:hover { border-color:var(--ink); }
+
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:500; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:12px; padding:32px; width:100%; max-width:400px; position:relative; }
+.modal h3 { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800; margin-bottom:5px; }
+.modal p  { font-size:0.82rem; color:var(--muted); margin-bottom:18px; }
+.modal input { width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:13px; }
+.modal input:focus { border-color:var(--teal2); }
+.modal-btns { display:flex; gap:10px; }
+.modal-close { position:absolute; top:12px; right:14px; background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--muted); }
+
+@media(max-width:800px){ .page{padding:24px 16px} .result-grid{grid-template-columns:1fr} }
+{% endblock %}
+
+{% block content %}
+<div class="page">
+
+  <!-- ── EMERGENCY TRIAGE (Feature 5) ── -->
+  {% if emergency %}
+  {% set emg_class = 'emergency-' ~ emergency.level.lower() %}
+  <div class="emergency-banner {{ emg_class }}">
+    <div class="emg-icon"><i class="fa-solid {{ emergency.icon }}"></i></div>
+    <div>
+      <div class="emg-title">⚠ {{ emergency.name }}</div>
+      <div class="emg-action">{{ emergency.action }}</div>
+      <div style="margin-top:6px;font-size:0.75rem;color:var(--muted);">
+        Triggered by: {{ emergency.matched|join(', ')|replace('_',' ') }}
+      </div>
+      {% if emergency.level == 'CRITICAL' %}
+      <a href="tel:112" class="btn-112"><i class="fa-solid fa-phone"></i> Call 112 Emergency</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── REGIONAL ALERTS (Feature 4) ── -->
+  {% if regional_alerts %}
+  <div class="regional-alerts">
+    <div class="regional-header">
+      <i class="fa-solid fa-location-dot"></i>
+      Regional Disease Intelligence{% if city %} — {{ city.title() }}{% endif %}
+    </div>
+    <div class="alert-chips">
+      {% for alert in regional_alerts %}
+      <div class="alert-chip alert-{{ alert.level }}">
+        <span class="dot"></span>
+        <span><b>{{ alert.disease }}</b> — {{ alert.reasons|join(', ') }}</span>
+        <span style="opacity:.6;font-size:.72rem;">[{{ alert.level }}]</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Header -->
+  <div class="result-header">
+    <div>
+      <div class="breadcrumb"><a href="/">Home</a> › Result</div>
+      <h1 class="disease-name">{{ disease }}</h1>
+      {% set conf_class = 'conf-high' if confidence >= 60 else ('conf-medium' if confidence >= 35 else 'conf-low') %}
+      <div class="conf-badge {{ conf_class }}"><i class="fa-solid fa-circle-check"></i> {{ confidence }}% Confidence</div>
+      {% if confidence < 40 %}
+      <div class="conf-warn"><i class="fa-solid fa-triangle-exclamation"></i> Low confidence — please consult a doctor for professional evaluation.</div>
+      {% endif %}
+    </div>
+    {% set risk_class = 'risk-low' if risk < 20 else ('risk-medium' if risk < 40 else 'risk-high') %}
+    {% set risk_label = 'Low' if risk < 20 else ('Moderate' if risk < 40 else 'High') %}
+    <div class="risk-badge {{ risk_class }}">
+      <div class="risk-num">{{ risk }}</div>
+      <div class="risk-lbl">{{ risk_label }}</div>
+    </div>
+  </div>
+
+  <div class="result-grid">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Differential Diagnosis</div>
+        {% for d, prob in predictions %}
+        <div class="pred-item">
+          <div class="pred-row">
+            <span class="pred-name">{{ d }}</span>
+            <span class="pred-pct">{{ (prob*100)|round(1) }}%</span>
+          </div>
+          <div class="pred-bar"><div class="pred-fill" style="width:{{ (prob*100)|round(1) }}%"></div></div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-file-medical"></i> About This Condition</div>
+        <p class="desc-text">{{ description }}</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-list-check"></i> Reported Symptoms</div>
+        <div class="sym-tags">{% for s in symptoms %}<span class="sym-tag">{{ s.replace('_',' ').title() }}</span>{% endfor %}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      {% if assigned_doctor %}
+      <div class="doctor-card">
+        <div class="card-title"><i class="fa-solid fa-user-doctor"></i> Your Assigned Doctor</div>
+        <div class="doctor-icon"><i class="fa-solid fa-stethoscope"></i></div>
+        <div class="doctor-specialty">Dr. {{ assigned_doctor.full_name }}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,.5);margin-bottom:4px;">{{ assigned_doctor.specialty }}</div>
+        {% if assigned_doctor.qualification %}
+        <div style="font-size:0.72rem;color:rgba(255,255,255,.4);margin-bottom:4px;">{{ assigned_doctor.qualification }}</div>
+        {% endif %}
+        {% if assigned_doctor.experience_yrs %}
+        <div style="font-size:0.72rem;color:rgba(255,255,255,.4);margin-bottom:12px;">{{ assigned_doctor.experience_yrs }} years experience</div>
+        {% endif %}
+        <div class="doctor-note">You have been assigned to this doctor. They will review your diagnosis shortly.</div>
+        <a href="/my_consultations" class="btn-book">
+          <i class="fa-solid fa-calendar-check"></i> View My Consultation
+        </a>
+      </div>
+      {% elif not session.get('user_id') %}
+      <div class="doctor-card">
+        <div class="card-title"><i class="fa-solid fa-user-doctor"></i> Get a Doctor Assigned</div>
+        <div class="doctor-icon"><i class="fa-solid fa-stethoscope"></i></div>
+        <div class="doctor-note" style="margin-bottom:14px;">
+          Login or register to be automatically assigned to a specialist based on your diagnosis.
+        </div>
+        <a href="/login" class="btn-book">
+          <i class="fa-solid fa-right-to-bracket"></i> Login to Get Assigned
+        </a>
+      </div>
+      {% endif %}
+      {% if precautions %}
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-shield-heart"></i> Precautions</div>
+        <ul class="precaution-list">
+          {% for p in precautions %}{% if p %}
+          <li><i class="fa-solid fa-circle-check"></i>{{ p.strip().capitalize() }}</li>
+          {% endif %}{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="card" style="background:var(--cream);">
+        <div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Disclaimer</div>
+        <p style="font-size:0.77rem;color:var(--muted);line-height:1.7;">AI-generated assessment only. Does not replace professional medical advice. Always consult a licensed physician.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Strip (Feature 6: PDF + others) -->
+  <div class="action-strip">
+    <div>
+      <h4>What would you like to do?</h4>
+      <p>Save, share, download, or confirm this diagnosis.</p>
+    </div>
+    <div class="action-btns">
+      <form action="/confirm" method="post" style="display:inline;">
+        <input type="hidden" name="disease"  value="{{ disease }}">
+        <input type="hidden" name="symptoms" value="{{ symptoms|join(',') }}">
+        <button type="submit" class="btn-sm green"><i class="fa-solid fa-thumbs-up"></i> Confirm</button>
+      </form>
+
+      <!-- PDF Download (Feature 6) -->
+      <form action="/download_report" method="post" style="display:inline;" id="pdf-form">
+        <input type="hidden" name="disease"     value="{{ disease }}">
+        <input type="hidden" name="confidence"  value="{{ confidence }}">
+        <input type="hidden" name="risk"        value="{{ risk }}">
+        <input type="hidden" name="doctor"      value="{{ doctor }}">
+        <input type="hidden" name="symptoms"    value="{{ symptoms|join(',') }}">
+        <input type="hidden" name="precautions" value="{{ precautions|join('|') }}">
+        <input type="hidden" name="description" value="{{ description }}">
+        <input type="hidden" name="city"        value="{{ city|default('') }}">
+        <input type="hidden" name="predictions" value='{{ predictions|tojson }}'>
+        <button type="submit" class="btn-sm red"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+      </form>
+
+      <button class="btn-sm amber" onclick="document.getElementById('email-modal').classList.add('open')">
+        <i class="fa-solid fa-envelope"></i> Email Report
+      </button>
+      <button class="btn-sm dark" onclick="window.print()">
+        <i class="fa-solid fa-print"></i> Print
+      </button>
+      <a href="/" class="btn-sm outline"><i class="fa-solid fa-arrow-left"></i> New</a>
+    </div>
+  </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay" id="email-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('email-modal').classList.remove('open')">&times;</button>
+    <h3>Email Diagnosis Report</h3>
+    <p>Enter your email address to receive a full diagnosis summary.</p>
+    <input type="email" id="email-input" placeholder="your@email.com">
+    <div class="modal-btns">
+      <button class="btn-sm green" style="flex:1" onclick="sendEmail()"><i class="fa-solid fa-paper-plane"></i> Send</button>
+      <button class="btn-sm outline" onclick="document.getElementById('email-modal').classList.remove('open')">Cancel</button>
+    </div>
+    <p id="email-status" style="margin-top:11px;font-size:0.8rem;display:none;"></p>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.pred-fill').forEach(bar => {
+      const w = bar.style.width; bar.style.width='0';
+      setTimeout(() => bar.style.width=w, 150);
+    });
+  });
+  function sendEmail() {
+    const email = document.getElementById('email-input').value.trim();
+    if (!email) return;
+    const fd = new FormData();
+    fd.append('email', email);
+    fd.append('disease', {{ disease|tojson }});
+    fd.append('confidence', {{ confidence|tojson }});
+    fd.append('doctor', {{ doctor|tojson }});
+    fd.append('risk', {{ risk|tojson }});
+    fd.append('symptoms', {{ symptoms|join(",")|tojson }});
+    fd.append('precautions', {{ precautions|join("|")|tojson }});
+    fetch('/send_report', {method:'POST', body:fd})
+      .then(r => r.json())
+      .then(data => {
+        const st = document.getElementById('email-status');
+        st.style.display = 'block';
+        st.style.color   = data.ok ? 'var(--teal)' : 'var(--red)';
+        st.textContent   = data.msg;
+      });
+  }
+</script>
+{% endblock %}

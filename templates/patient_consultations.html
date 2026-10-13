@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}MediAI — My Consultations{% endblock %}
+
+{% block extra_style %}
+.page { max-width:900px; margin:0 auto; padding:48px 32px; }
+.page-hdr { margin-bottom:32px; }
+.page-hdr h1 { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.04em; }
+.page-hdr p  { font-size:.87rem; color:var(--muted); margin-top:5px; }
+.consult-list { display:flex; flex-direction:column; gap:14px; }
+.consult-card { background:#fff; border:1.5px solid var(--border); border-radius:12px; padding:22px 26px; text-decoration:none; color:inherit; display:block; transition:border-color .2s, box-shadow .2s; }
+.consult-card:hover { border-color:var(--teal2); box-shadow:0 4px 16px rgba(0,0,0,.07); }
+.card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.disease-name { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; letter-spacing:-0.03em; }
+.status-badge { padding:5px 13px; border-radius:20px; font-size:.72rem; font-weight:600; display:inline-block; flex-shrink:0; }
+.status-pending   { background:rgba(217,119,6,.1); color:var(--amber); }
+.status-in_review { background:rgba(10,124,110,.1); color:var(--teal); }
+.status-completed { background:rgba(22,163,74,.1);  color:var(--green); }
+.consult-meta { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+.meta-chip { padding:3px 11px; border-radius:20px; font-size:.72rem; font-weight:500; }
+.chip-plain { background:var(--cream); color:var(--muted); }
+.chip-teal  { background:rgba(10,124,110,.1); color:var(--teal); }
+.doc-strip { display:flex; align-items:center; gap:14px; background:var(--cream); border-radius:8px; padding:12px 16px; }
+.doc-icon { width:38px; height:38px; background:var(--teal); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+.doc-strip h4 { font-size:.88rem; font-weight:600; margin-bottom:2px; }
+.doc-strip p  { font-size:.75rem; color:var(--muted); }
+.result-preview { margin-top:14px; padding:14px 16px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px; font-size:.84rem; color:#166534; }
+.result-preview h4 { font-weight:700; margin-bottom:4px; font-size:.85rem; }
+.lab-strip { margin-top:10px; display:flex; flex-wrap:wrap; gap:7px; }
+.lab-chip { padding:3px 11px; border-radius:20px; font-size:.7rem; font-weight:500; border:1px solid; }
+.lab-pending   { background:rgba(217,119,6,.08); border-color:rgba(217,119,6,.3); color:var(--amber); }
+.lab-completed { background:rgba(22,163,74,.08);  border-color:rgba(22,163,74,.3);  color:var(--green); }
+.lab-abnormal  { background:rgba(232,52,28,.08);  border-color:rgba(232,52,28,.3);  color:var(--red); }
+.empty-state { text-align:center; padding:64px 32px; color:var(--muted); }
+.empty-state i { font-size:3rem; opacity:.2; display:block; margin-bottom:18px; }
+.btn-start { display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:#fff; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:.88rem; font-weight:500; margin-top:16px; transition:background .2s; }
+.btn-start:hover { background:var(--teal); }
+{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-hdr">
+    <h1>My Consultations</h1>
+    <p>Track your doctor consultations and lab test results here.</p>
+  </div>
+
+  {% if consultations %}
+  <div class="consult-list">
+    {% for c in consultations %}
+    <a href="/consultation/{{ c.id }}" class="consult-card">
+      <div class="card-top">
+        <div>
+          <div class="disease-name">{{ c.top_disease }}</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:3px;">AI diagnosis · {{ c.diagnosis_time|string|truncate(10,true,'') }}</div>
+        </div>
+        {# Compute what to show the patient based on status + lab state #}
+        {% if c.status == 'completed' and (c.total_labs == 0 or c.pending_labs == 0) %}
+          <span class="status-badge status-completed">✅ Review Complete</span>
+        {% elif c.status == 'completed' and c.pending_labs > 0 %}
+          <span class="status-badge status-in_review">🔬 Awaiting Lab Results</span>
+        {% elif c.status == 'in_review' and c.total_labs > 0 and c.pending_labs > 0 %}
+          <span class="status-badge status-in_review">🔬 Lab Tests Ordered</span>
+        {% elif c.status == 'in_review' %}
+          <span class="status-badge status-in_review">🔍 Doctor Reviewing</span>
+        {% else %}
+          <span class="status-badge status-pending">⏳ Awaiting Review</span>
+        {% endif %}
+      </div>
+
+      <div class="consult-meta">
+        <span class="meta-chip chip-plain">{{ c.confidence }}% AI confidence</span>
+        <span class="meta-chip chip-plain">Risk: {{ c.risk_score }}</span>
+      </div>
+
+      <!-- Doctor Info -->
+      <div class="doc-strip">
+        <div class="doc-icon"><i class="fa-solid fa-user-doctor"></i></div>
+        <div>
+          <h4>Dr. {{ c.doctor_name }}</h4>
+          <p>{{ c.specialty }}</p>
+        </div>
+      </div>
+
+      <!-- Show doctor result only when truly complete (no pending labs) -->
+      {% if c.status == 'completed' and c.final_diagnosis and c.pending_labs == 0 %}
+      <div class="result-preview">
+        <h4><i class="fa-solid fa-circle-check"></i> Doctor's Diagnosis</h4>
+        {{ c.final_diagnosis }}
+        {% if c.follow_up_date %}<div style="margin-top:4px;font-size:.78rem;">Follow-up: <b>{{ c.follow_up_date }}</b></div>{% endif %}
+      </div>
+      {% elif c.status == 'completed' and c.pending_labs > 0 %}
+      <div class="result-preview" style="background:#fffbeb;border-color:#fcd34d;">
+        <h4 style="color:#92400e;"><i class="fa-solid fa-flask"></i> Lab Tests Pending</h4>
+        <span style="color:#92400e;font-size:.82rem;">{{ c.pending_labs }} test(s) still awaiting results from the lab. Review will be finalised once complete.</span>
+      </div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="fa-solid fa-stethoscope"></i>
+    <p>No consultations yet.<br>Run a diagnosis and you'll be automatically assigned to a doctor.</p>
+    <a href="/" class="btn-start"><i class="fa-solid fa-plus"></i> Start a Diagnosis</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
