@@ -2,197 +2,125 @@
 {% block title %}MediAI — {{ call.title }} #{{ call.id }}{% endblock %}
 
 {% block extra_style %}
-* { box-sizing: border-box; }
-.vc-page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
-.vc-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-.vc-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; display: flex; align-items: center; gap: 10px; }
-.vc-meta { font-size: .78rem; color: var(--muted); margin-top: 3px; }
-.live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(232,52,28,.1); color: var(--red); border: 1px solid rgba(232,52,28,.25); padding: 4px 12px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
-.live-dot { width: 7px; height: 7px; background: var(--red); border-radius: 50%; animation: blink 1.2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* Layout */
-.vc-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; height: 580px; }
-.vc-videos { display: flex; flex-direction: column; gap: 10px; position: relative; background: #0d1117; border-radius: 12px; overflow: hidden; }
-.video-remote { flex: 1; width: 100%; background: #111827; object-fit: cover; display: block; }
-.video-local  { position: absolute; bottom: 80px; right: 14px; width: 140px; height: 100px; border-radius: 8px; object-fit: cover; border: 2px solid rgba(255,255,255,.2); background: #1f2937; z-index: 10; }
-.waiting-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,.4); gap: 14px; }
-.waiting-screen i { font-size: 2.5rem; opacity: .3; }
-.waiting-screen p { font-size: .88rem; }
-.spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--teal); border-radius: 50%; animation: spin .9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Controls bar */
-.vc-controls { position: absolute; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px; background: linear-gradient(transparent, rgba(0,0,0,.7)); }
-.ctrl-btn { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .95rem; transition: all .15s; }
-.ctrl-btn.active   { background: rgba(255,255,255,.15); color: #fff; }
-.ctrl-btn.active:hover { background: rgba(255,255,255,.25); }
-.ctrl-btn.muted    { background: rgba(232,52,28,.3); color: var(--red); }
-.ctrl-btn.end-call { background: var(--red); color: #fff; width: 52px; height: 52px; font-size: 1.1rem; }
-.ctrl-btn.end-call:hover { background: #c82333; }
-.ctrl-label { font-size: .6rem; color: rgba(255,255,255,.5); margin-top: 2px; text-align: center; }
-.ctrl-wrap  { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-
-/* Sidebar */
-.vc-sidebar { display: flex; flex-direction: column; gap: 12px; }
-.vc-info-card { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; }
-.vc-info-card h3 { font-family: 'Syne', sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-.person-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.person-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
-.avatar-doc { background: var(--teal); color: #fff; }
-.avatar-pat { background: var(--ink); color: #fff; }
-.person-name { font-size: .84rem; font-weight: 600; }
-.person-role { font-size: .72rem; color: var(--muted); }
-.info-row { display: flex; justify-content: space-between; font-size: .77rem; padding: 4px 0; border-bottom: 1px solid var(--cream); }
-.info-row:last-child { border-bottom: none; }
-.info-key { color: var(--muted); }
-.info-val { font-weight: 600; color: var(--ink); }
-.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
-.dot-green { background: var(--green); }
-.dot-grey  { background: #9ca3af; }
-
-/* Chat */
-.vc-chat { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.chat-header { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.chat-messages { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
-.chat-msg { max-width: 85%; }
-.chat-msg .sender { font-size: .65rem; color: var(--muted); margin-bottom: 2px; font-weight: 600; }
-.chat-msg .bubble { padding: 7px 11px; border-radius: 10px; font-size: .78rem; line-height: 1.5; }
-.chat-msg.me { align-self: flex-end; }
-.chat-msg.me .bubble { background: var(--teal); color: #fff; border-bottom-right-radius: 2px; }
-.chat-msg.them .bubble { background: var(--cream); color: var(--ink); border-bottom-left-radius: 2px; }
-.chat-msg.system .bubble { background: transparent; color: var(--muted); font-style: italic; font-size: .72rem; text-align: center; }
-.chat-msg.system { align-self: center; }
-.chat-input-row { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--border); }
-.chat-input-row input { flex: 1; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: .82rem; outline: none; }
-.chat-input-row input:focus { border-color: var(--teal2); }
-.chat-input-row button { background: var(--teal); color: #fff; border: none; padding: 8px 13px; border-radius: 6px; cursor: pointer; font-size: .82rem; transition: background .15s; }
-.chat-input-row button:hover { background: var(--teal2); }
-
-/* Status */
-.conn-status { font-size: .72rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
-.cs-connecting { background: rgba(217,119,6,.1); color: var(--amber); }
-.cs-connected   { background: rgba(22,163,74,.1);  color: var(--green); }
-.cs-ended       { background: rgba(107,114,128,.1); color: #6b7280; }
-
-/* Back link */
-.back-link { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; color: var(--muted); text-decoration: none; margin-bottom: 16px; }
-.back-link:hover { color: var(--ink); }
-
-@media(max-width:860px) {
-  .vc-layout { grid-template-columns: 1fr; height: auto; }
-  .vc-videos { height: 380px; }
-  .vc-sidebar { flex-direction: row; flex-wrap: wrap; }
-  .vc-info-card, .vc-chat { flex: 1; min-width: 240px; }
-  .vc-chat { height: 280px; }
+.vc { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:var(--mai-s4); }
+.vc-stage { position:relative; background:#101412; border-radius:var(--mai-radius-lg); overflow:hidden; aspect-ratio:16 / 10; min-height:320px; box-shadow:var(--mai-shadow-hover); }
+.video-remote { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#151a17; }
+.video-local { position:absolute; right:14px; bottom:96px; width:clamp(96px, 22%, 180px); aspect-ratio:4 / 3; border-radius:12px; object-fit:cover; border:2px solid rgba(255,255,255,.22); background:#202722; z-index:3; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+.waiting { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:rgba(255,255,255,.72); text-align:center; padding:24px; z-index:2; transition:opacity var(--mai-motion-normal) var(--mai-ease); }
+.waiting__ring { width:64px; height:64px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.07); color:rgba(255,255,255,.8); font-size:1.3rem; }
+.waiting p { font-size:.95rem; max-width:34ch; }
+.spinner { width:20px; height:20px; border:2.5px solid rgba(255,255,255,.18); border-top-color:#9fd8cf; border-radius:50%; animation:mai-spin .9s linear infinite; }
+.controls { position:absolute; left:0; right:0; bottom:0; z-index:4; display:flex; justify-content:center; gap:14px; padding:18px 14px calc(16px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(transparent, rgba(0,0,0,.65)); }
+.ctrl { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.ctrl button { width:52px; height:52px; border-radius:50%; border:none; cursor:pointer; display:grid; place-items:center; font-size:1rem; background:rgba(255,255,255,.16); color:#fff; transition:background-color var(--mai-motion-fast) var(--mai-ease), transform var(--mai-motion-fast) var(--mai-ease); }
+.ctrl button:hover { background:rgba(255,255,255,.26); }
+.ctrl button:active { transform:scale(.95); }
+.ctrl button[aria-pressed="true"] { background:#fff; color:#B42318; }
+.ctrl button.end { background:#C93A2E; width:58px; height:58px; }
+.ctrl button.end:hover { background:#A92F25; }
+.ctrl button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.ctrl span { font-size:.68rem; color:rgba(255,255,255,.75); font-weight:500; }
+.conn { transition:background-color var(--mai-motion-normal) var(--mai-ease), color var(--mai-motion-normal) var(--mai-ease); }
+.person { display:flex; align-items:center; gap:10px; padding:6px 0; }
+.person .avatar { width:36px; height:36px; }
+.presence { display:inline-flex; align-items:center; gap:6px; font-size:var(--mai-fs-xs); color:var(--mai-muted); }
+.presence .dot { width:8px; height:8px; border-radius:50%; background:var(--mai-border-strong); transition:background-color var(--mai-motion-normal) var(--mai-ease); }
+.presence .dot.is-online { background:var(--mai-success); }
+.chat { display:flex; flex-direction:column; padding:0; overflow:hidden; min-height:300px; flex:1; }
+.chat__head { padding:12px 16px; border-bottom:1px solid var(--mai-border); }
+.chat__msgs { flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:8px; max-height:340px; }
+.cmsg { max-width:85%; animation:mai-enter var(--mai-motion-fast) var(--mai-ease) both; }
+.cmsg .sender { font-size:.66rem; color:var(--mai-muted); margin-bottom:2px; font-weight:600; }
+.cmsg .bubble { padding:8px 12px; border-radius:12px; font-size:var(--mai-fs-sm); line-height:1.45; overflow-wrap:anywhere; }
+.cmsg.me { align-self:flex-end; }
+.cmsg.me .bubble { background:var(--mai-primary); color:var(--mai-on-primary); border-bottom-right-radius:4px; }
+.cmsg.them .bubble { background:var(--mai-surface-sunken); border-bottom-left-radius:4px; }
+.cmsg.system { align-self:center; max-width:100%; }
+.cmsg.system .bubble { background:none; color:var(--mai-muted); font-size:var(--mai-fs-xs); text-align:center; padding:2px 6px; }
+.chat__input { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--mai-border); }
+.chat__input .input { min-height:40px; }
+.side { display:flex; flex-direction:column; gap:var(--mai-s4); }
+@media (max-width:960px){
+  .vc { grid-template-columns:minmax(0,1fr); }
+  .vc-stage { aspect-ratio:auto; height:min(62vh, 520px); }
+  .video-local { bottom:104px; }
 }
 {% endblock %}
 
 {% block content %}
-<div class="vc-page">
-  <a href="{{ call.return_url }}" class="back-link">
-    <i class="fa-solid fa-arrow-left"></i> Back to {{ call.label }}
-  </a>
+<div class="container container--wide" style="padding-top:var(--mai-s5);">
+  <nav aria-label="Breadcrumb" style="margin-bottom:var(--mai-s3);">
+    <ol class="breadcrumb"><li><a href="{{ call.return_url }}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to {{ call.label|lower }}</a></li><li aria-current="page">{{ call.title }}</li></ol>
+  </nav>
 
-  <div class="vc-topbar">
-    <div>
-      <div class="vc-title">
-        <i class="fa-solid fa-video" style="color:var(--teal)"></i>
-        {{ call.title }} &nbsp;#{{ call.id }}
-      </div>
-      <div class="vc-meta">
-        {% if started_at %}Started: {{ started_at }}{% else %}Starting now...{% endif %}
-        &nbsp;·&nbsp; {{ call.label }} #{{ call.id }}
-      </div>
+  <header class="page-header" style="margin-bottom:var(--mai-s4);">
+    <div class="page-header__text">
+      <span class="eyebrow"><i class="fa-solid fa-video" aria-hidden="true"></i> {{ call.label }} #{{ call.id }}</span>
+      <h1>{{ call.title }}</h1>
+      <p>{% if started_at %}Started {{ started_at }}{% else %}Starting now{% endif %}</p>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="conn-status cs-connecting" id="conn-status">⏳ Connecting...</span>
-      <span class="live-badge" id="live-badge" style="display:none;"><span class="live-dot"></span> LIVE</span>
+    <div class="cluster" role="status" aria-live="polite">
+      <span class="chip chip--lg chip--dot tone-warning conn" id="conn-status">Connecting…</span>
+      <span class="chip chip--lg tone-danger" id="live-badge" hidden><i class="fa-solid fa-circle" style="font-size:.5em;" aria-hidden="true"></i> Live</span>
     </div>
-  </div>
+  </header>
 
-  <div class="vc-layout">
-
-    <!-- Video area -->
-    <div class="vc-videos">
-      <div class="waiting-screen" id="waiting-screen">
-        <div class="spinner"></div>
-        <p id="waiting-msg">
-          {% if call.is_host %}Waiting for {{ call.guest_label|lower }} to join...{% else %}Waiting for {{ call.host_label|lower }} to start the call...{% endif %}
-        </p>
+  <div class="vc">
+    <section class="vc-stage" aria-label="Video">
+      <div class="waiting" id="waiting-screen">
+        <div class="waiting__ring" aria-hidden="true"><i class="fa-solid fa-user-clock" id="waiting-icon"></i></div>
+        <p id="waiting-msg">{% if call.is_host %}Waiting for the {{ call.guest_label|lower }} to join…{% else %}Waiting for the {{ call.host_label|lower }} to start the call…{% endif %}</p>
+        <div class="spinner" id="waiting-spinner" aria-hidden="true"></div>
       </div>
-      <video id="remote-video" class="video-remote" autoplay playsinline style="display:none;"></video>
-      <video id="local-video"  class="video-local"  autoplay playsinline muted></video>
+      <video id="remote-video" class="video-remote" autoplay playsinline style="display:none;" aria-label="Remote participant video"></video>
+      <video id="local-video" class="video-local" autoplay playsinline muted aria-label="Your camera preview"></video>
 
-      <!-- Controls -->
-      <div class="vc-controls">
-        <div class="ctrl-wrap">
-          <button class="ctrl-btn active" id="btn-mic" onclick="toggleMic()">
-            <i class="fa-solid fa-microphone" id="mic-icon"></i>
-          </button>
-          <span class="ctrl-label">Mic</span>
+      <div class="controls" role="toolbar" aria-label="Call controls">
+        <div class="ctrl">
+          <button type="button" id="btn-mic" onclick="toggleMic()" aria-pressed="false" aria-label="Mute microphone"><i class="fa-solid fa-microphone" id="mic-icon" aria-hidden="true"></i></button>
+          <span aria-hidden="true">Mic</span>
         </div>
-        <div class="ctrl-wrap">
-          <button class="ctrl-btn active" id="btn-cam" onclick="toggleCam()">
-            <i class="fa-solid fa-video" id="cam-icon"></i>
-          </button>
-          <span class="ctrl-label">Camera</span>
+        <div class="ctrl">
+          <button type="button" id="btn-cam" onclick="toggleCam()" aria-pressed="false" aria-label="Turn camera off"><i class="fa-solid fa-video" id="cam-icon" aria-hidden="true"></i></button>
+          <span aria-hidden="true">Camera</span>
         </div>
-        <div class="ctrl-wrap">
-          <button class="ctrl-btn end-call" onclick="endCall()">
-            <i class="fa-solid fa-phone-slash"></i>
-          </button>
-          <span class="ctrl-label" style="color:rgba(255,255,255,.5)">End</span>
+        <div class="ctrl">
+          <button type="button" class="end" onclick="endCall()" aria-label="End call"><i class="fa-solid fa-phone-slash" aria-hidden="true"></i></button>
+          <span aria-hidden="true">End</span>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Sidebar -->
-    <div class="vc-sidebar">
+    <div class="side">
+      <section class="card" aria-labelledby="pp-title">
+        <h2 class="card__title" id="pp-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-users" aria-hidden="true"></i> Participants</h2>
+        <div class="person">
+          <span class="avatar" style="background:var(--mai-primary);color:var(--mai-on-primary);" aria-hidden="true"><i class="fa-solid {{ call.host_icon }}"></i></span>
+          <div><div style="font-weight:600;font-size:var(--mai-fs-sm);">{{ call.host_name }}</div>
+            <div class="presence" id="doc-status"><span class="dot" id="doc-dot"></span><span>{% if call.is_host %}You{% else %}{{ call.host_label }}{% endif %} · <span id="doc-state">offline</span></span></div></div>
+        </div>
+        <div class="person">
+          <span class="avatar avatar--ink" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+          <div><div style="font-weight:600;font-size:var(--mai-fs-sm);">{{ call.guest_name }}</div>
+            <div class="presence" id="pat-status"><span class="dot" id="pat-dot"></span><span>{% if not call.is_host %}You{% else %}{{ call.guest_label }}{% endif %} · <span id="pat-state">offline</span></span></div></div>
+        </div>
+        <dl class="kv kv--2" style="margin-top:var(--mai-s3);padding-top:var(--mai-s3);border-top:1px solid var(--mai-border);">
+          <div><dt>{{ call.label }}</dt><dd>#{{ call.id }}</dd></div>
+          <div><dt>Your role</dt><dd style="text-transform:capitalize;">{{ role }}</dd></div>
+        </dl>
+      </section>
 
-      <!-- Participants -->
-      <div class="vc-info-card">
-        <h3><i class="fa-solid fa-users"></i> Participants</h3>
-        <div class="person-row">
-          <div class="person-avatar avatar-doc"><i class="fa-solid {{ call.host_icon }}"></i></div>
-          <div>
-            <div class="person-name">{{ call.host_name }}</div>
-            <div class="person-role" id="doc-status">
-              <span class="status-dot dot-grey" id="doc-dot"></span>
-              {% if call.is_host %}You{% else %}{{ call.host_label }}{% endif %}
-            </div>
-          </div>
+      <section class="card chat" aria-labelledby="chat-title">
+        <div class="chat__head"><h2 class="card__title" id="chat-title"><i class="fa-solid fa-comments" aria-hidden="true"></i> In-call chat</h2></div>
+        <div class="chat__msgs" id="chat-messages" role="log" aria-live="polite">
+          <div class="cmsg system"><div class="bubble">Messages are shared with call participants during this session only.</div></div>
         </div>
-        <div class="person-row">
-          <div class="person-avatar avatar-pat"><i class="fa-solid fa-user"></i></div>
-          <div>
-            <div class="person-name">{{ call.guest_name }}</div>
-            <div class="person-role" id="pat-status">
-              <span class="status-dot dot-grey" id="pat-dot"></span>
-              {% if not call.is_host %}You{% else %}{{ call.guest_label }}{% endif %}
-            </div>
-          </div>
-        </div>
-        <hr style="border:none;border-top:1px solid var(--cream);margin:10px 0;">
-        <div class="info-row"><span class="info-key">{{ call.label }}</span><span class="info-val">#{{ call.id }}</span></div>
-        <div class="info-row"><span class="info-key">Your role</span><span class="info-val" style="text-transform:capitalize;">{{ role }}</span></div>
-        {% if started_at %}
-        <div class="info-row"><span class="info-key">Started</span><span class="info-val">{{ started_at }}</span></div>
-        {% endif %}
-      </div>
-
-      <!-- Chat -->
-      <div class="vc-chat">
-        <div class="chat-header"><i class="fa-solid fa-comments"></i> In-call Chat</div>
-        <div class="chat-messages" id="chat-messages">
-          <div class="chat-msg system"><div class="bubble">Chat is end-to-end in this session only</div></div>
-        </div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChat()">
-          <button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-      </div>
-
+        <form class="chat__input" onsubmit="event.preventDefault(); sendChat();">
+          <label for="chat-input" class="sr-only">Message</label>
+          <input type="text" class="input" id="chat-input" placeholder="Type a message…" autocomplete="off" maxlength="1000">
+          <button type="submit" class="btn btn--primary" aria-label="Send message"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+        </form>
+      </section>
     </div>
   </div>
 </div>
@@ -221,14 +149,40 @@ let pc           = null;   // RTCPeerConnection
 let micOn        = true;
 let camOn        = true;
 let callActive   = false;
+let callEnded    = false;
 
 const socket     = io();
 const localVideo = document.getElementById("local-video");
 const remoteVideo= document.getElementById("remote-video");
 const waitScreen = document.getElementById("waiting-screen");
 const waitMsg    = document.getElementById("waiting-msg");
+const waitSpin   = document.getElementById("waiting-spinner");
+const waitIcon   = document.getElementById("waiting-icon");
 const connStatus = document.getElementById("conn-status");
 const liveBadge  = document.getElementById("live-badge");
+
+// Connection status reflects real socket / peer-connection events only
+const CONN = {
+  connecting:   ["warning", "Connecting…"],
+  waiting:      ["info",    "Waiting for participant"],
+  connected:    ["success", "Connected"],
+  disconnected: ["warning", "Disconnected"],
+  failed:       ["danger",  "Connection failed"],
+  ended:        ["neutral", "Call ended"],
+};
+function setConn(state, text) {
+  const [tone, label] = CONN[state] || CONN.connecting;
+  connStatus.className = `chip chip--lg chip--dot conn tone-${tone}`;
+  connStatus.textContent = text || label;
+  liveBadge.hidden = state !== "connected";
+}
+function showWaiting(msg, { spinner = true, icon = "fa-user-clock" } = {}) {
+  remoteVideo.style.display = "none";
+  waitScreen.style.display  = "flex";
+  waitMsg.textContent = msg;
+  waitSpin.hidden = !spinner;
+  waitIcon.className = `fa-solid ${icon}`;
+}
 
 // ── 1. Get local camera + mic on page load ────────────────────────────────
 async function startLocalStream() {
@@ -238,6 +192,7 @@ async function startLocalStream() {
   } catch(e) {
     console.warn("Camera/mic error:", e);
     addChatMsg("system", "", "Could not access camera/microphone. Check browser permissions.");
+    localVideo.hidden = true;
   }
 }
 
@@ -255,9 +210,7 @@ function createPC() {
     remoteVideo.srcObject = e.streams[0];
     remoteVideo.style.display = "block";
     waitScreen.style.display  = "none";
-    connStatus.textContent    = "✅ Connected";
-    connStatus.className      = "conn-status cs-connected";
-    liveBadge.style.display   = "flex";
+    setConn("connected");
     callActive = true;
     setParticipantOnline(IS_HOST ? "pat" : "doc", true);
   };
@@ -270,8 +223,13 @@ function createPC() {
   };
 
   pc.onconnectionstatechange = () => {
-    if (pc.connectionState === "disconnected" || pc.connectionState === "failed") {
+    if (pc.connectionState === "failed") {
+      setConn("failed");
+      showDisconnected("The connection failed. Check your network, then try rejoining the call.");
+    } else if (pc.connectionState === "disconnected") {
       showDisconnected();
+    } else if (pc.connectionState === "connected" && !callEnded) {
+      setConn("connected");
     }
   };
 }
@@ -282,12 +240,21 @@ async function makeOffer() {
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
   socket.emit("offer", { ...ROOM, sdp: offer });
-  connStatus.textContent = {{ ("⏳ Waiting for " ~ call.guest_label|lower ~ "...")|tojson }};
+  setConn("connecting", {{ ("Connecting to " ~ call.guest_label|lower ~ "…")|tojson }});
 }
 
 // ── SocketIO events ───────────────────────────────────────────────────────
 socket.on("connect", () => {
   socket.emit("join", { ...ROOM });
+  if (!callActive && !callEnded) setConn("waiting", IS_HOST ? {{ ("Waiting for " ~ call.guest_label|lower)|tojson }} : {{ ("Waiting for " ~ call.host_label|lower)|tojson }});
+});
+
+socket.on("disconnect", () => {
+  if (!callEnded) setConn("disconnected", "Signalling connection lost — reconnecting…");
+});
+
+socket.on("connect_error", () => {
+  if (!callEnded) setConn("failed", "Can't reach the call server");
 });
 
 socket.on("user_joined", async (data) => {
@@ -307,7 +274,7 @@ socket.on("offer", async (data) => {
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
   socket.emit("answer", { ...ROOM, sdp: answer });
-  connStatus.textContent = "⏳ Connecting...";
+  setConn("connecting");
 });
 
 socket.on("answer", async (data) => {
@@ -336,7 +303,9 @@ function toggleMic() {
   if (!localStream) return;
   micOn = !micOn;
   localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-  document.getElementById("btn-mic").className  = `ctrl-btn ${micOn ? "active" : "muted"}`;
+  const b = document.getElementById("btn-mic");
+  b.setAttribute("aria-pressed", String(!micOn));
+  b.setAttribute("aria-label", micOn ? "Mute microphone" : "Unmute microphone");
   document.getElementById("mic-icon").className = `fa-solid fa-microphone${micOn ? "" : "-slash"}`;
 }
 
@@ -344,23 +313,22 @@ function toggleCam() {
   if (!localStream) return;
   camOn = !camOn;
   localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-  document.getElementById("btn-cam").className  = `ctrl-btn ${camOn ? "active" : "muted"}`;
+  const b = document.getElementById("btn-cam");
+  b.setAttribute("aria-pressed", String(!camOn));
+  b.setAttribute("aria-label", camOn ? "Turn camera off" : "Turn camera on");
   document.getElementById("cam-icon").className = `fa-solid fa-video${camOn ? "" : "-slash"}`;
 }
 
 function endCall() {
+  callEnded = true;
   socket.emit("leave", { ...ROOM });
   if (pc) { pc.close(); pc = null; }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); }
   if (IS_HOST && CALL_URLS.end) {
     fetch(CALL_URLS.end, { method: "POST" });
   }
-  connStatus.textContent  = "Call ended";
-  connStatus.className    = "conn-status cs-ended";
-  liveBadge.style.display = "none";
-  remoteVideo.style.display = "none";
-  waitScreen.style.display  = "flex";
-  waitMsg.textContent = "Call has ended.";
+  setConn("ended");
+  showWaiting("Call has ended. Returning…", { spinner: false, icon: "fa-phone-slash" });
   // Redirect back after 2s
   setTimeout(() => {
     window.location.href = CALL_URLS.back;
@@ -379,7 +347,7 @@ function sendChat() {
 function addChatMsg(type, sender, text) {
   const box = document.getElementById("chat-messages");
   const div = document.createElement("div");
-  div.className = `chat-msg ${type}`;
+  div.className = `cmsg ${type}`;
   const esc = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   div.innerHTML = type !== "system"
     ? `<div class="sender">${esc(sender)}</div><div class="bubble">${esc(text)}</div>`
@@ -390,20 +358,16 @@ function addChatMsg(type, sender, text) {
 
 function setParticipantOnline(who, online) {
   const dot = document.getElementById(`${who}-dot`);
-  if (dot) {
-    dot.className = `status-dot ${online ? "dot-green" : "dot-grey"}`;
-  }
+  if (dot) dot.classList.toggle("is-online", online);
+  const st = document.getElementById(`${who}-state`);
+  if (st) st.textContent = online ? "online" : "offline";
 }
 
-function showDisconnected() {
+function showDisconnected(msg) {
   if (!callActive) return;
   callActive = false;
-  connStatus.textContent = "⚠ Disconnected";
-  connStatus.className   = "conn-status cs-connecting";
-  liveBadge.style.display = "none";
-  remoteVideo.style.display = "none";
-  waitScreen.style.display  = "flex";
-  waitMsg.textContent = "The other participant disconnected.";
+  if (!msg) setConn("disconnected");
+  showWaiting(msg || "The other participant disconnected.", { spinner: false, icon: "fa-plug-circle-xmark" });
   setParticipantOnline("doc", false);
   setParticipantOnline("pat", false);
 }

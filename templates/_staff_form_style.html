@@ -1,16 +1,4 @@
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:6px; }
-.field input, .field select, .field textarea {
-  width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:7px;
-  font-family:'DM Sans',sans-serif; font-size:0.9rem; color:var(--ink); outline:none; transition:border-color .2s; background:#fff;
-}
-.field textarea { resize:vertical; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--teal2); }
-.row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.section-label { font-family:'Syne',sans-serif; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); border-bottom:1px solid var(--border); padding-bottom:8px; margin:22px 0 14px; }
-.test-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:6px; }
-.test-chk { display:flex; align-items:center; gap:8px; padding:7px 10px; border:1.5px solid var(--border); border-radius:6px; font-size:.8rem; cursor:pointer; background:#fff; }
-.test-chk input { accent-color:var(--teal); }
-.btn-auth { width:100%; background:var(--ink); color:#fff; border:none; padding:14px; border-radius:7px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:500; cursor:pointer; transition:background .2s; margin-top:8px; }
-.btn-auth:hover { background:var(--teal); }
-@media(max-width:600px){ .row2 { grid-template-columns:1fr; } }
+{#- Styles shared by apply.html and application_status.html.
+    Fields, rows and section labels come from static/css/mediai.css. -#}
+.test-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:6px; }
+.test-grid .tile { font-size:var(--mai-fs-xs); }

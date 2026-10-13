@@ -547,9 +547,20 @@ def interview_call(aid):
 
 # ── Home & Diagnosis ──────────────────────────────────────────────────────────
 
+@app.route("/welcome")
+def welcome():
+    """Public landing page. Signed-in users go straight to their role's home."""
+    if g.user:
+        return redirect(url_for(ROLE_HOME.get(session.get("role"), "home")))
+    return render_template("welcome.html")
+
+
 @app.route("/")
-@login_required
 def home():
+    # Signed-out visitors start at the welcome page; other protected pages
+    # still send them to the login form (with ?next=) as before.
+    if not g.user:
+        return redirect(url_for("welcome"))
     if not has_permission("diagnosis.run"):
         return redirect(url_for(ROLE_HOME.get(session.get("role"), "login")))
     return render_template("index.html", symptoms=symptom_columns)

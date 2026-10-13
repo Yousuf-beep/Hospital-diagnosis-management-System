@@ -2,239 +2,220 @@
 {% block title %}MediAI — Symptom Diary{% endblock %}
 
 {% block extra_style %}
-.page { max-width:1000px; margin:0 auto; padding:48px 32px; }
-.page-hdr { margin-bottom:32px; }
-.page-hdr h1 { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.04em; }
-.page-hdr p  { font-size:0.87rem; color:var(--muted); margin-top:6px; }
-.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px; }
-.card  { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; }
-.card-title { font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:7px; }
-.full { grid-column:1/-1; }
-
-/* Log form */
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:5px; }
-.field input[type=date], .field input[type=text], .field textarea, .field select {
-  width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:6px;
-  font-family:'DM Sans',sans-serif; font-size:0.88rem; outline:none; transition:border-color .2s;
-}
-.field input:focus, .field textarea:focus { border-color:var(--teal2); }
-.field textarea { resize:vertical; min-height:70px; }
-.severity-row { display:flex; gap:8px; }
-.sev-btn { flex:1; padding:9px; border:1.5px solid var(--border); border-radius:6px; background:#fff;
-  font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:all .15s; text-align:center; }
-.sev-btn:hover, .sev-btn.active { background:var(--teal); border-color:var(--teal); color:#fff; }
-.sev-hidden { display:none; }
-.sym-mini-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px; max-height:200px; overflow-y:auto; }
-.sym-mini-grid::-webkit-scrollbar { width:3px; }
-.sym-mini-grid::-webkit-scrollbar-thumb { background:var(--border); }
-.sym-chk { display:flex; align-items:center; gap:6px; padding:5px 8px; border:1px solid var(--border);
-  border-radius:5px; font-size:0.75rem; cursor:pointer; transition:all .12s; background:#fff; }
-.sym-chk:hover { border-color:var(--teal2); }
-.sym-chk input { accent-color:var(--teal); width:12px; height:12px; }
-.sym-chk.checked { border-color:var(--teal); background:rgba(10,124,110,.07); font-weight:500; }
-.btn-log { width:100%; background:var(--teal); color:#fff; border:none; padding:13px;
-  border-radius:6px; font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:500;
-  cursor:pointer; margin-top:14px; transition:background .2s; }
-.btn-log:hover { background:var(--teal2); }
-
-/* Common symptoms chips */
-.common-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-.common-chip { background:var(--cream); border:1px solid var(--border); border-radius:20px;
-  padding:4px 12px; font-size:0.74rem; cursor:pointer; transition:all .12s; }
-.common-chip:hover { border-color:var(--teal); color:var(--teal); }
-
-/* History table */
-.hist-table { width:100%; border-collapse:collapse; }
-.hist-table th { font-size:0.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted);
-  text-align:left; padding:0 0 9px; border-bottom:1.5px solid var(--border); }
-.hist-table td { padding:10px 0; font-size:0.82rem; border-bottom:1px solid var(--cream); vertical-align:top; }
-.hist-table tr:last-child td { border-bottom:none; }
-.sev-dot { display:inline-flex; align-items:center; gap:5px; font-weight:600; }
-.sym-pill { background:var(--cream); border-radius:12px; padding:2px 9px; font-size:0.72rem; display:inline-block; margin:2px; }
-
-/* Trend summary */
-.trend-common { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-.trend-chip { background:rgba(10,124,110,.08); border:1px solid rgba(10,124,110,.25); color:var(--teal);
-  border-radius:20px; padding:4px 13px; font-size:0.78rem; font-weight:500; display:flex; align-items:center; gap:6px; }
-.trend-chip span { background:var(--teal); color:#fff; border-radius:10px; padding:1px 7px; font-size:0.7rem; }
-
-.empty-state { text-align:center; padding:40px; color:var(--muted); }
-.empty-state i { font-size:2rem; opacity:.3; display:block; margin-bottom:12px; }
-
-@media(max-width:700px){ .grid2{grid-template-columns:1fr} .sym-mini-grid{grid-template-columns:1fr 1fr} }
+.quick { display:flex; flex-wrap:wrap; gap:6px; }
+.quick button { border:1px solid var(--mai-border-strong); background:var(--mai-surface-raised); border-radius:var(--mai-radius-pill); padding:5px 12px; min-height:34px; font-size:var(--mai-fs-xs); font-weight:500; cursor:pointer; transition:all var(--mai-motion-fast) var(--mai-ease); }
+.quick button:hover { border-color:var(--mai-primary); color:var(--mai-primary); }
+.quick button[aria-pressed="true"] { background:var(--mai-primary-soft); border-color:var(--mai-primary); color:var(--mai-primary); }
+.sym-pick { max-height:228px; overflow-y:auto; padding:2px; border-radius:var(--mai-radius-sm); }
+.sym-pick .tile { min-height:38px; font-size:var(--mai-fs-xs); }
+.sev-scale .option-btn { flex-direction:column; gap:0; line-height:1.15; min-height:52px; }
+.sev-scale .option-btn small { font-size:.66rem; }
+.recurring { display:flex; flex-wrap:wrap; gap:8px; }
+.recurring .tag b { background:var(--mai-primary); color:var(--mai-on-primary); border-radius:var(--mai-radius-pill); padding:0 7px; font-size:.68rem; }
+.picked-count { font-size:var(--mai-fs-xs); color:var(--mai-muted); }
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div class="page-hdr">
-    <h1>Symptom Diary</h1>
-    <p>Track your symptoms daily to spot trends and share your history with your doctor.</p>
-  </div>
+<div class="container">
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">Your health record</span>
+      <h1>Symptom diary</h1>
+      <p>Log how you feel each day to spot trends and share a clear history with your doctor.</p>
+    </div>
+  </header>
 
-  <div class="grid2">
+  <div class="grid grid--2 stagger" style="align-items:start;">
 
-    <!-- Log Form -->
-    <div class="card">
-      <div class="card-title"><i class="fa-solid fa-pen-to-square"></i> Log Today's Symptoms</div>
-      <form action="/diary/log" method="post" id="diary-form">
+    <!-- Log form -->
+    <section class="card" aria-labelledby="log-title">
+      <h2 class="card__title" id="log-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Log symptoms</h2>
+      <form action="/diary/log" method="post" id="diary-form" data-loading>
         <div class="field">
-          <label>Date</label>
+          <label for="log-date">Date</label>
           <input type="date" name="log_date" id="log-date" required>
         </div>
 
         <div class="field">
-          <label>Quick Add Common Symptoms</label>
-          <div class="common-chips">
+          <span class="field__label" id="quick-label">Quick add</span>
+          <div class="quick" role="group" aria-labelledby="quick-label">
             {% for s in ['high_fever','headache','cough','fatigue','nausea','vomiting','chest_pain','back_pain','dizziness','itching','breathlessness','joint_pain'] %}
-            <span class="common-chip" onclick="toggleCommon('{{ s }}')">{{ s.replace('_',' ') }}</span>
+            <button type="button" data-quick="{{ s }}" aria-pressed="false">{{ s.replace('_',' ') }}</button>
             {% endfor %}
           </div>
         </div>
 
         <div class="field">
-          <label>Select Symptoms</label>
-          <div class="sym-mini-grid" id="sym-mini">
+          <div class="spread"><span class="field__label" id="pick-label">All symptoms</span><span class="picked-count" id="picked-count" aria-live="polite">0 selected</span></div>
+          <div class="input-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" class="input" id="sym-search" placeholder="Search symptoms…" aria-label="Search symptoms"></div>
+          <div class="tile-grid sym-pick" id="sym-mini" role="group" aria-labelledby="pick-label" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
             {% for s in symptoms %}
-            <label class="sym-chk" id="mc-{{ loop.index }}">
-              <input type="checkbox" name="symptoms" value="{{ s }}" onchange="this.closest('.sym-chk').classList.toggle('checked',this.checked)">
-              {{ s.replace('_',' ').title() }}
-            </label>
+            <label class="tile"><input type="checkbox" name="symptoms" value="{{ s }}"> {{ s.replace('_',' ').title() }}</label>
             {% endfor %}
           </div>
         </div>
 
-        <div class="field">
-          <label>Severity (1 = mild, 5 = severe)</label>
-          <div class="severity-row">
-            {% for i in range(1,6) %}
-            <button type="button" class="sev-btn" onclick="setSeverity({{ i }},this)">{{ i }}</button>
+        <fieldset class="field" style="border:none;">
+          <legend class="field__label" style="margin-bottom:6px;">Overall severity</legend>
+          <div class="option-row sev-scale">
+            {% for i, lbl in [(1,'Mild'),(2,'Light'),(3,'Moderate'),(4,'Strong'),(5,'Severe')] %}
+            {% set tone = 'tone-success' if i <= 2 else ('tone-warning' if i == 3 else 'tone-danger') %}
+            <button type="button" class="option-btn {{ tone }}" data-sev="{{ i }}" aria-pressed="{{ 'true' if i == 1 else 'false' }}"><span>{{ i }}</span><small>{{ lbl }}</small></button>
             {% endfor %}
           </div>
           <input type="hidden" name="severity" id="sev-val" value="1">
-        </div>
+        </fieldset>
 
         <div class="field">
-          <label>Notes (optional)</label>
-          <textarea name="notes" placeholder="Any additional details…"></textarea>
+          <label for="notes">Notes <span class="opt">(optional)</span></label>
+          <textarea name="notes" id="notes" placeholder="Anything else worth noting — triggers, timing, medication…"></textarea>
         </div>
 
-        <button type="submit" class="btn-log"><i class="fa-solid fa-plus"></i> Log Symptoms</button>
+        <button type="submit" class="btn btn--primary btn--block btn--lg"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span>Save entry</span></button>
       </form>
-    </div>
+    </section>
 
-    <!-- Trend Summary + Chart -->
-    <div style="display:flex;flex-direction:column;gap:18px;">
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-chart-line"></i> Severity Trend (14 days)</div>
+    <!-- Trend -->
+    <div class="stack stack--lg">
+      <section class="card" aria-labelledby="trend-title">
+        <div class="card__head" style="margin-bottom:var(--mai-s3);">
+          <h2 class="card__title" id="trend-title"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> 14-day trend</h2>
+        </div>
         {% if trend.dates %}
-        <canvas id="diaryChart" height="180"></canvas>
+        <div class="chart-box" role="img" aria-label="Line chart of daily severity (1 to 5) and number of symptoms over the last 14 days">
+          <canvas id="diaryChart"></canvas>
+        </div>
+        <p class="legend-note">Severity is on the left axis (1 = mild, 5 = severe); number of symptoms logged is on the right.</p>
         {% else %}
-        <div class="empty-state"><i class="fa-solid fa-chart-line"></i><p>No data yet — log some symptoms!</p></div>
+        <div class="empty empty--compact">
+          <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></div>
+          <h3>No trend yet</h3>
+          <p>Log your symptoms on a few different days and your 14-day trend will appear here.</p>
+        </div>
         {% endif %}
-      </div>
+      </section>
 
       {% if trend.common %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-arrow-trend-up"></i> Most Recurring Symptoms</div>
-        <div class="trend-common">
+      <section class="card" aria-labelledby="rec-title">
+        <h2 class="card__title" id="rec-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> Most recurring symptoms</h2>
+        <div class="recurring">
           {% for item in trend.common %}
-          <div class="trend-chip">
-            {{ item.symptom.replace('_',' ').title() }}
-            <span>{{ item.count }}x</span>
-          </div>
+          <span class="tag">{{ item.symptom.replace('_',' ').title() }} <b aria-label="{{ item.count }} times">{{ item.count }}×</b></span>
           {% endfor %}
         </div>
-      </div>
+      </section>
       {% endif %}
     </div>
-
   </div>
 
   <!-- History -->
-  <div class="card">
-    <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Diary History (Last 30 days)</div>
+  <section class="card" aria-labelledby="hist-title" style="margin-top:var(--mai-s5);">
+    <h2 class="card__title" id="hist-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Diary history · last 30 days</h2>
     {% if entries %}
-    <table class="hist-table">
-      <thead><tr><th>Date</th><th>Symptoms</th><th>Severity</th><th>Notes</th></tr></thead>
-      <tbody>
-        {% for e in entries|reverse %}
-        <tr>
-          <td style="font-weight:600;white-space:nowrap;">{{ e.date }}</td>
-          <td>{% for s in e.symptoms %}<span class="sym-pill">{{ s.replace('_',' ').title() }}</span>{% endfor %}</td>
-          <td>
-            {% set sev = e.severity %}
-            {% set col = '#16a34a' if sev<=2 else ('#d97706' if sev<=3 else '#e8341c') %}
-            <span class="sev-dot" style="color:{{ col }}">
-              <i class="fa-solid fa-circle" style="font-size:.5rem;"></i> {{ sev }}/5
-            </span>
-          </td>
-          <td style="font-size:0.78rem;color:var(--muted);">{{ e.notes or '—' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table class="table table--stack">
+        <thead><tr><th scope="col">Date</th><th scope="col">Symptoms</th><th scope="col">Severity</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          {% for e in entries|reverse %}
+          {% set sev = e.severity %}
+          {% set tone = 'success' if sev <= 2 else ('warning' if sev <= 3 else 'danger') %}
+          <tr>
+            <td class="nowrap" style="font-weight:600;">{{ e.date }}</td>
+            <td data-label="Symptoms"><div class="tag-list">{% for s in e.symptoms %}<span class="tag">{{ s.replace('_',' ').title() }}</span>{% endfor %}</div></td>
+            <td data-label="Severity"><span class="chip chip--dot tone-{{ tone }}">{{ sev }}/5</span></td>
+            <td data-label="Notes" class="small muted">{{ e.notes or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% else %}
-    <div class="empty-state">
-      <i class="fa-solid fa-calendar-days"></i>
-      <p>No diary entries yet. Start logging your symptoms above.</p>
+    <div class="empty empty--compact">
+      <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></div>
+      <h3>No entries yet</h3>
+      <p>Your logged entries will be listed here.</p>
     </div>
     {% endif %}
-  </div>
+  </section>
 </div>
 {% endblock %}
 
 {% block extra_script %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-  // Set today's date
-  document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+// Default to today's *local* date
+(() => {
+  const d = new Date();
+  document.getElementById('log-date').value =
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+})();
 
-  function setSeverity(val, btn) {
-    document.getElementById('sev-val').value = val;
-    document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  document.querySelector('.sev-btn').classList.add('active');
+// Severity scale
+document.querySelectorAll('[data-sev]').forEach(btn => btn.addEventListener('click', () => {
+  document.getElementById('sev-val').value = btn.dataset.sev;
+  document.querySelectorAll('[data-sev]').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+}));
 
-  function toggleCommon(sym) {
-    const chks = document.querySelectorAll(`input[value="${sym}"]`);
-    chks.forEach(cb => {
-      cb.checked = !cb.checked;
-      cb.closest('.sym-chk').classList.toggle('checked', cb.checked);
-    });
-  }
-
-  {% if trend.dates %}
-  const TEAL = '#0a7c6e', RED = '#e8341c', AMBER = '#d97706';
-  new Chart(document.getElementById('diaryChart'), {
-    type: 'line',
-    data: {
-      labels: {{ trend.dates | tojson }},
-      datasets: [
-        {
-          label: 'Severity',
-          data: {{ trend.severity | tojson }},
-          borderColor: RED, backgroundColor: 'rgba(232,52,28,.08)',
-          tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: RED, yAxisID: 'y1',
-        },
-        {
-          label: 'Symptom Count',
-          data: {{ trend.counts | tojson }},
-          borderColor: TEAL, backgroundColor: 'transparent',
-          tension: 0.4, borderDash: [5,3], pointRadius: 3, pointBackgroundColor: TEAL, yAxisID: 'y2',
-        }
-      ]
-    },
-    options: {
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } },
-      scales: {
-        y1: { beginAtZero: true, max: 5, grid: { color: 'rgba(0,0,0,.05)' }, title: { display: true, text: 'Severity', font: { size: 9 } } },
-        y2: { beginAtZero: true, position: 'right', grid: { display: false }, title: { display: true, text: '# Symptoms', font: { size: 9 } } },
-        x:  { grid: { display: false } }
-      }
-    }
+// Symptom picking: quick chips mirror the checkboxes
+const boxes = [...document.querySelectorAll('#sym-mini input[type=checkbox]')];
+function syncPicked() {
+  const n = boxes.filter(b => b.checked).length;
+  document.getElementById('picked-count').textContent = `${n} selected`;
+  document.querySelectorAll('[data-quick]').forEach(q => {
+    const cb = boxes.find(b => b.value === q.dataset.quick);
+    q.setAttribute('aria-pressed', String(!!(cb && cb.checked)));
+    q.disabled = !cb;
   });
-  {% endif %}
+}
+document.querySelectorAll('[data-quick]').forEach(q => q.addEventListener('click', () => {
+  const cb = boxes.find(b => b.value === q.dataset.quick);
+  if (cb) { cb.checked = !cb.checked; syncPicked(); }
+}));
+boxes.forEach(b => b.addEventListener('change', syncPicked));
+document.getElementById('sym-search').addEventListener('input', e => {
+  const v = e.target.value.trim().toLowerCase();
+  boxes.forEach(b => { b.closest('.tile').hidden = v && !b.closest('.tile').textContent.toLowerCase().includes(v); });
+});
+syncPicked();
+
+{% if trend.dates %}
+(() => {
+const t = MediAI.applyChartDefaults(Chart);
+const alpha = (hex, a) => { const m = hex.match(/^#([\da-f]{6})$/i); if (!m) return hex; const n = parseInt(m[1], 16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; };
+const diaryChart = new Chart(document.getElementById('diaryChart'), {
+  type: 'line',
+  data: {
+    labels: {{ trend.dates | tojson }},
+    datasets: [
+      { label: 'Severity (1–5)', data: {{ trend.severity | tojson }},
+        borderColor: t.accent, backgroundColor: alpha(t.accent, .1), borderWidth: 2.5,
+        tension: 0.35, fill: true, pointRadius: 3.5, pointHoverRadius: 6, pointBackgroundColor: t.accent, yAxisID: 'y1', spanGaps: true },
+      { label: 'Number of symptoms', data: {{ trend.counts | tojson }},
+        borderColor: t.primary, backgroundColor: 'transparent', borderWidth: 2,
+        tension: 0.35, borderDash: [5, 4], pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: t.primary, yAxisID: 'y2', spanGaps: true },
+    ]
+  },
+  options: {
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { position: 'bottom' } },
+    scales: {
+      y1: { beginAtZero: true, max: 5, ticks: { stepSize: 1 }, grid: { color: t.border }, title: { display: true, text: 'Severity' } },
+      y2: { beginAtZero: true, position: 'right', ticks: { precision: 0 }, grid: { display: false }, title: { display: true, text: 'Symptoms' } },
+      x:  { grid: { display: false }, title: { display: true, text: 'Date' } }
+    }
+  }
+});
+document.addEventListener('mediai:recolor-charts', e => {
+  const c = e.detail;
+  diaryChart.data.datasets[0].borderColor = c.accent; diaryChart.data.datasets[0].pointBackgroundColor = c.accent;
+  diaryChart.data.datasets[0].backgroundColor = alpha(c.accent, .1);
+  diaryChart.data.datasets[1].borderColor = c.primary; diaryChart.data.datasets[1].pointBackgroundColor = c.primary;
+  diaryChart.options.scales.y1.grid.color = c.border;
+  ['x', 'y1', 'y2'].forEach(k => { diaryChart.options.scales[k].ticks.color = c.muted; diaryChart.options.scales[k].title.color = c.muted; });
+  diaryChart.options.plugins.legend.labels.color = c.muted;
+  diaryChart.update('none');
+});
+})();
+{% endif %}
 </script>
 {% endblock %}

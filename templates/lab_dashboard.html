@@ -1,180 +1,119 @@
 {% extends "base.html" %}
 {% block title %}MediAI — Lab Dashboard{% endblock %}
+
 {% block extra_style %}
-.page{max-width:1100px;margin:0 auto;padding:40px 32px}
-.dash-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px}
-.dash-hdr h1{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-.04em}
-.dash-hdr p{font-size:.85rem;color:var(--muted);margin-top:4px}
-.lab-badge{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 18px}
-.lab-avatar{width:44px;height:44px;background:#7c3aed;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0}
-.lab-info .name{font-weight:700;font-size:.92rem}
-.lab-info .lab-name{font-size:.76rem;color:var(--muted)}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
-.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:9px;padding:18px 20px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
-.s-pend::before{background:var(--amber)}
-.s-done::before{background:var(--green)}
-.s-total::before{background:#7c3aed}
-.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1}
-.stat-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:4px}
-.section-title{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;margin-top:28px;display:flex;align-items:center;gap:8px}
-.section-title .count{background:var(--cream);padding:3px 10px;border-radius:20px;font-size:.7rem}
-.order-list{display:flex;flex-direction:column;gap:14px;margin-bottom:8px}
-.order-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:22px 24px}
-.order-card.urgent{border-color:rgba(232,52,28,.45);background:rgba(232,52,28,.02)}
-.order-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.test-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
-.order-meta{font-size:.79rem;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
-.order-meta span{display:flex;align-items:center;gap:5px}
-.priority-badge{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:12px;margin-left:8px}
-.p-urgent{background:rgba(232,52,28,.1);color:var(--red)}
-.p-normal{background:var(--cream);color:var(--muted)}
-.status-pill{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;gap:5px}
-.sp-pending{background:rgba(217,119,6,.1);color:var(--amber)}
-.sp-completed{background:rgba(22,163,74,.1);color:var(--green)}
-.instructions-box{background:var(--cream);border-radius:6px;padding:9px 13px;font-size:.8rem;color:var(--muted);margin-bottom:12px;display:flex;align-items:flex-start;gap:7px}
-.result-display{background:#f0fdf4;border:1.5px solid rgba(22,163,74,.3);border-radius:8px;padding:14px 16px;margin-top:10px}
-.result-display .rtitle{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.result-row{display:flex;gap:8px;font-size:.83rem;padding:3px 0}
-.result-key{font-weight:600;min-width:110px;color:var(--ink)}
-.result-val{color:#3a3630}
-.btn-enter{display:inline-flex;align-items:center;gap:7px;background:#7c3aed;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:background .2s;white-space:nowrap}
-.btn-enter:hover{background:#6d28d9}
-.urgent-warn{background:#fff0f0;border:1.5px solid rgba(232,52,28,.3);border-radius:8px;padding:10px 14px;font-size:.82rem;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:500}
-.empty{text-align:center;padding:48px 24px;color:var(--muted);background:var(--cream);border-radius:10px}
-.empty i{font-size:2rem;opacity:.25;display:block;margin-bottom:10px}
-@media(max-width:700px){.stat-row{grid-template-columns:1fr 1fr}.page{padding:24px 16px}}
+.lab-id { display:flex; align-items:center; gap:12px; padding:10px 16px 10px 10px; background:var(--mai-surface); border:1px solid var(--mai-border); border-radius:var(--mai-radius-md); }
+.lab-id .avatar { background:var(--mai-info-soft); color:var(--mai-info); width:40px; height:40px; }
+.instr { margin-top:10px; font-size:var(--mai-fs-sm); background:var(--mai-surface-sunken); border-radius:var(--mai-radius-sm); padding:9px 12px; display:flex; gap:8px; align-items:flex-start; }
+.instr i { color:var(--mai-muted); margin-top:3px; }
+.res { margin-top:10px; font-size:var(--mai-fs-sm); line-height:1.6; }
+.res dt { font-weight:600; display:inline; }
+.res dd { display:inline; margin-right:14px; }
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div class="dash-hdr">
-    <div>
-      <h1>Lab Dashboard</h1>
-      <p>Manage test orders · Submit results · Notify doctors instantly</p>
+{% set urgent = pending | selectattr('priority', 'eq', 'urgent') | list %}
+<div class="container container--wide">
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">Laboratory workspace</span>
+      <h1>Lab orders</h1>
+      <p>Process test orders and submit results — the ordering doctor is notified on submission.</p>
     </div>
     {% if lab %}
-    <div class="lab-badge">
-      <div class="lab-avatar"><i class="fa-solid fa-microscope"></i></div>
-      <div class="lab-info">
-        <div class="name">{{ lab.full_name }}</div>
-        <div class="lab-name">{{ lab.lab_name or 'Laboratory' }}</div>
-      </div>
+    <div class="lab-id">
+      <span class="avatar" aria-hidden="true"><i class="fa-solid fa-microscope"></i></span>
+      <div><div style="font-weight:600;font-size:var(--mai-fs-sm);">{{ lab.full_name }}</div><div class="xsmall muted">{{ lab.lab_name or 'Laboratory' }}</div></div>
     </div>
     {% endif %}
+  </header>
+
+  <div class="kpis stagger" style="margin-bottom:var(--mai-s5);">
+    <div class="kpi tone-danger"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span> Urgent pending</div><div class="kpi__value" data-countup>{{ urgent|length }}</div></div>
+    <div class="kpi tone-warning"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-vial"></i></span> Pending tests</div><div class="kpi__value" data-countup>{{ pending|length }}</div></div>
+    <div class="kpi tone-success"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span> Completed</div><div class="kpi__value" data-countup>{{ done|length }}</div></div>
+    <div class="kpi tone-neutral"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span> Total orders</div><div class="kpi__value" data-countup>{{ (pending|length) + (done|length) }}</div></div>
   </div>
 
-  <!-- Stats -->
-  <div class="stat-row">
-    <div class="stat-card s-pend">
-      <div class="stat-num">{{ pending|length }}</div>
-      <div class="stat-lbl">Pending Tests</div>
+  {% if pending or done %}
+  <div data-filter-scope="#order-groups" data-filter-empty="#order-empty">
+    <div class="toolbar">
+      <div class="input-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" class="input" data-filter="#order-groups" placeholder="Search test, patient or doctor…" aria-label="Search orders"></div>
+      <div class="segmented" role="group" aria-label="Filter by status">
+        <button type="button" data-filter-status="all" aria-pressed="true">All</button>
+        <button type="button" data-filter-status="pending" aria-pressed="false">Pending <span class="muted">{{ pending|length }}</span></button>
+        <button type="button" data-filter-status="completed" aria-pressed="false">Completed <span class="muted">{{ done|length }}</span></button>
+      </div>
+      <span class="sr-only" aria-live="polite" data-filter-count></span>
     </div>
-    <div class="stat-card s-done">
-      <div class="stat-num">{{ done|length }}</div>
-      <div class="stat-lbl">Completed</div>
-    </div>
-    <div class="stat-card s-total">
-      <div class="stat-num">{{ (pending|length) + (done|length) }}</div>
-      <div class="stat-lbl">Total Orders</div>
-    </div>
-  </div>
 
-  <!-- Pending Orders -->
-  {% if pending %}
-  <div class="section-title">
-    <i class="fa-solid fa-vial" style="color:var(--amber)"></i> Pending Tests
-    <span class="count">{{ pending|length }}</span>
-  </div>
-  <div class="order-list">
-    {% for o in pending %}
-    <div class="order-card {% if o.priority == 'urgent' %}urgent{% endif %}">
-
-      {% if o.priority == 'urgent' %}
-      <div class="urgent-warn"><i class="fa-solid fa-triangle-exclamation"></i> URGENT — Process immediately</div>
+    <div id="order-groups">
+      {% if pending %}
+      <section data-filter-group>
+        <div class="section-head" style="margin-top:var(--mai-s4);"><h2><i class="fa-solid fa-vial" style="color:var(--mai-warning);" aria-hidden="true"></i> Pending tests <span class="count">{{ pending|length }}</span></h2></div>
+        <div class="queue">
+          {% for o in pending %}
+          <article class="queue-item tone-{{ 'danger' if o.priority == 'urgent' else 'warning' }}" data-filter-item data-status="pending">
+            <div style="min-width:0;">
+              <div class="cluster">
+                <h3 class="queue-item__title">{{ o.test_type }}</h3>
+                {% if o.priority == 'urgent' %}<span class="chip tone-danger"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Urgent — process first</span>
+                {% else %}<span class="chip tone-neutral">Normal priority</span>{% endif %}
+                <span class="chip chip--dot tone-warning">Pending</span>
+              </div>
+              <div class="queue-item__meta">
+                <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ o.patient_name or '—' }}{% if o.age %}, {{ o.age }}y{% endif %}{% if o.gender %} · {{ o.gender }}{% endif %}</span>
+                <span><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Dr. {{ o.doctor_name }}</span>
+                <span><i class="fa-solid fa-brain" aria-hidden="true"></i> {{ o.top_disease }}</span>
+                <span><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ o.created_at|string|truncate(16,true,'') }}</span>
+              </div>
+              {% if o.test_notes %}<div class="instr"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span><b>Doctor's instructions:</b> {{ o.test_notes }}</span></div>{% endif %}
+            </div>
+            <a href="/lab/order/{{ o.id }}" class="btn btn--primary"><i class="fa-solid fa-flask" aria-hidden="true"></i> Enter results</a>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
       {% endif %}
 
-      <div class="order-header">
-        <div>
-          <span class="test-name">{{ o.test_type }}</span>
-          <span class="priority-badge p-{{ o.priority }}">{{ o.priority.upper() }}</span>
+      {% if done %}
+      <section data-filter-group>
+        <div class="section-head"><h2><i class="fa-solid fa-circle-check" style="color:var(--mai-success);" aria-hidden="true"></i> Completed <span class="count">{{ done|length }}</span></h2></div>
+        <div class="queue">
+          {% for o in done %}
+          <article class="queue-item tone-{{ 'danger' if o.is_abnormal else 'success' }} is-muted" style="grid-template-columns:minmax(0,1fr);" data-filter-item data-status="completed">
+            <div style="min-width:0;">
+              <div class="cluster">
+                <h3 class="queue-item__title">{{ o.test_type }}</h3>
+                <span class="chip chip--dot tone-success">Completed</span>
+                {% if o.is_abnormal %}<span class="chip tone-danger"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Abnormal</span>{% endif %}
+              </div>
+              <div class="queue-item__meta">
+                <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ o.patient_name or '—' }}{% if o.age %}, {{ o.age }}y{% endif %}</span>
+                <span><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Dr. {{ o.doctor_name }}</span>
+                <span><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ o.created_at|string|truncate(16,true,'') }}</span>
+              </div>
+              {% if o.result_text %}
+              <dl class="res">
+                {% if o.result_value %}<dt>Value:</dt> <dd>{{ o.result_value }} {{ o.unit or '' }}</dd>{% endif %}
+                <dt>Summary:</dt> <dd>{{ o.result_text }}</dd>
+              </dl>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
         </div>
-        <span class="status-pill sp-pending"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> Pending</span>
-      </div>
-
-      <div class="order-meta">
-        <span><i class="fa-solid fa-user"></i> {{ o.patient_name or '—' }}{% if o.age %}, {{ o.age }}y{% endif %}</span>
-        {% if o.gender %}<span><i class="fa-solid fa-venus-mars"></i> {{ o.gender }}</span>{% endif %}
-        <span><i class="fa-solid fa-stethoscope"></i> Dr. {{ o.doctor_name }}</span>
-        <span><i class="fa-solid fa-virus"></i> {{ o.top_disease }}</span>
-        <span><i class="fa-solid fa-clock"></i> {{ o.created_at|string|truncate(16,true,'') }}</span>
-      </div>
-
-      {% if o.test_notes %}
-      <div class="instructions-box">
-        <i class="fa-solid fa-note-sticky"></i>
-        <span><b>Doctor's Instructions:</b> {{ o.test_notes }}</span>
-      </div>
-      {% endif %}
-
-      <a href="/lab/order/{{ o.id }}" class="btn-enter">
-        <i class="fa-solid fa-flask"></i> Enter Results
-      </a>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <!-- Completed Orders -->
-  {% if done %}
-  <div class="section-title">
-    <i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Completed
-    <span class="count">{{ done|length }}</span>
-  </div>
-  <div class="order-list">
-    {% for o in done %}
-    <div class="order-card" style="opacity:.8">
-      <div class="order-header">
-        <div>
-          <span class="test-name">{{ o.test_type }}</span>
-          <span class="priority-badge p-{{ o.priority }}">{{ o.priority.upper() }}</span>
-        </div>
-        <span class="status-pill sp-completed"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> Completed</span>
-      </div>
-
-      <div class="order-meta">
-        <span><i class="fa-solid fa-user"></i> {{ o.patient_name or '—' }}{% if o.age %}, {{ o.age }}y{% endif %}</span>
-        <span><i class="fa-solid fa-stethoscope"></i> Dr. {{ o.doctor_name }}</span>
-        <span><i class="fa-solid fa-clock"></i> {{ o.created_at|string|truncate(16,true,'') }}</span>
-      </div>
-
-      {% if o.result_text %}
-      <div class="result-display">
-        <div class="rtitle">
-          <i class="fa-solid fa-circle-check"></i> Result Submitted
-          {% if o.is_abnormal %}<span style="color:var(--red);margin-left:6px;">⚠ ABNORMAL</span>{% endif %}
-        </div>
-        {% if o.result_value %}
-        <div class="result-row">
-          <span class="result-key">Value</span>
-          <span class="result-val">{{ o.result_value }} {{ o.unit or '' }}</span>
-        </div>
-        {% endif %}
-        <div class="result-row">
-          <span class="result-key">Summary</span>
-          <span class="result-val">{{ o.result_text }}</span>
-        </div>
-      </div>
+      </section>
       {% endif %}
     </div>
-    {% endfor %}
+    <div class="empty empty--compact" id="order-empty" hidden style="margin-top:var(--mai-s4);"><h3>No matching orders</h3><p>Try a different search or filter.</p></div>
   </div>
-  {% endif %}
-
-  {% if not pending and not done %}
+  {% else %}
   <div class="empty">
-    <i class="fa-solid fa-vials"></i>
-    <p>No lab orders assigned yet. They will appear here when a doctor orders tests.</p>
+    <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-vials"></i></div>
+    <h3>No lab orders yet</h3>
+    <p>Orders appear here when a doctor requests a test your lab offers.</p>
   </div>
   {% endif %}
 </div>

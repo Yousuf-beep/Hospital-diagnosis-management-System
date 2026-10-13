@@ -3,134 +3,102 @@
 
 {% block extra_style %}
 {% include "_staff_form_style.html" %}
-.page { max-width:900px; margin:0 auto; padding:48px 24px; }
-.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
-.hdr h1 { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; letter-spacing:-0.04em; }
-.hdr p { font-size:.86rem; color:var(--muted); margin-top:4px; }
-.badge { padding:6px 14px; border-radius:20px; font-size:.78rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
-.st-submitted, .st-under_review { background:rgba(2,132,199,.1); color:#0284c7; }
-.st-info_requested { background:rgba(217,119,6,.12); color:var(--amber); }
-.st-interview_scheduled, .st-interviewed { background:rgba(124,58,237,.1); color:#7c3aed; }
-.st-approved { background:rgba(22,163,74,.12); color:var(--green); }
-.st-rejected { background:rgba(232,52,28,.1); color:var(--red); }
-.stepper { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:28px; }
-.step { text-align:center; font-size:.74rem; color:var(--muted); }
-.step .bar { height:5px; border-radius:3px; background:var(--cream); margin-bottom:8px; }
-.step.done .bar { background:var(--teal); } .step.current .bar { background:var(--ink); }
-.step.done, .step.current { color:var(--ink); font-weight:600; }
-.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; margin-bottom:20px; }
-.card-title { font-family:'Syne',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
-.alert { border-radius:10px; padding:18px 20px; margin-bottom:20px; font-size:.88rem; line-height:1.6; }
-.alert-amber { background:#fffbeb; border:1.5px solid #fcd34d; color:#92400e; }
-.alert-red { background:#fef2f2; border:1.5px solid #fca5a5; color:#991b1b; }
-.alert-purple { background:#f5f3ff; border:1.5px solid #c4b5fd; color:#4c1d95; }
-.alert b { display:block; margin-bottom:4px; }
-.btn-join { display:inline-flex; align-items:center; gap:8px; background:#7c3aed; color:#fff; padding:10px 20px; border-radius:7px; text-decoration:none; font-weight:600; font-size:.86rem; margin-top:10px; }
-.kv { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
-.kv .k { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; }
-.kv .v { font-size:.88rem; margin-top:3px; word-break:break-word; }
-.chip { display:inline-block; background:var(--cream); border-radius:20px; padding:3px 10px; font-size:.74rem; margin:2px; }
-.timeline { list-style:none; border-left:2px solid var(--cream); margin-left:6px; }
-.timeline li { position:relative; padding:0 0 16px 18px; font-size:.84rem; }
-.timeline li::before { content:''; position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--teal); border:2px solid #fff; }
-.timeline .t { font-size:.72rem; color:var(--muted); }
-.timeline .a { font-weight:600; text-transform:capitalize; }
 {% endblock %}
 
 {% block content %}
 {% set order = {'submitted':0,'under_review':1,'info_requested':1,'interview_scheduled':2,'interviewed':3,'approved':4,'rejected':4} %}
 {% set pos = order[a.status] %}
-<div class="page">
-  <div class="hdr">
-    <div>
-      <h1>{{ 'Doctor' if a.role == 'doctor' else 'Lab Technician' }} Application</h1>
-      <p>#{{ a.id }} · {{ a.full_name }} · submitted {{ a.submitted_at.strftime('%d %b %Y') if a.submitted_at.strftime is defined else a.submitted_at }}</p>
+{% set app_tone = {'submitted':'info','under_review':'info','info_requested':'warning','interview_scheduled':'info','interviewed':'info','approved':'success','rejected':'danger'} %}
+<div class="container container--mid">
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">{{ 'Doctor' if a.role == 'doctor' else 'Lab technician' }} application #{{ a.id }}</span>
+      <h1>{{ a.full_name }}</h1>
+      <p>Submitted {{ a.submitted_at.strftime('%d %b %Y') if a.submitted_at.strftime is defined else a.submitted_at }}</p>
     </div>
-    <span class="badge st-{{ a.status }}"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> {{ a.status_label }}</span>
-  </div>
+    <span class="chip chip--lg chip--dot tone-{{ app_tone.get(a.status, 'neutral') }}">{{ a.status_label }}</span>
+  </header>
 
-  <div class="stepper">
+  <ol class="stepper" style="--steps:4;margin-bottom:var(--mai-s5);" aria-label="Application progress">
     {% for label in ['Submitted', 'Verification', 'Interview', 'Decision'] %}
-    <div class="step {% if loop.index0 < pos %}done{% elif loop.index0 == pos %}current{% endif %}"><div class="bar"></div>{{ label }}</div>
+    <li class="{% if loop.index0 < pos %}is-done{% elif loop.index0 == pos %}is-current{% endif %}" {% if loop.index0 == pos %}aria-current="step"{% endif %}>{{ label }}{% if loop.index0 < pos %}<span class="sr-only"> (done)</span>{% endif %}</li>
     {% endfor %}
-  </div>
+  </ol>
 
-  {% if a.status == 'info_requested' %}
-  <div class="alert alert-amber">
-    <b><i class="fa-solid fa-circle-exclamation"></i> The verification team needs more information</b>
-    {{ a.info_request }}
-    <div style="margin-top:6px;">Update your details below and resubmit.</div>
-  </div>
-  {% elif a.status == 'interview_scheduled' %}
-  <div class="alert alert-purple">
-    <b><i class="fa-solid fa-calendar-check"></i> Your interview is scheduled</b>
-    {{ a.mode_label }} — {{ a.interview_at.strftime('%A, %d %b %Y at %I:%M %p') if a.interview_at.strftime is defined else a.interview_at }}
-    {% if a.interview_location %}<div>{{ 'Number' if a.interview_mode == 'phone' else 'Location' }}: {{ a.interview_location }}</div>{% endif %}
-    {% if a.interview_mode == 'video' %}
-    <div style="margin-top:6px;">Join from this page at the scheduled time. Allow camera and microphone access when asked.</div>
-    <a href="/interview/{{ a.id }}/call" target="_blank" class="btn-join"><i class="fa-solid fa-video"></i> Join Interview</a>
-    {% endif %}
-  </div>
-  {% elif a.status == 'interviewed' %}
-  <div class="alert alert-purple"><b>Interview complete</b>Thank you — the team is finalising its decision.</div>
-  {% elif a.status == 'rejected' %}
-  <div class="alert alert-red">
-    <b><i class="fa-solid fa-circle-xmark"></i> Your application was not approved</b>
-    {{ a.decision_reason }}
-  </div>
-  {% elif a.status in ('submitted', 'under_review') %}
-  <div class="alert alert-purple" style="background:#f0f9ff;border-color:#bae6fd;color:#075985;">
-    <b><i class="fa-solid fa-hourglass-half"></i> We're verifying your details</b>
-    You'll be notified{{ ' by email' if a.email }} when there's an update — usually within a few working days.
-  </div>
-  {% endif %}
-
-  {% if a.status == 'info_requested' %}
-  <div class="card">
-    <div class="card-title"><i class="fa-solid fa-pen"></i> Update &amp; Resubmit</div>
-    <form method="post" action="/application/update">
-      {% with role=a.role, v=a, selected_tests=a.tests %}
-        {% include "_staff_fields.html" %}
-      {% endwith %}
-      <button type="submit" class="btn-auth"><i class="fa-solid fa-paper-plane"></i> Resubmit Application</button>
-    </form>
-  </div>
-  {% else %}
-  <div class="card">
-    <div class="card-title"><i class="fa-solid fa-id-card"></i> Your Details</div>
-    <div class="kv">
-      <div><div class="k">Username</div><div class="v">@{{ a.username }}</div></div>
-      <div><div class="k">Email</div><div class="v">{{ a.email }}</div></div>
-      <div><div class="k">Phone</div><div class="v">{{ a.phone }}</div></div>
-      <div><div class="k">Qualification</div><div class="v">{{ a.qualification }}</div></div>
-      <div><div class="k">Experience</div><div class="v">{{ a.experience_yrs }} years</div></div>
-      <div><div class="k">{{ 'Registration No.' if a.role == 'doctor' else 'Lab Licence No.' }}</div><div class="v">{{ a.license_number }} ({{ a.license_authority }})</div></div>
-      {% if a.role == 'doctor' %}
-      <div><div class="k">Specialty</div><div class="v">{{ a.specialty }}</div></div>
-      {% if a.hospital %}<div><div class="k">Hospital / Clinic</div><div class="v">{{ a.hospital }}</div></div>{% endif %}
-      {% else %}
-      <div><div class="k">Lab</div><div class="v">{{ a.lab_name }}</div></div>
-      <div><div class="k">Address</div><div class="v">{{ a.lab_address }}, {{ a.lab_city }}</div></div>
-      {% if a.accreditation_number %}<div><div class="k">Accreditation</div><div class="v">{{ a.accreditation_body }} {{ a.accreditation_number }}</div></div>{% endif %}
-      {% endif %}
+  <div class="stack stack--lg">
+    {% if a.status == 'info_requested' %}
+    <div class="alert alert--warning" role="status">
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+      <div><div class="alert__title">The verification team needs more information</div>{{ a.info_request }}<div style="margin-top:6px;">Update your details below and resubmit.</div></div>
     </div>
-    {% if a.role == 'lab' and a.tests %}
-    <div style="margin-top:14px;"><div class="kv"><div><div class="k">Tests offered</div><div class="v">{% for t in a.tests %}<span class="chip">{{ t }}</span>{% endfor %}</div></div></div></div>
+    {% elif a.status == 'interview_scheduled' %}
+    <div class="alert">
+      <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+      <div>
+        <div class="alert__title">Your interview is scheduled</div>
+        <div>{{ a.mode_label }} — <b>{{ a.interview_at.strftime('%A, %d %b %Y at %I:%M %p') if a.interview_at.strftime is defined else a.interview_at }}</b></div>
+        {% if a.interview_location %}<div>{{ 'Number' if a.interview_mode == 'phone' else 'Location' }}: {{ a.interview_location }}</div>{% endif %}
+        {% if a.interview_mode == 'video' %}
+        <div style="margin-top:6px;">Join from this page at the scheduled time and allow camera and microphone access when asked.</div>
+        <a href="/interview/{{ a.id }}/call" target="_blank" rel="noopener" class="btn btn--primary" style="margin-top:12px;"><i class="fa-solid fa-video" aria-hidden="true"></i> Join interview</a>
+        {% endif %}
+      </div>
+    </div>
+    {% elif a.status == 'interviewed' %}
+    <div class="alert"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><div class="alert__title">Interview complete</div>Thank you — the team is finalising its decision.</div></div>
+    {% elif a.status == 'rejected' %}
+    <div class="alert alert--danger"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i><div><div class="alert__title">Your application was not approved</div>{{ a.decision_reason }}</div></div>
+    {% elif a.status in ('submitted', 'under_review') %}
+    <div class="alert"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i><div><div class="alert__title">We're verifying your details</div>You'll be notified{{ ' by email' if a.email }} when there's an update — usually within a few working days.</div></div>
     {% endif %}
-  </div>
-  {% endif %}
 
-  <div class="card">
-    <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Timeline</div>
-    <ul class="timeline">
-      {% for e in events %}
-      <li>
-        <div class="t">{{ e.created_at.strftime('%d %b %Y, %I:%M %p') if e.created_at.strftime is defined else e.created_at }}</div>
-        <div class="a">{{ e.action.replace('_', ' ') }}</div>
-        {% if e.note %}<div style="color:var(--muted);">{{ e.note }}</div>{% endif %}
-      </li>
-      {% endfor %}
-    </ul>
+    {% if a.status == 'info_requested' %}
+    <section class="card" aria-labelledby="upd-title">
+      <h2 class="card__title" id="upd-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-pen" aria-hidden="true"></i> Update &amp; resubmit</h2>
+      <form method="post" action="/application/update" data-loading>
+        {% with role=a.role, v=a, selected_tests=a.tests %}
+          {% include "_staff_fields.html" %}
+        {% endwith %}
+        <button type="submit" class="btn btn--primary btn--lg btn--block"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Resubmit application</span></button>
+      </form>
+    </section>
+    {% else %}
+    <section class="card" aria-labelledby="det-title">
+      <h2 class="card__title" id="det-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Your details</h2>
+      <dl class="kv">
+        <div><dt>Username</dt><dd>@{{ a.username }}</dd></div>
+        <div><dt>Email</dt><dd>{{ a.email }}</dd></div>
+        <div><dt>Phone</dt><dd>{{ a.phone }}</dd></div>
+        <div><dt>Qualification</dt><dd>{{ a.qualification }}</dd></div>
+        <div><dt>Experience</dt><dd>{{ a.experience_yrs }} years</dd></div>
+        <div><dt>{{ 'Registration no.' if a.role == 'doctor' else 'Lab licence no.' }}</dt><dd>{{ a.license_number }} ({{ a.license_authority }})</dd></div>
+        {% if a.role == 'doctor' %}
+        <div><dt>Specialty</dt><dd>{{ a.specialty }}</dd></div>
+        {% if a.hospital %}<div><dt>Hospital / clinic</dt><dd>{{ a.hospital }}</dd></div>{% endif %}
+        {% else %}
+        <div><dt>Lab</dt><dd>{{ a.lab_name }}</dd></div>
+        <div><dt>Address</dt><dd>{{ a.lab_address }}, {{ a.lab_city }}</dd></div>
+        {% if a.accreditation_number %}<div><dt>Accreditation</dt><dd>{{ a.accreditation_body }} {{ a.accreditation_number }}</dd></div>{% endif %}
+        {% endif %}
+      </dl>
+      {% if a.role == 'lab' and a.tests %}
+      <div style="margin-top:var(--mai-s4);"><div class="eyebrow" style="margin-bottom:6px;">Tests offered</div><div class="tag-list">{% for t in a.tests %}<span class="tag">{{ t }}</span>{% endfor %}</div></div>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="card" aria-labelledby="tl-title">
+      <h2 class="card__title" id="tl-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Timeline</h2>
+      <ul class="timeline">
+        {% for e in events %}
+        <li>
+          <div class="t">{{ e.created_at.strftime('%d %b %Y, %I:%M %p') if e.created_at.strftime is defined else e.created_at }}</div>
+          <div class="a">{{ e.action.replace('_', ' ') }}</div>
+          {% if e.note %}<div class="muted">{{ e.note }}</div>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
   </div>
 </div>
 {% endblock %}

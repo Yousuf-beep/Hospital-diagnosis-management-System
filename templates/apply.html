@@ -3,67 +3,64 @@
 
 {% block extra_style %}
 {% include "_staff_form_style.html" %}
-.apply-wrap { max-width:980px; margin:0 auto; padding:48px 24px; display:grid; grid-template-columns:300px 1fr; gap:32px; align-items:start; }
-.side h1 { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; letter-spacing:-0.04em; line-height:1.1; margin-bottom:12px; }
-.side p { font-size:.86rem; color:var(--muted); line-height:1.7; margin-bottom:22px; }
-.steps { list-style:none; display:flex; flex-direction:column; gap:14px; }
-.steps li { display:flex; gap:12px; font-size:.83rem; line-height:1.5; }
-.steps .n { width:26px; height:26px; flex-shrink:0; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:700; font-size:.75rem; }
+.apply { display:grid; grid-template-columns:minmax(0, 320px) minmax(0, 1fr); gap:var(--mai-s6); align-items:start; }
+.apply__side { position:sticky; top:calc(var(--mai-topnav-h) + 24px); }
+.apply__side h1 { line-height:1.1; margin:10px 0 12px; }
+.apply__side > p { font-size:var(--mai-fs-sm); color:var(--mai-muted); line-height:1.7; margin-bottom:var(--mai-s5); }
+.steps { list-style:none; display:flex; flex-direction:column; gap:16px; counter-reset:step; }
+.steps li { display:flex; gap:12px; font-size:var(--mai-fs-sm); line-height:1.5; counter-increment:step; }
+.steps li::before { content:counter(step); width:28px; height:28px; flex-shrink:0; border-radius:50%; background:var(--mai-ink); color:var(--mai-bg); display:grid; place-items:center; font-family:var(--mai-font-head); font-weight:700; font-size:.75rem; }
 .steps b { display:block; }
-.steps span { color:var(--muted); }
-.card { background:#fff; border:1.5px solid var(--border); border-radius:12px; padding:32px; }
-.role-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
-.role-tab { display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border:1.5px solid var(--border); border-radius:8px; text-decoration:none; color:var(--muted); font-weight:500; font-size:.88rem; }
-.role-tab.active { border-color:var(--ink); background:var(--ink); color:#fff; }
-.declare { display:flex; gap:10px; align-items:flex-start; font-size:.8rem; color:var(--muted); line-height:1.5; margin:18px 0 6px; }
-.declare input { margin-top:3px; accent-color:var(--teal); }
-.foot { text-align:center; margin-top:18px; font-size:.84rem; color:var(--muted); }
-.foot a { color:var(--teal); text-decoration:none; font-weight:500; }
-@media(max-width:860px){ .apply-wrap { grid-template-columns:1fr; } }
+.steps span { color:var(--mai-muted); }
+.role-switch { display:grid; grid-template-columns:1fr 1fr; margin-bottom:var(--mai-s5); }
+.role-switch a { justify-content:center; }
+@media (max-width:900px){ .apply { grid-template-columns:minmax(0,1fr); } .apply__side { position:static; } }
 {% endblock %}
 
 {% block content %}
-<div class="apply-wrap">
-  <div class="side">
-    <h1>Join MediAI as a {{ 'Doctor' if role == 'doctor' else 'Lab Technician' }}</h1>
-    <p>Every clinician and laboratory on MediAI is verified before they can see patient data.
-       Submit your details — our team will check your credentials and interview you.</p>
-    <ol class="steps">
-      <li><div class="n">1</div><div><b>Apply</b><span>Submit your professional {{ 'and licence' if role == 'doctor' else 'and laboratory' }} details.</span></div></li>
-      <li><div class="n">2</div><div><b>Document verification</b><span>We verify your identity, {{ 'medical registration and qualifications' if role == 'doctor' else 'lab licence, accreditation and qualifications' }}.</span></div></li>
-      <li><div class="n">3</div><div><b>Interview</b><span>A short interview — by in-app video call, phone, or in person.</span></div></li>
-      <li><div class="n">4</div><div><b>Approval</b><span>Once approved, you'll start receiving {{ 'patient consultations' if role == 'doctor' else 'lab test orders' }}.</span></div></li>
-    </ol>
-  </div>
+<div class="container">
+  <div class="apply">
+    <aside class="apply__side">
+      <span class="eyebrow">Join the team</span>
+      <h1>Join MediAI as a {{ 'doctor' if role == 'doctor' else 'lab technician' }}</h1>
+      <p>Every clinician and laboratory on MediAI is verified before they can see patient data. Submit your details — our team will check your credentials and interview you.</p>
+      <ol class="steps">
+        <li><div><b>Apply</b><span>Submit your professional {{ 'and licence' if role == 'doctor' else 'and laboratory' }} details.</span></div></li>
+        <li><div><b>Document verification</b><span>We verify your identity, {{ 'medical registration and qualifications' if role == 'doctor' else 'lab licence, accreditation and qualifications' }}.</span></div></li>
+        <li><div><b>Interview</b><span>A short interview — in-app video call, phone, or in person.</span></div></li>
+        <li><div><b>Approval</b><span>Once approved, you'll start receiving {{ 'patient consultations' if role == 'doctor' else 'lab test orders' }}.</span></div></li>
+      </ol>
+    </aside>
 
-  <div class="card">
-    <div class="role-tabs">
-      <a href="/apply?role=doctor" class="role-tab {% if role == 'doctor' %}active{% endif %}"><i class="fa-solid fa-user-doctor"></i> Doctor</a>
-      <a href="/apply?role=lab" class="role-tab {% if role == 'lab' %}active{% endif %}"><i class="fa-solid fa-flask"></i> Lab Technician</a>
-    </div>
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr-only">Application form</h2>
+      <nav class="segmented role-switch" aria-label="Choose your role">
+        <a href="/apply?role=doctor" {% if role == 'doctor' %}aria-current="page"{% endif %}><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Doctor</a>
+        <a href="/apply?role=lab" {% if role == 'lab' %}aria-current="page"{% endif %}><i class="fa-solid fa-flask" aria-hidden="true"></i> Lab technician</a>
+      </nav>
 
-    <form method="post" action="/apply">
-      <input type="hidden" name="role" value="{{ role }}">
-      <div class="section-label">Account</div>
-      <div class="row2">
-        <div class="field"><label>Username *</label>
-          <input type="text" name="username" value="{{ form.username or '' }}" placeholder="Choose a username" required maxlength="64" autocomplete="username"></div>
-        <div class="field"><label>Password *</label>
-          <input type="password" name="password" placeholder="At least 8 characters" minlength="8" required autocomplete="new-password"></div>
-      </div>
+      <form method="post" action="/apply" data-loading>
+        <input type="hidden" name="role" value="{{ role }}">
+        <div class="form-section">Account</div>
+        <div class="form-row">
+          <div class="field"><label for="ap-user">Username *</label>
+            <input type="text" id="ap-user" name="username" value="{{ form.username or '' }}" placeholder="Choose a username" required maxlength="64" autocomplete="username"></div>
+          <div class="field"><label for="ap-pw">Password *</label>
+            <input type="password" id="ap-pw" name="password" placeholder="At least 8 characters" minlength="8" required autocomplete="new-password"></div>
+        </div>
 
-      {% with v=form, selected_tests=form.getlist('tests_offered') %}
-        {% include "_staff_fields.html" %}
-      {% endwith %}
+        {% with v=form, selected_tests=form.getlist('tests_offered') %}
+          {% include "_staff_fields.html" %}
+        {% endwith %}
 
-      <label class="declare">
-        <input type="checkbox" name="declaration" value="1" required>
-        I declare that the information above is true and that I hold the licences and qualifications listed.
-        I consent to MediAI verifying them with the issuing authorities.
-      </label>
-      <button type="submit" class="btn-auth"><i class="fa-solid fa-paper-plane"></i> Submit Application</button>
-    </form>
-    <div class="foot">Already applied? <a href="/login">Log in to check your status</a> · Patient? <a href="/register">Register here</a></div>
+        <label class="check" style="margin:var(--mai-s4) 0;">
+          <input type="checkbox" name="declaration" value="1" required>
+          <span class="small">I declare that the information above is true and that I hold the licences and qualifications listed. I consent to MediAI verifying them with the issuing authorities.</span>
+        </label>
+        <button type="submit" class="btn btn--primary btn--lg btn--block"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Submit application</span></button>
+      </form>
+      <p class="small muted" style="text-align:center;margin-top:var(--mai-s4);">Already applied? <a href="/login">Log in to check your status</a> · Patient? <a href="/register">Register here</a></p>
+    </section>
   </div>
 </div>
 {% endblock %}

@@ -1,78 +1,80 @@
 {#- Shared doctor / lab application fields.
     Expects: role ('doctor'|'lab'), v (values: form or application dict),
              selected_tests (list), specialties, lab_tests -#}
-<div class="section-label">Personal &amp; Contact Details</div>
-<div class="field"><label>Full Name *</label>
-  <input type="text" name="full_name" value="{{ v.full_name or '' }}" placeholder="{{ 'Dr. Priya Sharma' if role == 'doctor' else 'Ravi Kumar' }}" required maxlength="128"></div>
-<div class="row2">
-  <div class="field"><label>Email *</label>
-    <input type="email" name="email" value="{{ v.email or '' }}" placeholder="you@example.com" required maxlength="254"></div>
-  <div class="field"><label>Phone *</label>
-    <input type="tel" name="phone" value="{{ v.phone or '' }}" placeholder="+91 98765 43210" required maxlength="20"></div>
+<div class="form-section">Personal &amp; contact details</div>
+<div class="field"><label for="sf-full_name">Full name *</label>
+  <input type="text" id="sf-full_name" name="full_name" value="{{ v.full_name or '' }}" placeholder="{{ 'Dr. Priya Sharma' if role == 'doctor' else 'Ravi Kumar' }}" required maxlength="128" autocomplete="name"></div>
+<div class="form-row">
+  <div class="field"><label for="sf-email">Email *</label>
+    <input type="email" id="sf-email" name="email" value="{{ v.email or '' }}" placeholder="you@example.com" required maxlength="254" autocomplete="email"></div>
+  <div class="field"><label for="sf-phone">Phone *</label>
+    <input type="tel" id="sf-phone" name="phone" value="{{ v.phone or '' }}" placeholder="+91 98765 43210" required maxlength="20" autocomplete="tel"></div>
 </div>
 
-<div class="section-label">Professional Details</div>
+<div class="form-section">Professional details</div>
 {% if role == 'doctor' %}
-<div class="row2">
-  <div class="field"><label>Specialty *</label>
-    <select name="specialty" required>
+<div class="form-row">
+  <div class="field"><label for="sf-specialty">Specialty *</label>
+    <select id="sf-specialty" name="specialty" required>
       <option value="">Select specialty</option>
       {% for s in specialties %}<option {% if v.specialty == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
     </select></div>
-  <div class="field"><label>Experience (years) *</label>
-    <input type="number" name="experience_yrs" value="{{ v.experience_yrs if v.experience_yrs not in (None, '') else '' }}" min="0" max="60" required></div>
+  <div class="field"><label for="sf-exp">Experience (years) *</label>
+    <input type="number" id="sf-exp" name="experience_yrs" value="{{ v.experience_yrs if v.experience_yrs not in (None, '') else '' }}" min="0" max="60" required inputmode="numeric"></div>
 </div>
-<div class="field"><label>Qualifications *</label>
-  <input type="text" name="qualification" value="{{ v.qualification or '' }}" placeholder="MBBS, MD (Internal Medicine)" required maxlength="256"></div>
-<div class="field"><label>Current Hospital / Clinic</label>
-  <input type="text" name="hospital" value="{{ v.hospital or '' }}" placeholder="City General Hospital" maxlength="128"></div>
-<div class="row2">
-  <div class="field"><label>Medical Registration No. *</label>
-    <input type="text" name="license_number" value="{{ v.license_number or '' }}" placeholder="e.g. KMC-123456" required maxlength="64"></div>
-  <div class="field"><label>Issuing Medical Council *</label>
-    <input type="text" name="license_authority" value="{{ v.license_authority or '' }}" placeholder="e.g. Karnataka Medical Council / NMC" required maxlength="128"></div>
+<div class="field"><label for="sf-qual">Qualifications *</label>
+  <input type="text" id="sf-qual" name="qualification" value="{{ v.qualification or '' }}" placeholder="MBBS, MD (Internal Medicine)" required maxlength="256"></div>
+<div class="field"><label for="sf-hospital">Current hospital / clinic <span class="opt">(optional)</span></label>
+  <input type="text" id="sf-hospital" name="hospital" value="{{ v.hospital or '' }}" placeholder="City General Hospital" maxlength="128"></div>
+<div class="form-row">
+  <div class="field"><label for="sf-lic">Medical registration no. *</label>
+    <input type="text" id="sf-lic" name="license_number" value="{{ v.license_number or '' }}" placeholder="e.g. KMC-123456" required maxlength="64"></div>
+  <div class="field"><label for="sf-auth">Issuing medical council *</label>
+    <input type="text" id="sf-auth" name="license_authority" value="{{ v.license_authority or '' }}" placeholder="e.g. Karnataka Medical Council / NMC" required maxlength="128"></div>
 </div>
 {% else %}
-<div class="row2">
-  <div class="field"><label>Qualifications *</label>
-    <input type="text" name="qualification" value="{{ v.qualification or '' }}" placeholder="DMLT / BMLT / MSc MLT" required maxlength="256"></div>
-  <div class="field"><label>Experience (years) *</label>
-    <input type="number" name="experience_yrs" value="{{ v.experience_yrs if v.experience_yrs not in (None, '') else '' }}" min="0" max="60" required></div>
+<div class="form-row">
+  <div class="field"><label for="sf-qual">Qualifications *</label>
+    <input type="text" id="sf-qual" name="qualification" value="{{ v.qualification or '' }}" placeholder="DMLT / BMLT / MSc MLT" required maxlength="256"></div>
+  <div class="field"><label for="sf-exp">Experience (years) *</label>
+    <input type="number" id="sf-exp" name="experience_yrs" value="{{ v.experience_yrs if v.experience_yrs not in (None, '') else '' }}" min="0" max="60" required inputmode="numeric"></div>
 </div>
 
-<div class="section-label">Laboratory Details</div>
-<div class="field"><label>Lab Name *</label>
-  <input type="text" name="lab_name" value="{{ v.lab_name or '' }}" placeholder="Central Diagnostic Lab" required maxlength="128"></div>
-<div class="field"><label>Lab Address *</label>
-  <textarea name="lab_address" rows="2" placeholder="Street, area, PIN code" required maxlength="300">{{ v.lab_address or '' }}</textarea></div>
-<div class="row2">
-  <div class="field"><label>City *</label>
-    <input type="text" name="lab_city" value="{{ v.lab_city or '' }}" placeholder="Bengaluru" required maxlength="64"></div>
-  <div class="field"><label>Lab Phone</label>
-    <input type="tel" name="lab_phone" value="{{ v.lab_phone or '' }}" placeholder="080 1234 5678" maxlength="20"></div>
+<div class="form-section">Laboratory details</div>
+<div class="field"><label for="sf-labname">Lab name *</label>
+  <input type="text" id="sf-labname" name="lab_name" value="{{ v.lab_name or '' }}" placeholder="Central Diagnostic Lab" required maxlength="128"></div>
+<div class="field"><label for="sf-labaddr">Lab address *</label>
+  <textarea id="sf-labaddr" name="lab_address" rows="2" placeholder="Street, area, PIN code" required maxlength="300" style="min-height:70px;">{{ v.lab_address or '' }}</textarea></div>
+<div class="form-row">
+  <div class="field"><label for="sf-labcity">City *</label>
+    <input type="text" id="sf-labcity" name="lab_city" value="{{ v.lab_city or '' }}" placeholder="Bengaluru" required maxlength="64"></div>
+  <div class="field"><label for="sf-labphone">Lab phone <span class="opt">(optional)</span></label>
+    <input type="tel" id="sf-labphone" name="lab_phone" value="{{ v.lab_phone or '' }}" placeholder="080 1234 5678" maxlength="20"></div>
 </div>
-<div class="row2">
-  <div class="field"><label>Lab Licence / Registration No. *</label>
-    <input type="text" name="license_number" value="{{ v.license_number or '' }}" placeholder="Clinical establishment reg. no." required maxlength="64"></div>
-  <div class="field"><label>Issuing Authority *</label>
-    <input type="text" name="license_authority" value="{{ v.license_authority or '' }}" placeholder="e.g. State Health Department" required maxlength="128"></div>
+<div class="form-row">
+  <div class="field"><label for="sf-lic">Lab licence / registration no. *</label>
+    <input type="text" id="sf-lic" name="license_number" value="{{ v.license_number or '' }}" placeholder="Clinical establishment reg. no." required maxlength="64"></div>
+  <div class="field"><label for="sf-auth">Issuing authority *</label>
+    <input type="text" id="sf-auth" name="license_authority" value="{{ v.license_authority or '' }}" placeholder="e.g. State Health Department" required maxlength="128"></div>
 </div>
-<div class="row2">
-  <div class="field"><label>Accreditation No.</label>
-    <input type="text" name="accreditation_number" value="{{ v.accreditation_number or '' }}" placeholder="e.g. MC-1234" maxlength="64"></div>
-  <div class="field"><label>Accreditation Body</label>
-    <input type="text" name="accreditation_body" value="{{ v.accreditation_body or '' }}" placeholder="e.g. NABL" maxlength="128"></div>
+<div class="form-row">
+  <div class="field"><label for="sf-accno">Accreditation no. <span class="opt">(optional)</span></label>
+    <input type="text" id="sf-accno" name="accreditation_number" value="{{ v.accreditation_number or '' }}" placeholder="e.g. MC-1234" maxlength="64"></div>
+  <div class="field"><label for="sf-accbody">Accreditation body <span class="opt">(optional)</span></label>
+    <input type="text" id="sf-accbody" name="accreditation_body" value="{{ v.accreditation_body or '' }}" placeholder="e.g. NABL" maxlength="128"></div>
 </div>
-<div class="field"><label>Operating Hours</label>
-  <input type="text" name="operating_hours" value="{{ v.operating_hours or '' }}" placeholder="Mon–Sat, 7:00 AM – 9:00 PM" maxlength="128"></div>
-<div class="field"><label>Tests Offered * <span style="text-transform:none;letter-spacing:0;font-weight:400;">(orders are routed to labs that offer the test)</span></label>
+<div class="field"><label for="sf-hours">Operating hours <span class="opt">(optional)</span></label>
+  <input type="text" id="sf-hours" name="operating_hours" value="{{ v.operating_hours or '' }}" placeholder="Mon–Sat, 7:00 AM – 9:00 PM" maxlength="128"></div>
+<fieldset class="field" style="border:none;">
+  <legend class="field__label" style="margin-bottom:4px;">Tests offered *</legend>
+  <span class="field__hint" style="margin-bottom:6px;">Orders are routed to labs that offer the test.</span>
   <div class="test-grid">
     {% for t in lab_tests %}
-    <label class="test-chk"><input type="checkbox" name="tests_offered" value="{{ t }}" {% if t in selected_tests %}checked{% endif %}> {{ t }}</label>
+    <label class="tile"><input type="checkbox" name="tests_offered" value="{{ t }}" {% if t in selected_tests %}checked{% endif %}> {{ t }}</label>
     {% endfor %}
   </div>
-</div>
+</fieldset>
 {% endif %}
 
-<div class="field"><label>Why do you want to join MediAI?</label>
-  <textarea name="statement" rows="3" maxlength="2000" placeholder="Briefly describe your experience and interest (optional)">{{ v.statement or '' }}</textarea></div>
+<div class="field"><label for="sf-statement">Why do you want to join MediAI? <span class="opt">(optional)</span></label>
+  <textarea id="sf-statement" name="statement" rows="3" maxlength="2000" placeholder="Briefly describe your experience and interest">{{ v.statement or '' }}</textarea></div>

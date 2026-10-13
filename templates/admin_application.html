@@ -2,249 +2,236 @@
 {% block title %}MediAI — Application #{{ a.id }}{% endblock %}
 
 {% block extra_style %}
-.page { max-width:1150px; margin:0 auto; padding:40px 24px; }
-.back { font-size:.8rem; color:var(--muted); text-decoration:none; display:inline-flex; gap:6px; align-items:center; margin-bottom:14px; }
-.hdr { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:24px; }
-.hdr h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.04em; }
-.hdr p { font-size:.85rem; color:var(--muted); margin-top:4px; }
-.badge { padding:6px 14px; border-radius:20px; font-size:.78rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
-.st-submitted, .st-under_review { background:rgba(2,132,199,.1); color:#0284c7; }
-.st-info_requested { background:rgba(217,119,6,.12); color:var(--amber); }
-.st-interview_scheduled, .st-interviewed { background:rgba(124,58,237,.1); color:#7c3aed; }
-.st-approved { background:rgba(22,163,74,.12); color:var(--green); }
-.st-rejected { background:rgba(232,52,28,.1); color:var(--red); }
-.grid { display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; }
-.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:22px; margin-bottom:18px; }
-.card-title { font-family:'Syne',sans-serif; font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
-.kv { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
-.kv .k { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; }
-.kv .v { font-size:.88rem; margin-top:3px; word-break:break-word; }
-.chip { display:inline-block; background:var(--cream); border-radius:20px; padding:3px 10px; font-size:.74rem; margin:2px; }
-.verify-hint { font-size:.74rem; color:var(--amber); margin-top:4px; }
-.check { display:flex; gap:10px; align-items:flex-start; font-size:.84rem; padding:9px 0; border-bottom:1px solid var(--cream); }
-.check input { margin-top:3px; accent-color:var(--teal); width:15px; height:15px; }
-.f label { display:block; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:10px 0 5px; }
-.f input, .f select, .f textarea { width:100%; padding:9px 11px; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.86rem; outline:none; background:#fff; }
-.f textarea { resize:vertical; }
-.btn { border:none; border-radius:6px; padding:10px 16px; font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:7px; margin-top:10px; text-decoration:none; }
-.btn-ink { background:var(--ink); color:#fff; } .btn-teal { background:var(--teal); color:#fff; }
-.btn-green { background:var(--green); color:#fff; } .btn-red { background:var(--red); color:#fff; }
-.btn-amber { background:var(--amber); color:#fff; } .btn-purple { background:#7c3aed; color:#fff; }
-.btn:disabled { opacity:.45; cursor:not-allowed; }
-details.act { border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
-details.act summary { cursor:pointer; font-weight:600; font-size:.86rem; list-style:none; display:flex; align-items:center; gap:8px; }
-details.act summary::-webkit-details-marker { display:none; }
-.note-box { background:var(--cream); border-radius:8px; padding:12px 14px; font-size:.84rem; line-height:1.6; white-space:pre-line; }
-.timeline { list-style:none; border-left:2px solid var(--cream); margin-left:6px; }
-.timeline li { position:relative; padding:0 0 14px 18px; font-size:.82rem; }
-.timeline li::before { content:''; position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--teal); border:2px solid #fff; }
-.timeline li.internal::before { background:var(--muted); }
-.timeline .t { font-size:.7rem; color:var(--muted); }
-.timeline .a { font-weight:600; text-transform:capitalize; }
-.tag-int { font-size:.62rem; background:var(--cream); color:var(--muted); padding:1px 7px; border-radius:10px; margin-left:6px; text-transform:uppercase; letter-spacing:.06em; }
-@media(max-width:900px){ .grid { grid-template-columns:1fr; } }
+details.act { border:1px solid var(--mai-border); border-radius:var(--mai-radius-sm); margin-bottom:10px; background:var(--mai-surface-raised); }
+details.act > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; padding:13px 14px; font-weight:600; font-size:var(--mai-fs-sm); min-height:48px; }
+details.act > summary::-webkit-details-marker { display:none; }
+details.act > summary::after { content:'\f078'; font-family:'Font Awesome 6 Free'; font-weight:900; margin-left:auto; font-size:.7rem; color:var(--mai-muted); transition:transform var(--mai-motion-fast) var(--mai-ease); }
+details.act[open] > summary::after { transform:rotate(180deg); }
+details.act > form { padding:4px 14px 14px; }
+details.act[open] > form { animation:mai-fade var(--mai-motion-normal) var(--mai-ease); }
+.note-box { background:var(--mai-surface-sunken); border-radius:var(--mai-radius-sm); padding:12px 14px; font-size:var(--mai-fs-sm); line-height:1.65; white-space:pre-line; overflow-wrap:anywhere; }
+.verify-hint { font-size:var(--mai-fs-xs); color:var(--mai-warning); margin-top:var(--mai-s3); display:flex; gap:7px; align-items:flex-start; }
+.int-tag { font-size:.62rem; font-weight:700; background:var(--mai-surface-sunken); color:var(--mai-muted); padding:2px 7px; border-radius:var(--mai-radius-pill); text-transform:uppercase; letter-spacing:.06em; margin-left:6px; }
+.checklist .check { border-bottom:1px solid var(--mai-border); padding:11px 0; }
+.checklist .check:last-of-type { border-bottom:none; }
+.check-progress { font-size:var(--mai-fs-xs); color:var(--mai-muted); }
 {% endblock %}
 
 {% block content %}
 {% set fmt = '%d %b %Y, %I:%M %p' %}
-<div class="page">
-  <a href="/admin" class="back"><i class="fa-solid fa-arrow-left"></i> Back to Admin Panel</a>
-  <div class="hdr">
-    <div>
+{% set app_tone = {'submitted':'info','under_review':'info','info_requested':'warning','interview_scheduled':'info','interviewed':'info','approved':'success','rejected':'danger'} %}
+<div class="container container--wide">
+  <nav aria-label="Breadcrumb" style="margin-bottom:var(--mai-s3);">
+    <ol class="breadcrumb">
+      <li><a href="/admin#applications"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Applications</a></li>
+      <li aria-current="page">#{{ a.id }}</li>
+    </ol>
+  </nav>
+
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">{{ 'Doctor' if a.role == 'doctor' else 'Lab technician' }} application</span>
       <h1>{{ 'Dr. ' if a.role == 'doctor' }}{{ a.full_name }}</h1>
-      <p>Application #{{ a.id }} · {{ 'Doctor' if a.role == 'doctor' else 'Lab Technician' }} · @{{ a.username }} · submitted {{ a.submitted_at.strftime(fmt) }}
-        {% if a.reviewer_username %} · last handled by @{{ a.reviewer_username }}{% endif %}</p>
+      <p>#{{ a.id }} · @{{ a.username }} · submitted {{ a.submitted_at.strftime(fmt) }}{% if a.reviewer_username %} · last handled by @{{ a.reviewer_username }}{% endif %}</p>
     </div>
-    <span class="badge st-{{ a.status }}"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> {{ a.status_label }}</span>
-  </div>
+    <span class="chip chip--lg chip--dot tone-{{ app_tone.get(a.status, 'neutral') }}">{{ a.status_label }}</span>
+  </header>
 
-  <div class="grid">
-    <!-- LEFT: applicant details -->
-    <div>
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-id-card"></i> Applicant</div>
-        <div class="kv">
-          <div><div class="k">Email</div><div class="v">{{ a.email }}</div></div>
-          <div><div class="k">Phone</div><div class="v">{{ a.phone }}</div></div>
-          <div><div class="k">Qualification</div><div class="v">{{ a.qualification }}</div></div>
-          <div><div class="k">Experience</div><div class="v">{{ a.experience_yrs }} years</div></div>
+  <div class="grid grid--main-side">
+    <!-- Applicant details -->
+    <div class="stack stack--lg stagger">
+      <section class="card" aria-labelledby="ap-title">
+        <h2 class="card__title" id="ap-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Applicant</h2>
+        <dl class="kv">
+          <div><dt>Email</dt><dd>{{ a.email }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ a.phone }}</dd></div>
+          <div><dt>Qualification</dt><dd>{{ a.qualification }}</dd></div>
+          <div><dt>Experience</dt><dd>{{ a.experience_yrs }} years</dd></div>
           {% if a.role == 'doctor' %}
-          <div><div class="k">Specialty</div><div class="v">{{ a.specialty }}</div></div>
-          <div><div class="k">Hospital / Clinic</div><div class="v">{{ a.hospital or '—' }}</div></div>
+          <div><dt>Specialty</dt><dd>{{ a.specialty }}</dd></div>
+          <div><dt>Hospital / clinic</dt><dd>{{ a.hospital or '—' }}</dd></div>
           {% endif %}
-        </div>
-      </div>
+        </dl>
+      </section>
 
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-certificate"></i> {{ 'Medical Registration' if a.role == 'doctor' else 'Licence & Accreditation' }}</div>
-        <div class="kv">
-          <div><div class="k">{{ 'Registration No.' if a.role == 'doctor' else 'Lab Licence No.' }}</div><div class="v"><b>{{ a.license_number }}</b></div></div>
-          <div><div class="k">Issued by</div><div class="v">{{ a.license_authority }}</div></div>
+      <section class="card" aria-labelledby="lic-title">
+        <h2 class="card__title" id="lic-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-certificate" aria-hidden="true"></i> {{ 'Medical registration' if a.role == 'doctor' else 'Licence & accreditation' }}</h2>
+        <dl class="kv">
+          <div><dt>{{ 'Registration no.' if a.role == 'doctor' else 'Lab licence no.' }}</dt><dd><b>{{ a.license_number }}</b></dd></div>
+          <div><dt>Issued by</dt><dd>{{ a.license_authority }}</dd></div>
           {% if a.role == 'lab' %}
-          <div><div class="k">Accreditation</div><div class="v">{{ (a.accreditation_body ~ ' ' ~ a.accreditation_number) if a.accreditation_number else 'None provided' }}</div></div>
+          <div><dt>Accreditation</dt><dd>{{ (a.accreditation_body ~ ' ' ~ a.accreditation_number) if a.accreditation_number else 'None provided' }}</dd></div>
           {% endif %}
-        </div>
-        <div class="verify-hint"><i class="fa-solid fa-magnifying-glass"></i>
-          {% if a.role == 'doctor' %}Verify this number on the National Medical Commission / state council register.
-          {% else %}Verify the licence with the issuing authority{% if a.accreditation_number %} and the accreditation on the NABL directory{% endif %}.{% endif %}</div>
-      </div>
+        </dl>
+        <p class="verify-hint"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <span>{% if a.role == 'doctor' %}Verify this number on the National Medical Commission / state council register.
+          {% else %}Verify the licence with the issuing authority{% if a.accreditation_number %} and the accreditation on the NABL directory{% endif %}.{% endif %}</span></p>
+      </section>
 
       {% if a.role == 'lab' %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-flask"></i> Laboratory</div>
-        <div class="kv">
-          <div><div class="k">Lab Name</div><div class="v">{{ a.lab_name }}</div></div>
-          <div><div class="k">Address</div><div class="v">{{ a.lab_address }}, {{ a.lab_city }}</div></div>
-          <div><div class="k">Lab Phone</div><div class="v">{{ a.lab_phone or '—' }}</div></div>
-          <div><div class="k">Hours</div><div class="v">{{ a.operating_hours or '—' }}</div></div>
+      <section class="card" aria-labelledby="lab-title">
+        <h2 class="card__title" id="lab-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-flask" aria-hidden="true"></i> Laboratory</h2>
+        <dl class="kv">
+          <div><dt>Lab name</dt><dd>{{ a.lab_name }}</dd></div>
+          <div><dt>Address</dt><dd>{{ a.lab_address }}, {{ a.lab_city }}</dd></div>
+          <div><dt>Lab phone</dt><dd>{{ a.lab_phone or '—' }}</dd></div>
+          <div><dt>Hours</dt><dd>{{ a.operating_hours or '—' }}</dd></div>
+        </dl>
+        <div style="margin-top:var(--mai-s4);">
+          <div class="kv"><div><dt class="k">Tests offered ({{ a.tests|length }})</dt><dd class="tag-list" style="margin-top:6px;">{% for t in a.tests %}<span class="tag">{{ t }}</span>{% endfor %}</dd></div></div>
         </div>
-        <div style="margin-top:12px;"><div class="kv"><div><div class="k">Tests offered ({{ a.tests|length }})</div><div class="v">{% for t in a.tests %}<span class="chip">{{ t }}</span>{% endfor %}</div></div></div></div>
-      </div>
+      </section>
       {% endif %}
 
       {% if a.statement %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-quote-left"></i> Statement</div>
+      <section class="card" aria-labelledby="st-title">
+        <h2 class="card__title" id="st-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-quote-left" aria-hidden="true"></i> Statement</h2>
         <div class="note-box">{{ a.statement }}</div>
-      </div>
+      </section>
       {% endif %}
 
       {% if a.interview_notes %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-clipboard-check"></i> Interview Assessment <span class="tag-int">internal</span></div>
+      <section class="card" aria-labelledby="ia-title">
+        <h2 class="card__title" id="ia-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Interview assessment <span class="int-tag">internal</span></h2>
         <div class="note-box">{{ a.interview_notes }}</div>
-      </div>
+      </section>
       {% endif %}
 
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Audit Trail</div>
+      <section class="card" aria-labelledby="au-title">
+        <h2 class="card__title" id="au-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Audit trail</h2>
         <ul class="timeline">
           {% for e in events %}
-          <li class="{{ '' if e.visible_to_applicant else 'internal' }}">
+          <li class="{{ '' if e.visible_to_applicant else 'is-internal' }}">
             <div class="t">{{ e.created_at.strftime(fmt) }} · @{{ e.actor_username or 'system' }}</div>
-            <div class="a">{{ e.action.replace('_', ' ') }}{% if not e.visible_to_applicant %}<span class="tag-int">internal</span>{% endif %}</div>
-            {% if e.note %}<div style="color:var(--muted);">{{ e.note }}</div>{% endif %}
+            <div class="a">{{ e.action.replace('_', ' ') }}{% if not e.visible_to_applicant %}<span class="int-tag">internal</span>{% endif %}</div>
+            {% if e.note %}<div class="muted">{{ e.note }}</div>{% endif %}
           </li>
           {% endfor %}
         </ul>
-      </div>
+      </section>
     </div>
 
-    <!-- RIGHT: verification & decisions -->
-    <div>
+    <!-- Verification & decisions -->
+    <div class="stack stack--lg">
       {% if a.status == 'interview_scheduled' %}
-      <div class="card" style="border-color:#c4b5fd;background:#faf5ff;">
-        <div class="card-title" style="color:#7c3aed;"><i class="fa-solid fa-calendar-check"></i> Scheduled Interview</div>
-        <div style="font-size:.9rem;"><b>{{ a.mode_label }}</b><br>{{ a.interview_at.strftime('%A, %d %b %Y at %I:%M %p') }}</div>
-        {% if a.interview_location %}<div style="font-size:.84rem;color:var(--muted);margin-top:4px;">{{ a.interview_location }}</div>{% endif %}
+      <section class="card card--accent-top" aria-labelledby="iv-title" style="border-top-color:var(--mai-info);">
+        <h2 class="card__title" id="iv-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-calendar-check" aria-hidden="true" style="color:var(--mai-info);"></i> Scheduled interview</h2>
+        <p><b>{{ a.mode_label }}</b><br>{{ a.interview_at.strftime('%A, %d %b %Y at %I:%M %p') }}</p>
+        {% if a.interview_location %}<p class="small muted" style="margin-top:4px;">{{ a.interview_location }}</p>{% endif %}
         {% if a.interview_mode == 'video' %}
-        <a href="/interview/{{ a.id }}/call" target="_blank" class="btn btn-purple"><i class="fa-solid fa-video"></i> Start / Join Interview Call</a>
+        <a href="/interview/{{ a.id }}/call" target="_blank" rel="noopener" class="btn btn--primary btn--block" style="margin-top:var(--mai-s4);"><i class="fa-solid fa-video" aria-hidden="true"></i> Start / join interview call</a>
         {% endif %}
-      </div>
+      </section>
       {% endif %}
 
       {% if a.is_open %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-list-check"></i> Verification Checklist</div>
-        <form method="post" action="/admin/applications/{{ a.id }}/checklist">
+      <section class="card checklist" aria-labelledby="cl-title">
+        <div class="card__head">
+          <h2 class="card__title" id="cl-title"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Verification checklist</h2>
+          <span class="chip {{ 'tone-success' if a.checklist_done else 'tone-warning' }}">{{ 'Complete' if a.checklist_done else 'Incomplete' }}</span>
+        </div>
+        <form method="post" action="/admin/applications/{{ a.id }}/checklist" data-loading>
           {% for key, label in a.checklist_items %}
-          <label class="check"><input type="checkbox" name="checks" value="{{ key }}" {% if a.checks.get(key) %}checked{% endif %}> {{ label }}</label>
+          <label class="check"><input type="checkbox" name="checks" value="{{ key }}" {% if a.checks.get(key) %}checked{% endif %}> <span>{{ label }}</span></label>
           {% endfor %}
-          <button type="submit" class="btn btn-ink"><i class="fa-solid fa-floppy-disk"></i> Save Checklist</button>
+          <button type="submit" class="btn btn--ink" style="margin-top:var(--mai-s3);"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <span>Save checklist</span></button>
         </form>
-      </div>
+      </section>
 
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-gavel"></i> Actions</div>
+      <section class="card" aria-labelledby="ac-title">
+        <h2 class="card__title" id="ac-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-gavel" aria-hidden="true"></i> Actions</h2>
 
         {% if a.status == 'submitted' %}
-        <form method="post" action="/admin/applications/{{ a.id }}/action/start_review">
-          <button type="submit" class="btn btn-teal" style="margin:0 0 12px;"><i class="fa-solid fa-magnifying-glass"></i> Start Review</button>
+        <form method="post" action="/admin/applications/{{ a.id }}/action/start_review" data-loading style="margin-bottom:var(--mai-s3);">
+          <button type="submit" class="btn btn--primary btn--block"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> <span>Start review</span></button>
         </form>
         {% endif %}
 
         {% if a.status in ('submitted', 'under_review', 'interview_scheduled') %}
         <details class="act" {% if a.status == 'under_review' %}open{% endif %}>
-          <summary><i class="fa-solid fa-calendar-plus" style="color:#7c3aed;"></i> {{ 'Reschedule' if a.status == 'interview_scheduled' else 'Schedule' }} Interview</summary>
-          <form method="post" action="/admin/applications/{{ a.id }}/action/schedule_interview" class="f">
-            <label>Date &amp; time</label>
-            <input type="datetime-local" name="interview_at" required min="{{ now.strftime('%Y-%m-%dT%H:%M') }}">
-            <label>Mode</label>
-            <select name="interview_mode" required onchange="this.form.querySelector('.loc').hidden = this.value === 'video'">
-              {% for k, label in interview_modes.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}
-            </select>
-            <div class="loc" hidden><label>Phone number / address</label><input type="text" name="interview_location" maxlength="200"></div>
-            <label>Message to applicant (optional)</label>
-            <textarea name="note" rows="2" maxlength="1000" placeholder="e.g. Please keep your registration certificate and ID ready."></textarea>
-            <button type="submit" class="btn btn-purple"><i class="fa-solid fa-paper-plane"></i> Send Invitation</button>
+          <summary><i class="fa-solid fa-calendar-plus" style="color:var(--mai-info);" aria-hidden="true"></i> {{ 'Reschedule' if a.status == 'interview_scheduled' else 'Schedule' }} interview</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/schedule_interview" data-loading>
+            <div class="field"><label for="iv-at">Date &amp; time</label>
+              <input type="datetime-local" id="iv-at" name="interview_at" required min="{{ now.strftime('%Y-%m-%dT%H:%M') }}"></div>
+            <div class="field"><label for="iv-mode">Mode</label>
+              <select id="iv-mode" name="interview_mode" required onchange="this.form.querySelector('.loc').hidden = this.value === 'video'">
+                {% for k, label in interview_modes.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}
+              </select></div>
+            <div class="field loc" hidden><label for="iv-loc">Phone number / address</label><input type="text" id="iv-loc" name="interview_location" maxlength="200"></div>
+            <div class="field"><label for="iv-note">Message to applicant <span class="opt">(optional)</span></label>
+              <textarea id="iv-note" name="note" rows="2" maxlength="1000" placeholder="e.g. Please keep your registration certificate and ID ready."></textarea></div>
+            <button type="submit" class="btn btn--primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Send invitation</span></button>
           </form>
         </details>
         {% endif %}
 
         {% if a.status == 'interview_scheduled' %}
         <details class="act" open>
-          <summary><i class="fa-solid fa-clipboard-check" style="color:var(--teal);"></i> Record Interview Outcome</summary>
-          <form method="post" action="/admin/applications/{{ a.id }}/action/complete_interview" class="f">
-            <label>Assessment (internal — not shown to applicant)</label>
-            <textarea name="note" rows="4" required maxlength="3000" placeholder="Communication, clinical knowledge, document checks done during the call…"></textarea>
-            <button type="submit" class="btn btn-teal"><i class="fa-solid fa-check"></i> Mark Interview Complete</button>
+          <summary><i class="fa-solid fa-clipboard-check" style="color:var(--mai-primary);" aria-hidden="true"></i> Record interview outcome</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/complete_interview" data-loading>
+            <div class="field"><label for="ci-note">Assessment <span class="opt">(internal — not shown to applicant)</span></label>
+              <textarea id="ci-note" name="note" rows="4" required maxlength="3000" placeholder="Communication, clinical knowledge, document checks done during the call…"></textarea></div>
+            <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check" aria-hidden="true"></i> <span>Mark interview complete</span></button>
           </form>
         </details>
         {% endif %}
 
         {% if a.status == 'interviewed' %}
         <details class="act" open>
-          <summary><i class="fa-solid fa-circle-check" style="color:var(--green);"></i> Approve</summary>
-          <form method="post" action="/admin/applications/{{ a.id }}/action/approve" class="f">
-            {% if not a.checklist_done %}<div class="verify-hint"><i class="fa-solid fa-triangle-exclamation"></i> Complete every verification check first.</div>{% endif %}
-            <label>Welcome message (optional)</label>
-            <textarea name="note" rows="2" maxlength="1000"></textarea>
-            <button type="submit" class="btn btn-green" {% if not a.checklist_done %}disabled{% endif %}><i class="fa-solid fa-user-check"></i> Approve &amp; Activate Account</button>
+          <summary><i class="fa-solid fa-circle-check" style="color:var(--mai-success);" aria-hidden="true"></i> Approve</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/approve"
+                data-confirm="This activates {{ a.full_name }}'s account. They will be able to see {{ 'patient consultations' if a.role == 'doctor' else 'lab orders' }}."
+                data-confirm-title="Approve this application?" data-confirm-action="Approve & activate" data-confirm-tone="primary">
+            {% if not a.checklist_done %}<p class="verify-hint" style="margin:0 0 var(--mai-s3);"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Complete every verification check first.</p>{% endif %}
+            <div class="field"><label for="ap-note">Welcome message <span class="opt">(optional)</span></label>
+              <textarea id="ap-note" name="note" rows="2" maxlength="1000"></textarea></div>
+            <button type="submit" class="btn btn--success" {% if not a.checklist_done %}disabled{% endif %}><i class="fa-solid fa-user-check" aria-hidden="true"></i> Approve &amp; activate account</button>
           </form>
         </details>
         {% elif a.status != 'info_requested' %}
-        <p style="font-size:.76rem;color:var(--muted);margin:4px 0 12px;"><i class="fa-solid fa-circle-info"></i> Approval unlocks after the interview is completed and every check is ticked.</p>
+        <p class="xsmall muted" style="margin:4px 0 12px;display:flex;gap:7px;"><i class="fa-solid fa-circle-info" aria-hidden="true" style="margin-top:3px;"></i> Approval unlocks after the interview is completed and every check is ticked.</p>
         {% endif %}
 
         {% if a.status != 'info_requested' %}
         <details class="act">
-          <summary><i class="fa-solid fa-circle-question" style="color:var(--amber);"></i> Request More Information</summary>
-          <form method="post" action="/admin/applications/{{ a.id }}/action/request_info" class="f">
-            <label>What does the applicant need to provide or correct?</label>
-            <textarea name="note" rows="3" required maxlength="1000"></textarea>
-            <button type="submit" class="btn btn-amber"><i class="fa-solid fa-reply"></i> Send Request</button>
+          <summary><i class="fa-solid fa-circle-question" style="color:var(--mai-warning);" aria-hidden="true"></i> Request more information</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/request_info" data-loading>
+            <div class="field"><label for="ri-note">What does the applicant need to provide or correct?</label>
+              <textarea id="ri-note" name="note" rows="3" required maxlength="1000"></textarea></div>
+            <button type="submit" class="btn btn--warning"><i class="fa-solid fa-reply" aria-hidden="true"></i> <span>Send request</span></button>
           </form>
         </details>
         {% else %}
-        <p style="font-size:.8rem;color:var(--amber);margin-bottom:12px;"><i class="fa-solid fa-hourglass-half"></i> Waiting for the applicant to update: “{{ a.info_request }}”</p>
+        <div class="alert alert--warning" style="margin-bottom:10px;"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i><div><div class="alert__title">Waiting for the applicant</div>“{{ a.info_request }}”</div></div>
         {% endif %}
 
         <details class="act">
-          <summary><i class="fa-solid fa-circle-xmark" style="color:var(--red);"></i> Reject</summary>
-          <form method="post" action="/admin/applications/{{ a.id }}/action/reject" class="f"
-                onsubmit="return confirm('Reject this application? This cannot be undone.')">
-            <label>Reason (shown to applicant)</label>
-            <textarea name="note" rows="3" required maxlength="1000"></textarea>
-            <button type="submit" class="btn btn-red"><i class="fa-solid fa-ban"></i> Reject Application</button>
+          <summary><i class="fa-solid fa-circle-xmark" style="color:var(--mai-danger);" aria-hidden="true"></i> Reject</summary>
+          <form method="post" action="/admin/applications/{{ a.id }}/action/reject"
+                data-confirm="The applicant will see the reason you give. This cannot be undone." data-confirm-title="Reject this application?" data-confirm-action="Reject application">
+            <div class="field"><label for="rj-note">Reason <span class="opt">(shown to applicant)</span></label>
+              <textarea id="rj-note" name="note" rows="3" required maxlength="1000"></textarea></div>
+            <button type="submit" class="btn btn--danger"><i class="fa-solid fa-ban" aria-hidden="true"></i> Reject application</button>
           </form>
         </details>
-      </div>
+      </section>
       {% else %}
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-flag-checkered"></i> Decision</div>
-        <div style="font-size:.9rem;"><b>{{ a.status_label }}</b> on {{ a.decided_at.strftime(fmt) if a.decided_at else '—' }}</div>
-        {% if a.decision_reason %}<div class="note-box" style="margin-top:10px;">{{ a.decision_reason }}</div>{% endif %}
-        {% if a.status == 'approved' %}<p style="font-size:.8rem;color:var(--muted);margin-top:10px;">Manage this account from the {{ 'Doctors' if a.role == 'doctor' else 'Lab Technicians' }} tab of the admin panel.</p>{% endif %}
-      </div>
+      <section class="card" aria-labelledby="dc-title">
+        <h2 class="card__title" id="dc-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i> Decision</h2>
+        <p><span class="chip chip--dot tone-{{ app_tone.get(a.status, 'neutral') }}">{{ a.status_label }}</span> <span class="small muted">on {{ a.decided_at.strftime(fmt) if a.decided_at else '—' }}</span></p>
+        {% if a.decision_reason %}<div class="note-box" style="margin-top:var(--mai-s3);">{{ a.decision_reason }}</div>{% endif %}
+        {% if a.status == 'approved' %}<p class="small muted" style="margin-top:var(--mai-s3);">Manage this account from the <a href="/admin#{{ 'doctors' if a.role == 'doctor' else 'labs' }}">{{ 'Doctors' if a.role == 'doctor' else 'Lab technicians' }}</a> tab.</p>{% endif %}
+      </section>
       {% endif %}
 
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-note-sticky"></i> Internal Notes <span class="tag-int">admins only</span></div>
-        <form method="post" action="/admin/applications/{{ a.id }}/notes" class="f">
-          <textarea name="internal_notes" rows="4" maxlength="5000" placeholder="Verification calls made, documents received…">{{ a.internal_notes or '' }}</textarea>
-          <button type="submit" class="btn btn-ink"><i class="fa-solid fa-floppy-disk"></i> Save Notes</button>
+      <section class="card" aria-labelledby="in-title">
+        <h2 class="card__title" id="in-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Internal notes <span class="int-tag">admins only</span></h2>
+        <form method="post" action="/admin/applications/{{ a.id }}/notes" data-loading>
+          <div class="field"><label for="int-notes" class="sr-only">Internal notes</label>
+            <textarea id="int-notes" name="internal_notes" rows="4" maxlength="5000" placeholder="Verification calls made, documents received…">{{ a.internal_notes or '' }}</textarea></div>
+          <button type="submit" class="btn btn--ink"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <span>Save notes</span></button>
         </form>
-      </div>
+      </section>
     </div>
   </div>
 </div>

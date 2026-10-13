@@ -1,190 +1,134 @@
 {% extends "base.html" %}
 {% block title %}MediAI — Doctor Dashboard{% endblock %}
+
 {% block extra_style %}
-.page{max-width:1200px;margin:0 auto;padding:40px 32px}
-.dash-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px}
-.dash-hdr h1{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-.04em}
-.dash-hdr p{font-size:.85rem;color:var(--muted);margin-top:4px}
-.doc-badge{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 18px}
-.doc-avatar{width:44px;height:44px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;flex-shrink:0}
-.doc-info .name{font-weight:700;font-size:.92rem}
-.doc-info .spec{font-size:.76rem;color:var(--muted)}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
-.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:9px;padding:18px 20px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
-.s-pending::before{background:var(--amber)}
-.s-review::before{background:var(--teal)}
-.s-done::before{background:var(--green)}
-.s-total::before{background:var(--ink)}
-.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.04em;line-height:1}
-.stat-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:4px}
-.section-title{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;margin-top:28px;display:flex;align-items:center;gap:8px}
-.section-title .count{background:var(--cream);padding:3px 10px;border-radius:20px;font-size:.7rem}
-.case-list{display:flex;flex-direction:column;gap:12px;margin-bottom:8px}
-.case-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:20px 22px;display:flex;align-items:center;gap:20px;transition:border-color .15s;text-decoration:none;color:inherit}
-.case-card:hover{border-color:var(--teal2);box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.case-body{flex:1;min-width:0}
-.patient-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:4px}
-.case-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.77rem;color:var(--muted);margin-bottom:8px}
-.case-meta span{display:flex;align-items:center;gap:5px}
-.disease-tag{background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:.75rem;font-weight:600;display:inline-block}
-.status-badge{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.06em;margin-left:8px}
-.st-pending{background:rgba(217,119,6,.1);color:var(--amber)}
-.st-in_review{background:rgba(10,124,110,.1);color:var(--teal)}
-.st-completed{background:rgba(22,163,74,.1);color:var(--green)}
-.conf-row{display:flex;align-items:center;gap:8px;margin-top:6px}
-.conf-track{flex:1;height:4px;background:var(--cream);border-radius:2px;overflow:hidden;max-width:140px}
-.conf-fill{height:100%;border-radius:2px;background:var(--teal)}
-.risk-pill{padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:700;margin-left:6px}
-.r-low{background:rgba(22,163,74,.1);color:var(--green)}
-.r-med{background:rgba(217,119,6,.1);color:var(--amber)}
-.r-high{background:rgba(232,52,28,.1);color:var(--red)}
-.btn-review{background:var(--ink);color:#fff;border:none;padding:10px 20px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;transition:background .2s}
-.btn-review:hover{background:var(--teal)}
-.btn-review.green{background:var(--green)}
-.btn-review.green:hover{background:#15803d}
-.empty{text-align:center;padding:48px 24px;color:var(--muted);background:var(--cream);border-radius:10px}
-.empty i{font-size:2rem;opacity:.25;display:block;margin-bottom:10px}
-@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}.page{padding:24px 16px}.case-card{flex-direction:column;align-items:flex-start}}
+.doc-id { display:flex; align-items:center; gap:12px; padding:10px 16px 10px 10px; background:var(--mai-surface); border:1px solid var(--mai-border); border-radius:var(--mai-radius-md); }
+.doc-id .avatar { background:var(--mai-primary); color:var(--mai-on-primary); width:40px; height:40px; }
+.next-case { display:flex; align-items:center; justify-content:space-between; gap:var(--mai-s4); flex-wrap:wrap; }
+.next-case h2 { font-size:1.15rem; margin-top:4px; }
+.conf-mini { display:inline-flex; align-items:center; gap:8px; font-size:var(--mai-fs-xs); color:var(--mai-muted); }
+.conf-mini .meter { display:inline-block; width:90px; }
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div class="dash-hdr">
-    <div>
-      <h1>Doctor Dashboard</h1>
-      <p>Review AI predictions · Add clinical notes · Order lab tests</p>
+{% set total = (pending|length) + (active|length) + (done|length) %}
+{% set next = pending[0] if pending else (active[0] if active else None) %}
+{% macro case_row(c, status) %}
+  {% set risk_tone = 'success' if c.risk_score < 20 else ('warning' if c.risk_score < 40 else 'danger') %}
+  {% set risk_lbl = 'Low' if c.risk_score < 20 else ('Moderate' if c.risk_score < 40 else 'High') %}
+  {% set st = {'pending': ('warning', 'New', 'Review', 'fa-stethoscope', 'btn--primary'),
+               'in_review': ('info', 'In review', 'Continue', 'fa-pen-nib', ''),
+               'completed': ('success', 'Completed', 'View', 'fa-eye', 'btn--ghost')}[status] %}
+  <a href="/doctor/consultation/{{ c.id }}" class="queue-item tone-{{ risk_tone if status != 'completed' else 'neutral' }} {{ 'is-muted' if status == 'completed' }}" data-filter-item data-status="{{ status }}">
+    <div style="min-width:0;">
+      <div class="cluster">
+        <span class="queue-item__title">{{ c.patient_name or '—' }}</span>
+        <span class="chip chip--dot tone-{{ st[0] }}">{{ st[1] }}</span>
+      </div>
+      <div class="queue-item__meta">
+        {% if c.age %}<span><i class="fa-solid fa-cake-candles" aria-hidden="true"></i> {{ c.age }} yrs</span>{% endif %}
+        {% if c.gender %}<span><i class="fa-solid fa-venus-mars" aria-hidden="true"></i> {{ c.gender }}</span>{% endif %}
+        {% if c.city %}<span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ c.city }}</span>{% endif %}
+        <span><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
+      </div>
+      <div class="queue-item__tags">
+        <span class="tag"><i class="fa-solid fa-brain" aria-hidden="true" style="color:var(--mai-primary);"></i> AI: {{ c.top_disease }}</span>
+        {% if status != 'completed' %}<span class="chip tone-{{ risk_tone }}">{{ risk_lbl }} risk · {{ c.risk_score }}</span>{% endif %}
+        <span class="conf-mini">Model confidence {{ c.confidence }}%
+          <span class="meter meter--thin" aria-hidden="true"><span class="meter__fill tone-primary" style="display:block;--value: {{ c.confidence }}%;"></span></span></span>
+        {% if status == 'completed' and c.final_diagnosis %}<span class="small muted">→ Final: <b style="color:var(--mai-ink);">{{ c.final_diagnosis }}</b></span>{% endif %}
+      </div>
+    </div>
+    <span class="btn {{ st[4] }}" aria-hidden="true"><i class="fa-solid {{ st[3] }}"></i> {{ st[2] }}</span>
+  </a>
+{% endmacro %}
+
+<div class="container container--wide">
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">Doctor workspace</span>
+      <h1>Case queue</h1>
+      <p>Review AI assessments, add clinical notes and order lab tests.</p>
     </div>
     {% if doc %}
-    <div class="doc-badge">
-      <div class="doc-avatar"><i class="fa-solid fa-user-doctor"></i></div>
-      <div class="doc-info">
-        <div class="name">Dr. {{ doc.full_name }}</div>
-        <div class="spec">{{ doc.specialty }}{% if doc.qualification %} · {{ doc.qualification }}{% endif %}</div>
+    <div class="doc-id">
+      <span class="avatar" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span>
+      <div>
+        <div style="font-weight:600;font-size:var(--mai-fs-sm);">Dr. {{ doc.full_name }}</div>
+        <div class="xsmall muted">{{ doc.specialty }}{% if doc.qualification %} · {{ doc.qualification }}{% endif %}</div>
       </div>
     </div>
     {% endif %}
+  </header>
+
+  <div class="kpis stagger" style="margin-bottom:var(--mai-s5);">
+    <div class="kpi tone-warning"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-hourglass-half"></i></span> Awaiting review</div><div class="kpi__value" data-countup>{{ pending|length }}</div></div>
+    <div class="kpi tone-info"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span> In review</div><div class="kpi__value" data-countup>{{ active|length }}</div></div>
+    <div class="kpi tone-success"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span> Completed</div><div class="kpi__value" data-countup>{{ done|length }}</div></div>
+    <div class="kpi tone-neutral"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-folder-open"></i></span> Total cases</div><div class="kpi__value" data-countup>{{ total }}</div></div>
   </div>
 
-  <!-- Stats -->
-  <div class="stat-row">
-    <div class="stat-card s-pending">
-      <div class="stat-num">{{ pending|length }}</div>
-      <div class="stat-lbl">Pending</div>
-    </div>
-    <div class="stat-card s-review">
-      <div class="stat-num">{{ active|length }}</div>
-      <div class="stat-lbl">In Review</div>
-    </div>
-    <div class="stat-card s-done">
-      <div class="stat-num">{{ done|length }}</div>
-      <div class="stat-lbl">Completed</div>
-    </div>
-    <div class="stat-card s-total">
-      <div class="stat-num">{{ (pending|length) + (active|length) + (done|length) }}</div>
-      <div class="stat-lbl">Total Cases</div>
-    </div>
-  </div>
-
-  <!-- Pending -->
-  {% if pending %}
-  <div class="section-title">
-    <i class="fa-solid fa-clock" style="color:var(--amber)"></i> Pending Review
-    <span class="count">{{ pending|length }}</span>
-  </div>
-  <div class="case-list">
-    {% for c in pending %}
-    {% set risk_cls = 'r-low' if c.risk_score < 20 else ('r-med' if c.risk_score < 40 else 'r-high') %}
-    {% set risk_lbl = 'Low' if c.risk_score < 20 else ('Moderate' if c.risk_score < 40 else 'High') %}
-    <a href="/doctor/consultation/{{ c.id }}" class="case-card">
-      <div class="case-body">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
-          <span class="patient-name">{{ c.patient_name or '—' }}</span>
-          <span class="status-badge st-pending"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> New</span>
-        </div>
-        <div class="case-meta">
-          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
-          {% if c.gender %}<span><i class="fa-solid fa-venus-mars"></i> {{ c.gender }}</span>{% endif %}
-          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
-          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
-        </div>
-        <span class="disease-tag">AI: {{ c.top_disease }}</span>
-        <span class="risk-pill {{ risk_cls }}">{{ risk_lbl }} Risk</span>
-        <div class="conf-row">
-          <span style="font-size:.72rem;color:var(--muted)">Confidence {{ c.confidence }}%</span>
-          <div class="conf-track"><div class="conf-fill" style="width:{{ c.confidence }}%"></div></div>
-        </div>
+  {% if next %}
+  {% set nr = 'success' if next.risk_score < 20 else ('warning' if next.risk_score < 40 else 'danger') %}
+  <section class="card card--accent-top next-case" aria-labelledby="next-title" style="margin-bottom:var(--mai-s5);">
+    <div style="min-width:0;">
+      <span class="eyebrow"><i class="fa-solid fa-forward" aria-hidden="true"></i> {{ 'Next case awaiting review' if pending else 'Continue where you left off' }}</span>
+      <h2 id="next-title">{{ next.patient_name or 'Patient' }} — {{ next.top_disease }}</h2>
+      <div class="cluster" style="margin-top:8px;">
+        <span class="chip chip--dot tone-{{ nr }}">Risk score {{ next.risk_score }}</span>
+        <span class="xsmall muted">Received {{ next.diagnosis_time|string|truncate(16,true,'') }}</span>
       </div>
-      <span class="btn-review"><i class="fa-solid fa-stethoscope"></i> Review</span>
-    </a>
-    {% endfor %}
-  </div>
+    </div>
+    <a href="/doctor/consultation/{{ next.id }}" class="btn btn--primary btn--lg"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i> Open case</a>
+  </section>
   {% endif %}
 
-  <!-- In Review -->
-  {% if active %}
-  <div class="section-title">
-    <i class="fa-solid fa-magnifying-glass" style="color:var(--teal)"></i> In Review
-    <span class="count">{{ active|length }}</span>
-  </div>
-  <div class="case-list">
-    {% for c in active %}
-    <a href="/doctor/consultation/{{ c.id }}" class="case-card">
-      <div class="case-body">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
-          <span class="patient-name">{{ c.patient_name or '—' }}</span>
-          <span class="status-badge st-in_review"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> In Review</span>
-        </div>
-        <div class="case-meta">
-          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
-          {% if c.gender %}<span><i class="fa-solid fa-venus-mars"></i> {{ c.gender }}</span>{% endif %}
-          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
-          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
-        </div>
-        <span class="disease-tag">AI: {{ c.top_disease }}</span>
-        <div class="conf-row">
-          <span style="font-size:.72rem;color:var(--muted)">Confidence {{ c.confidence }}%</span>
-          <div class="conf-track"><div class="conf-fill" style="width:{{ c.confidence }}%"></div></div>
-        </div>
+  {% if total %}
+  <div data-filter-scope="#case-groups" data-filter-empty="#filter-empty">
+    <div class="toolbar">
+      <div class="input-icon">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" class="input" data-filter="#case-groups" placeholder="Search patient, city or condition…" aria-label="Search cases">
       </div>
-      <span class="btn-review"><i class="fa-solid fa-pen-nib"></i> Continue</span>
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <!-- Completed -->
-  {% if done %}
-  <div class="section-title">
-    <i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Completed
-    <span class="count">{{ done|length }}</span>
-  </div>
-  <div class="case-list">
-    {% for c in done %}
-    <a href="/doctor/consultation/{{ c.id }}" class="case-card" style="opacity:.8">
-      <div class="case-body">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px">
-          <span class="patient-name">{{ c.patient_name or '—' }}</span>
-          <span class="status-badge st-completed"><i class="fa-solid fa-circle" style="font-size:.4rem"></i> Done</span>
-        </div>
-        <div class="case-meta">
-          {% if c.age %}<span><i class="fa-solid fa-cake-candles"></i> {{ c.age }} yrs</span>{% endif %}
-          {% if c.city %}<span><i class="fa-solid fa-location-dot"></i> {{ c.city }}</span>{% endif %}
-          <span><i class="fa-solid fa-clock"></i> {{ c.diagnosis_time|string|truncate(16,true,'') }}</span>
-        </div>
-        <span class="disease-tag">AI: {{ c.top_disease }}</span>
-        {% if c.final_diagnosis %}<span style="font-size:.78rem;color:var(--muted);margin-left:8px;">→ {{ c.final_diagnosis }}</span>{% endif %}
+      <div class="segmented" role="group" aria-label="Filter by status">
+        <button type="button" data-filter-status="all" aria-pressed="true">All <span class="muted">{{ total }}</span></button>
+        <button type="button" data-filter-status="pending" aria-pressed="false">New <span class="muted">{{ pending|length }}</span></button>
+        <button type="button" data-filter-status="in_review" aria-pressed="false">In review <span class="muted">{{ active|length }}</span></button>
+        <button type="button" data-filter-status="completed" aria-pressed="false">Completed <span class="muted">{{ done|length }}</span></button>
       </div>
-      <span class="btn-review green"><i class="fa-solid fa-eye"></i> View</span>
-    </a>
-    {% endfor %}
-  </div>
-  {% endif %}
+      <span class="sr-only" aria-live="polite" data-filter-count></span>
+    </div>
 
-  {% if not pending and not active and not done %}
+    <div id="case-groups">
+      {% if pending %}
+      <section data-filter-group>
+        <div class="section-head" style="margin-top:var(--mai-s4);"><h2><i class="fa-solid fa-hourglass-half" style="color:var(--mai-warning);" aria-hidden="true"></i> Awaiting review <span class="count">{{ pending|length }}</span></h2></div>
+        <div class="queue">{% for c in pending %}{{ case_row(c, 'pending') }}{% endfor %}</div>
+      </section>
+      {% endif %}
+      {% if active %}
+      <section data-filter-group>
+        <div class="section-head"><h2><i class="fa-solid fa-magnifying-glass" style="color:var(--mai-info);" aria-hidden="true"></i> In review <span class="count">{{ active|length }}</span></h2></div>
+        <div class="queue">{% for c in active %}{{ case_row(c, 'in_review') }}{% endfor %}</div>
+      </section>
+      {% endif %}
+      {% if done %}
+      <section data-filter-group>
+        <div class="section-head"><h2><i class="fa-solid fa-circle-check" style="color:var(--mai-success);" aria-hidden="true"></i> Completed <span class="count">{{ done|length }}</span></h2></div>
+        <div class="queue">{% for c in done %}{{ case_row(c, 'completed') }}{% endfor %}</div>
+      </section>
+      {% endif %}
+    </div>
+    <div class="empty empty--compact" id="filter-empty" hidden style="margin-top:var(--mai-s4);">
+      <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-filter-circle-xmark"></i></div>
+      <h3>No matching cases</h3><p>Try a different search or status filter.</p>
+    </div>
+  </div>
+  {% else %}
   <div class="empty">
-    <i class="fa-solid fa-inbox"></i>
-    <p>No consultations yet. Patients are auto-assigned after completing a diagnosis.</p>
+    <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-inbox"></i></div>
+    <h3>No consultations yet</h3>
+    <p>Patients are assigned to you automatically after they complete an AI assessment that matches your specialty.</p>
   </div>
   {% endif %}
 </div>

@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block title %}MediAI — {{ title }}{% endblock %}
 {% block extra_style %}
-.center-wrap { min-height:calc(100vh - 65px); display:flex; align-items:center; justify-content:center; }
-.box { text-align:center; max-width:420px; padding:48px 32px; }
-.code { font-family:'Syne',sans-serif; font-size:4rem; font-weight:800; letter-spacing:-0.05em; color:var(--red); line-height:1; margin-bottom:12px; }
-h2 { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px; }
-p  { font-size:0.88rem; color:var(--muted); line-height:1.7; margin-bottom:28px; }
-.btn-back { display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:#fff; padding:12px 28px; border-radius:6px; text-decoration:none; font-size:0.9rem; font-weight:500; transition:background .2s; }
-.btn-back:hover { background:var(--teal); }
+.center { min-height:calc(100vh - var(--mai-topnav-h) - 80px); display:grid; place-items:center; padding:var(--mai-s6) var(--mai-gutter); }
+.err { text-align:center; max-width:460px; }
+.err__code { font-family:var(--mai-font-head); font-size:clamp(3rem, 2rem + 4vw, 4.5rem); font-weight:800; letter-spacing:-0.05em; line-height:1; color:var(--mai-accent); }
+.err p { color:var(--mai-muted); margin:10px auto var(--mai-s5); }
 {% endblock %}
 {% block content %}
-<div class="center-wrap">
-  <div class="box">
-    <div class="code">{{ code }}</div>
-    <h2>{{ title }}</h2>
+<div class="center">
+  <div class="err">
+    <div class="err__code" aria-hidden="true">{{ code }}</div>
+    <h1 style="font-size:1.5rem;margin-top:8px;"><span class="sr-only">Error {{ code }}: </span>{{ title }}</h1>
     <p>{{ text }}</p>
-    <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to home</a>
+    <div class="cluster" style="justify-content:center;">
+      <a href="/" class="btn btn--ink"><i class="fa-solid fa-house" aria-hidden="true"></i> Back to home</a>
+      <button type="button" class="btn btn--ghost" onclick="history.back()"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Go back</button>
+    </div>
   </div>
 </div>
 {% endblock %}

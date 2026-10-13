@@ -2,217 +2,195 @@
 {% block title %}MediAI — Admin Panel{% endblock %}
 
 {% block extra_style %}
-.page { max-width:1100px; margin:0 auto; padding:48px 32px; }
-.page-hdr { margin-bottom:32px; display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px; }
-.page-hdr h1 { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.04em; }
-.page-hdr p { font-size:.87rem; color:var(--muted); margin-top:4px; }
-.stat-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:32px; }
-.stat-card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:18px 16px; position:relative; overflow:hidden; }
-.stat-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
-.sc1::before{background:var(--teal)} .sc2::before{background:var(--amber)}
-.sc3::before{background:var(--green)} .sc4::before{background:var(--red)}
-.sc5::before{background:#7c3aed} .sc6::before{background:#0284c7}
-.s-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:600; margin-bottom:6px; }
-.s-num { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.04em; line-height:1; }
-.tabs { display:flex; gap:0; border-bottom:1.5px solid var(--border); margin-bottom:28px; }
-.tab-btn { padding:10px 24px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:500; color:var(--muted); cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-1.5px; transition:all .2s; }
-.tab-btn.active { color:var(--ink); border-bottom-color:var(--ink); }
-.tab-panel { display:none; } .tab-panel.active { display:block; }
-.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:24px; }
-.card-title { font-family:'Syne',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:7px; }
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:5px; }
-.field input, .field select { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.88rem; outline:none; transition:border-color .2s; background:#fff; }
-.field input:focus, .field select:focus { border-color:var(--teal2); }
-.row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.btn-submit { width:100%; background:var(--ink); color:#fff; border:none; padding:12px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:500; cursor:pointer; margin-top:6px; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.btn-submit:hover { background:var(--teal); }
-.table-wrap { overflow-x:auto; }
-.data-table { width:100%; border-collapse:collapse; }
-.data-table th { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); text-align:left; padding:0 0 10px; border-bottom:1.5px solid var(--border); white-space:nowrap; }
-.data-table td { padding:12px 0; font-size:.82rem; border-bottom:1px solid var(--cream); vertical-align:middle; padding-right:16px; }
-.data-table tr:last-child td { border-bottom:none; }
-.badge { padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:600; display:inline-block; }
-.badge-teal  { background:rgba(10,124,110,.1); color:var(--teal); }
-.badge-amber { background:rgba(217,119,6,.1);  color:var(--amber); }
-.badge-red   { background:rgba(232,52,28,.1);  color:var(--red); }
-.badge-purple{ background:rgba(124,58,237,.1); color:#7c3aed; }
-.empty { text-align:center; padding:32px; color:var(--muted); font-size:.85rem; }
-.empty i { font-size:1.8rem; display:block; margin-bottom:10px; opacity:.3; }
-.btn-delete { background:none; border:1.5px solid rgba(232,52,28,.3); color:var(--red); padding:5px 12px; border-radius:6px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
-.badge-red { background:rgba(232,52,28,.1); color:var(--red); }
-.btn-reactivate { background:none; border:1.5px solid rgba(10,124,110,.35); color:var(--teal); padding:5px 12px; border-radius:6px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
-.btn-reactivate:hover { background:var(--teal); color:#fff; }
-.count-pill { background:var(--red); color:#fff; border-radius:10px; padding:1px 7px; font-size:.7rem; margin-left:4px; }
-.filter-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
-.filter-btn { padding:7px 14px; border-radius:6px; border:1.5px solid var(--border); font-size:.78rem; font-weight:500; color:var(--muted); text-decoration:none; }
-.filter-btn.active, .filter-btn:hover { background:var(--ink); color:#fff; border-color:var(--ink); }
-.app-st { padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:600; display:inline-block; white-space:nowrap; }
-.st-submitted, .st-under_review { background:rgba(2,132,199,.1); color:#0284c7; }
-.st-info_requested { background:rgba(217,119,6,.12); color:var(--amber); }
-.st-interview_scheduled, .st-interviewed { background:rgba(124,58,237,.1); color:#7c3aed; }
-.st-approved { background:rgba(22,163,74,.12); color:var(--green); }
-.st-rejected { background:rgba(232,52,28,.1); color:var(--red); }
-.btn-review { display:inline-flex; align-items:center; gap:6px; background:var(--ink); color:#fff; padding:6px 12px; border-radius:6px; font-size:.76rem; font-weight:600; text-decoration:none; white-space:nowrap; }
-.btn-review:hover { background:var(--teal); }
-.btn-delete:hover { background:var(--red); color:#fff; border-color:var(--red); }
-.specialties { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
-.spec-chip { background:var(--cream); border:1px solid var(--border); border-radius:20px; padding:3px 11px; font-size:.72rem; cursor:pointer; transition:all .12s; }
-.spec-chip:hover,.spec-chip.active { background:var(--ink); color:#fff; border-color:var(--ink); }
-.rbac-table td, .rbac-table th { text-align:center; }
-.rbac-table td:first-child, .rbac-table th:first-child { text-align:left; }
-.rbac-yes { color:var(--teal); } .rbac-no { color:var(--border); }
-.perm-desc { font-size:.72rem; color:var(--muted); }
-@media(max-width:900px){ .stat-grid{grid-template-columns:repeat(3,1fr)} .grid2{grid-template-columns:1fr} }
-@media(max-width:600px){ .stat-grid{grid-template-columns:repeat(2,1fr)} }
+.rbac-yes { color:var(--mai-success); }
+.rbac-no { color:var(--mai-border-strong); }
+.kpis--6 { grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); }
 {% endblock %}
 
 {% block content %}
 {% macro staff_action(u) %}
   {% if not can('staff.manage') %}
   {% elif u.status == 'active' %}
-  <form method="post" action="/admin/staff/{{ u.user_id }}/suspend" onsubmit='return confirm({{ ("Suspend " ~ u.full_name ~ "? Their open work will be reassigned.")|tojson|forceescape }})'>
-    <button type="submit" class="btn-delete"><i class="fa-solid fa-user-slash"></i> Suspend</button>
+  <form method="post" action="/admin/staff/{{ u.user_id }}/suspend"
+        data-confirm="{{ u.full_name }} will lose access immediately. Their open consultations or pending lab orders will be reassigned to other active staff. Records are kept."
+        data-confirm-title="Suspend {{ u.full_name }}?" data-confirm-action="Suspend account">
+    <button type="submit" class="btn btn--danger-soft btn--sm"><i class="fa-solid fa-user-slash" aria-hidden="true"></i> Suspend</button>
   </form>
   {% else %}
-  <form method="post" action="/admin/staff/{{ u.user_id }}/reactivate">
-    <button type="submit" class="btn-reactivate"><i class="fa-solid fa-user-check"></i> Reactivate</button>
+  <form method="post" action="/admin/staff/{{ u.user_id }}/reactivate"
+        data-confirm="{{ u.full_name }} will regain access and can receive new work." data-confirm-title="Reactivate {{ u.full_name }}?"
+        data-confirm-action="Reactivate" data-confirm-tone="primary">
+    <button type="submit" class="btn btn--primary-soft btn--sm"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Reactivate</button>
   </form>
   {% endif %}
 {% endmacro %}
+{% macro status_chip(status) %}
+  {% if status == 'active' %}<span class="chip chip--dot tone-success">Active</span>
+  {% else %}<span class="chip chip--dot tone-neutral">Suspended</span>{% endif %}
+{% endmacro %}
+{% set app_tone = {'submitted':'info','under_review':'info','info_requested':'warning','interview_scheduled':'info','interviewed':'info','approved':'success','rejected':'danger'} %}
 
-<div class="page">
-  <div class="page-hdr">
-    <div><h1>Admin Panel</h1><p>Verify staff applications, manage doctors and lab technicians, and monitor workflow</p></div>
-    <div style="display:flex;gap:10px;">
-      <a href="/analytics" style="padding:9px 18px;border:1.5px solid var(--border);border-radius:6px;font-size:.82rem;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+<div class="container container--wide">
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">Administration</span>
+      <h1>Admin dashboard</h1>
+      <p>Verify staff applications, manage doctors and lab technicians, and monitor the clinical workflow.</p>
     </div>
-  </div>
+    <div class="page-header__actions">
+      <a href="/analytics" class="btn"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics</a>
+    </div>
+  </header>
 
-  <!-- Stats -->
-  <div class="stat-grid">
-    <div class="stat-card sc1"><div class="s-label">Doctors</div><div class="s-num">{{ stats.active_doctors }}</div></div>
-    <div class="stat-card sc2"><div class="s-label">Lab Techs</div><div class="s-num">{{ stats.lab_techs }}</div></div>
-    <div class="stat-card sc3"><div class="s-label">Pending Consults</div><div class="s-num">{{ stats.pending_consults }}</div></div>
-    <div class="stat-card sc4"><div class="s-label">Done Consults</div><div class="s-num">{{ stats.completed_consults }}</div></div>
-    <div class="stat-card sc5"><div class="s-label">Pending Labs</div><div class="s-num">{{ stats.pending_labs }}</div></div>
-    <div class="stat-card sc6"><div class="s-label">Done Labs</div><div class="s-num">{{ stats.completed_labs }}</div></div>
+  <div class="kpis kpis--6 stagger" style="margin-bottom:var(--mai-s6);">
+    <div class="kpi tone-primary"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span> Active doctors</div><div class="kpi__value" data-countup>{{ stats.active_doctors }}</div></div>
+    <div class="kpi tone-primary"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-flask"></i></span> Lab technicians</div><div class="kpi__value" data-countup>{{ stats.lab_techs }}</div></div>
+    <div class="kpi tone-warning"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-hourglass-half"></i></span> Pending consults</div><div class="kpi__value" data-countup>{{ stats.pending_consults }}</div></div>
+    <div class="kpi tone-success"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span> Completed consults</div><div class="kpi__value" data-countup>{{ stats.completed_consults }}</div></div>
+    <div class="kpi tone-warning"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-vial"></i></span> Pending lab orders</div><div class="kpi__value" data-countup>{{ stats.pending_labs }}</div></div>
+    <div class="kpi tone-success"><div class="kpi__label"><span class="kpi__icon" aria-hidden="true"><i class="fa-solid fa-vial-circle-check"></i></span> Completed lab orders</div><div class="kpi__value" data-countup>{{ stats.completed_labs }}</div></div>
   </div>
 
   {% set open_tab = 'applications' if (app_counts.open or app_filter != 'open') and can('staff.verify') else 'doctors' %}
-  <!-- Tabs -->
-  <div class="tabs">
-    {% if can('staff.verify') %}<button class="tab-btn {% if open_tab == 'applications' %}active{% endif %}" onclick="switchTab('applications',this)">Applications{% if app_counts.open %} <span class="count-pill">{{ app_counts.open }}</span>{% endif %}</button>{% endif %}
-    <button class="tab-btn {% if open_tab == 'doctors' %}active{% endif %}" onclick="switchTab('doctors',this)">Doctors ({{ doctors|length }})</button>
-    <button class="tab-btn" onclick="switchTab('labs',this)">Lab Technicians ({{ lab_techs|length }})</button>
-    {% if can('rbac.view') %}<button class="tab-btn" onclick="switchTab('rbac',this)">Roles &amp; Permissions</button>{% endif %}
+  <div class="tabs" role="tablist" aria-label="Admin sections" data-tabs data-tabs-hash>
+    {% if can('staff.verify') %}<button type="button" class="tab" role="tab" id="t-applications" data-key="applications" aria-controls="tab-applications" aria-selected="{{ 'true' if open_tab == 'applications' else 'false' }}" tabindex="{{ 0 if open_tab == 'applications' else -1 }}"><i class="fa-solid fa-file-signature" aria-hidden="true"></i> Applications{% if app_counts.open %} <span class="count" aria-label="{{ app_counts.open }} need action">{{ app_counts.open }}</span>{% endif %}</button>{% endif %}
+    <button type="button" class="tab" role="tab" id="t-doctors" data-key="doctors" aria-controls="tab-doctors" aria-selected="{{ 'true' if open_tab == 'doctors' else 'false' }}" tabindex="{{ 0 if open_tab == 'doctors' else -1 }}"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i> Doctors <span class="muted">{{ doctors|length }}</span></button>
+    <button type="button" class="tab" role="tab" id="t-labs" data-key="labs" aria-controls="tab-labs" aria-selected="false" tabindex="-1"><i class="fa-solid fa-flask" aria-hidden="true"></i> Lab technicians <span class="muted">{{ lab_techs|length }}</span></button>
+    {% if can('rbac.view') %}<button type="button" class="tab" role="tab" id="t-rbac" data-key="rbac" aria-controls="tab-rbac" aria-selected="false" tabindex="-1"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Roles &amp; permissions</button>{% endif %}
   </div>
 
   {% if can('staff.verify') %}
-  <!-- Applications -->
-  <div class="tab-panel {% if open_tab == 'applications' %}active{% endif %}" id="tab-applications">
-    <div class="filter-row">
-      {% for key, label in [('open', 'Needs action'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('all', 'All')] %}
-      <a href="/admin?applications={{ key }}" class="filter-btn {% if app_filter == key %}active{% endif %}">{{ label }}{% if key == 'open' and app_counts.open %} ({{ app_counts.open }}){% elif app_counts.get(key) %} ({{ app_counts[key] }}){% endif %}</a>
-      {% endfor %}
-    </div>
-    {% if applications %}
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Applicant</th><th>Role</th><th>Details</th><th>Licence</th><th>Status</th><th>Updated</th><th></th></tr></thead>
-        <tbody>
-          {% for ap in applications %}
-          <tr>
-            <td><b>{{ ap.full_name }}</b><div style="font-size:.74rem;color:var(--muted);">@{{ ap.username }} · {{ ap.email }}</div></td>
-            <td>{% if ap.role == 'doctor' %}<span class="badge badge-teal">Doctor</span>{% else %}<span class="badge badge-purple">Lab</span>{% endif %}</td>
-            <td style="font-size:.78rem;">{% if ap.role == 'doctor' %}{{ ap.specialty }}{% else %}{{ ap.lab_name }}, {{ ap.lab_city }}{% endif %}<div style="color:var(--muted);">{{ ap.qualification }} · {{ ap.experience_yrs }} yrs</div></td>
-            <td style="font-size:.78rem;">{{ ap.license_number }}<div style="color:var(--muted);">{{ ap.license_authority }}</div></td>
-            <td><span class="app-st st-{{ ap.status }}">{{ ap.status_label }}</span>
-              {% if ap.status == 'interview_scheduled' and ap.interview_at %}<div style="font-size:.72rem;color:var(--muted);margin-top:3px;">{{ ap.interview_at.strftime('%d %b, %I:%M %p') }}</div>{% endif %}</td>
-            <td style="font-size:.76rem;color:var(--muted);white-space:nowrap;">{{ ap.updated_at.strftime('%d %b %Y') }}</td>
-            <td><a href="/admin/applications/{{ ap.id }}" class="btn-review">Review <i class="fa-solid fa-arrow-right"></i></a></td>
-          </tr>
+  <section class="tab-panel" id="tab-applications" role="tabpanel" aria-labelledby="t-applications" {% if open_tab != 'applications' %}hidden{% endif %}>
+    <div class="card" data-filter-scope="#app-table" data-filter-empty="#app-empty">
+      <div class="toolbar">
+        <nav class="segmented" aria-label="Application status filter">
+          {% for key, label in [('open', 'Needs action'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('all', 'All')] %}
+          <a href="/admin?applications={{ key }}#applications" {% if app_filter == key %}aria-current="page"{% endif %}>{{ label }}{% if key == 'open' and app_counts.open %} <span class="muted">{{ app_counts.open }}</span>{% elif app_counts.get(key) %} <span class="muted">{{ app_counts[key] }}</span>{% endif %}</a>
           {% endfor %}
-        </tbody>
-      </table>
+        </nav>
+        {% if applications %}
+        <div class="input-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" class="input" data-filter="#app-table" placeholder="Search name, licence, specialty…" aria-label="Search applications"></div>
+        {% endif %}
+      </div>
+      {% if applications %}
+      <div class="table-wrap">
+        <table class="table table--stack" id="app-table">
+          <thead><tr><th scope="col">Applicant</th><th scope="col">Role</th><th scope="col">Details</th><th scope="col">Licence</th><th scope="col">Status</th><th scope="col">Updated</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            {% for ap in applications %}
+            <tr data-filter-item>
+              <td><b>{{ ap.full_name }}</b><div class="sub">@{{ ap.username }} · {{ ap.email }}</div></td>
+              <td data-label="Role">{% if ap.role == 'doctor' %}<span class="chip tone-primary">Doctor</span>{% else %}<span class="chip tone-info">Lab</span>{% endif %}</td>
+              <td data-label="Details"><div><div>{% if ap.role == 'doctor' %}{{ ap.specialty }}{% else %}{{ ap.lab_name }}, {{ ap.lab_city }}{% endif %}</div><div class="sub">{{ ap.qualification }} · {{ ap.experience_yrs }} yrs</div></div></td>
+              <td data-label="Licence"><div><div>{{ ap.license_number }}</div><div class="sub">{{ ap.license_authority }}</div></div></td>
+              <td data-label="Status"><div><span class="chip chip--dot tone-{{ app_tone.get(ap.status, 'neutral') }}">{{ ap.status_label }}</span>
+                {% if ap.status == 'interview_scheduled' and ap.interview_at %}<div class="sub">{{ ap.interview_at.strftime('%d %b, %I:%M %p') }}</div>{% endif %}</div></td>
+              <td data-label="Updated" class="nowrap xsmall muted">{{ ap.updated_at.strftime('%d %b %Y') }}</td>
+              <td data-label=""><a href="/admin/applications/{{ ap.id }}" class="btn btn--ink btn--sm">Review <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="empty empty--compact" id="app-empty" hidden><h3>No matching applications</h3><p>Try a different search.</p></div>
+      {% else %}
+      <div class="empty empty--compact">
+        <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-inbox"></i></div>
+        <h3>Nothing here</h3>
+        <p>No applications in this view. Doctors and lab technicians apply at <b>/apply</b>.</p>
+      </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="empty"><i class="fa-solid fa-inbox"></i>No applications here. Doctors and lab technicians apply at <b>/apply</b>.</div>
-    {% endif %}
-  </div>
+  </section>
   {% endif %}
 
-  <!-- Doctor List -->
-  <div class="tab-panel {% if open_tab == 'doctors' %}active{% endif %}" id="tab-doctors">
-    {% if doctors %}
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Name</th><th>Username</th><th>Specialty</th><th>Qualification</th><th>Experience</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          {% for d in doctors %}
-          <tr>
-            <td><b>Dr. {{ d.full_name }}</b>{% if d.hospital %}<div style="font-size:.74rem;color:var(--muted);">{{ d.hospital }}</div>{% endif %}</td>
-            <td style="color:var(--muted);">@{{ d.username }}</td>
-            <td><span class="badge badge-teal">{{ d.specialty }}</span></td>
-            <td style="color:var(--muted);font-size:.78rem;">{{ d.qualification or '—' }}</td>
-            <td>{{ d.experience_yrs }} yrs</td>
-            <td>{% if d.status == 'active' %}<span class="badge badge-teal"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> Active</span>{% else %}<span class="badge badge-red">Suspended</span>{% endif %}</td>
-            <td>{{ staff_action(d) }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <section class="tab-panel" id="tab-doctors" role="tabpanel" aria-labelledby="t-doctors" {% if open_tab != 'doctors' %}hidden{% endif %}>
+    <div class="card" data-filter-scope="#doc-table" data-filter-empty="#doc-empty">
+      {% if doctors %}
+      <div class="toolbar">
+        <div class="input-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" class="input" data-filter="#doc-table" placeholder="Search doctors…" aria-label="Search doctors"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table table--stack" id="doc-table">
+          <thead><tr><th scope="col">Name</th><th scope="col">Username</th><th scope="col">Specialty</th><th scope="col">Qualification</th><th scope="col">Experience</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            {% for d in doctors %}
+            <tr data-filter-item>
+              <td><b>Dr. {{ d.full_name }}</b>{% if d.hospital %}<div class="sub">{{ d.hospital }}</div>{% endif %}</td>
+              <td data-label="Username" class="muted">@{{ d.username }}</td>
+              <td data-label="Specialty"><span class="chip tone-primary">{{ d.specialty }}</span></td>
+              <td data-label="Qualification" class="small muted">{{ d.qualification or '—' }}</td>
+              <td data-label="Experience" class="num">{{ d.experience_yrs }} yrs</td>
+              <td data-label="Status">{{ status_chip(d.status) }}</td>
+              <td data-label="">{{ staff_action(d) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="empty empty--compact" id="doc-empty" hidden><h3>No matching doctors</h3><p>Try a different search.</p></div>
+      {% else %}
+      <div class="empty empty--compact">
+        <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></div>
+        <h3>No approved doctors yet</h3>
+        <p>Doctors apply at <b>/apply</b> and appear here once you approve them.</p>
+      </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="empty"><i class="fa-solid fa-user-doctor"></i>No approved doctors yet. Doctors apply at <b>/apply</b> and appear here once you approve them.</div>
-    {% endif %}
-  </div>
+  </section>
 
-  <!-- Lab Tech List -->
-  <div class="tab-panel" id="tab-labs">
-    {% if lab_techs %}
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Name</th><th>Lab</th><th>Accreditation</th><th>Tests</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          {% for l in lab_techs %}
-          <tr>
-            <td><b>{{ l.full_name }}</b><div style="font-size:.74rem;color:var(--muted);">@{{ l.username }}</div></td>
-            <td><span class="badge badge-purple">{{ l.lab_name }}</span>{% if l.lab_city %}<div style="font-size:.74rem;color:var(--muted);margin-top:3px;">{{ l.lab_city }}</div>{% endif %}</td>
-            <td style="font-size:.78rem;">{{ (l.accreditation_body ~ ' ' ~ l.accreditation_number) if l.accreditation_number else '—' }}</td>
-            <td style="font-size:.78rem;" title="{{ l.tests|join(', ') }}">{{ l.tests|length or 'All' }}{{ ' tests' if l.tests }}</td>
-            <td>{% if l.status == 'active' %}<span class="badge badge-teal"><i class="fa-solid fa-circle" style="font-size:.45rem;"></i> Active</span>{% else %}<span class="badge badge-red">Suspended</span>{% endif %}</td>
-            <td>{{ staff_action(l) }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <section class="tab-panel" id="tab-labs" role="tabpanel" aria-labelledby="t-labs" hidden>
+    <div class="card" data-filter-scope="#lab-table" data-filter-empty="#lab-empty">
+      {% if lab_techs %}
+      <div class="toolbar">
+        <div class="input-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" class="input" data-filter="#lab-table" placeholder="Search lab technicians…" aria-label="Search lab technicians"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table table--stack" id="lab-table">
+          <thead><tr><th scope="col">Name</th><th scope="col">Lab</th><th scope="col">Accreditation</th><th scope="col">Tests</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            {% for l in lab_techs %}
+            <tr data-filter-item>
+              <td><b>{{ l.full_name }}</b><div class="sub">@{{ l.username }}</div></td>
+              <td data-label="Lab"><div><div>{{ l.lab_name }}</div>{% if l.lab_city %}<div class="sub">{{ l.lab_city }}</div>{% endif %}</div></td>
+              <td data-label="Accreditation" class="small">{{ (l.accreditation_body ~ ' ' ~ l.accreditation_number) if l.accreditation_number else '—' }}</td>
+              <td data-label="Tests" class="small"><span title="{{ l.tests|join(', ') }}">{{ l.tests|length or 'All' }}{{ ' tests' if l.tests }}</span></td>
+              <td data-label="Status">{{ status_chip(l.status) }}</td>
+              <td data-label="">{{ staff_action(l) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="empty empty--compact" id="lab-empty" hidden><h3>No matching lab technicians</h3><p>Try a different search.</p></div>
+      {% else %}
+      <div class="empty empty--compact">
+        <div class="empty__icon" aria-hidden="true"><i class="fa-solid fa-flask"></i></div>
+        <h3>No approved lab technicians yet</h3>
+        <p>They apply at <b>/apply?role=lab</b> and appear here once approved.</p>
+      </div>
+      {% endif %}
     </div>
-    {% else %}
-    <div class="empty"><i class="fa-solid fa-flask"></i>No approved lab technicians yet. They apply at <b>/apply?role=lab</b>.</div>
-    {% endif %}
-  </div>
+  </section>
 
   {% if can('rbac.view') %}
-  <!-- RBAC matrix -->
-  <div class="tab-panel" id="tab-rbac">
+  <section class="tab-panel" id="tab-rbac" role="tabpanel" aria-labelledby="t-rbac" hidden>
     <div class="card">
-      <div class="card-title"><i class="fa-solid fa-user-shield"></i> Role-Based Access Control</div>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px;line-height:1.7;">
+      <h2 class="card__title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Role-based access control</h2>
+      <p class="small muted" style="margin-bottom:var(--mai-s4);">
         Every route checks a permission, not a role name. Roles are granted permissions through the
         <code>role_permissions</code> table (seeded from <code>database.py</code>). Patients self-register;
-        doctor and lab accounts are created here by an admin.
+        doctor and lab accounts are created through the verified application process.
       </p>
       <div class="table-wrap">
-        <table class="data-table rbac-table">
-          <thead><tr><th>Permission</th>{% for r in rbac_roles %}<th>{{ r.name }}</th>{% endfor %}</tr></thead>
+        <table class="table table--center">
+          <thead><tr><th scope="col">Permission</th>{% for r in rbac_roles %}<th scope="col">{{ r.name }}</th>{% endfor %}</tr></thead>
           <tbody>
             {% for p in rbac_perms %}
             <tr>
-              <td><b>{{ p.name }}</b><div class="perm-desc">{{ p.description }}</div></td>
+              <th scope="row" style="text-align:left;text-transform:none;letter-spacing:0;font-size:var(--mai-fs-sm);color:var(--mai-ink);padding:13px 14px 13px 0;border-bottom:1px solid var(--mai-border);white-space:normal;">{{ p.name }}<div class="sub" style="font-weight:400;">{{ p.description }}</div></th>
               {% for r in rbac_roles %}
-              <td>{% if (r.name, p.name) in rbac_grants %}<i class="fa-solid fa-circle-check rbac-yes"></i>{% else %}<i class="fa-solid fa-minus rbac-no"></i>{% endif %}</td>
+              <td>{% if (r.name, p.name) in rbac_grants %}<i class="fa-solid fa-circle-check rbac-yes" aria-hidden="true"></i><span class="sr-only">Granted</span>{% else %}<i class="fa-solid fa-minus rbac-no" aria-hidden="true"></i><span class="sr-only">Not granted</span>{% endif %}</td>
               {% endfor %}
             </tr>
             {% endfor %}
@@ -220,18 +198,22 @@
         </table>
       </div>
     </div>
-  </div>
+  </section>
   {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_script %}
 <script>
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-}
+// Keep the sidebar's section links in sync with the open tab
+(() => {
+  const mark = key => document.querySelectorAll('.sidebar a.navlink[href^="/admin"]').forEach(a => {
+    const h = a.getAttribute('href');
+    const on = key ? h === '/admin#' + key : h === '/admin';
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  mark(location.hash.slice(1));
+  document.addEventListener('mediai:tab', e => mark(e.detail.key));
+})();
 </script>
 {% endblock %}

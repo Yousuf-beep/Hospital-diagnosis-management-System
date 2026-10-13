@@ -2,244 +2,185 @@
 {% block title %}MediAI — Consultation #{{ c.id }}{% endblock %}
 
 {% block extra_style %}
-.page { max-width:1060px; margin:0 auto; padding:48px 32px; }
-.back-link { display:inline-flex; align-items:center; gap:8px; font-size:.8rem; color:var(--muted); text-decoration:none; margin-bottom:24px; transition:color .2s; }
-.back-link:hover { color:var(--ink); }
-.top-row { display:grid; grid-template-columns:1fr auto; gap:20px; align-items:start; margin-bottom:28px; }
-.page-title { font-family:'Syne',sans-serif; font-size:1.7rem; font-weight:800; letter-spacing:-0.03em; }
-.page-title span { font-size:1rem; font-weight:400; color:var(--muted); }
-.status-select { padding:8px 14px; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.85rem; outline:none; cursor:pointer; }
-.grid-main { display:grid; grid-template-columns:1fr 380px; gap:22px; }
-.col-left { display:flex; flex-direction:column; gap:18px; }
-.col-right { display:flex; flex-direction:column; gap:18px; }
-.card { background:#fff; border:1.5px solid var(--border); border-radius:10px; padding:22px; }
-.card-title { font-family:'Syne',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:7px; }
-.ai-disease { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:-0.03em; }
-.ai-meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
-.meta-chip { padding:3px 11px; border-radius:20px; font-size:.72rem; font-weight:600; }
-.chip-teal   { background:rgba(10,124,110,.1); color:var(--teal); }
-.chip-amber  { background:rgba(217,119,6,.1); color:var(--amber); }
-.chip-red    { background:rgba(232,52,28,.1); color:var(--red); }
-.chip-green  { background:rgba(22,163,74,.1); color:var(--green); }
-.chip-plain  { background:var(--cream); color:var(--muted); }
-.sym-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-.sym-tag { background:var(--cream); border-radius:20px; padding:3px 11px; font-size:.73rem; }
-.pred-bar-row { display:flex; justify-content:space-between; margin-bottom:3px; font-size:.82rem; }
-.pred-bar { width:100%; background:var(--cream); border-radius:3px; height:5px; margin-bottom:9px; }
-.pred-fill { height:100%; border-radius:3px; background:var(--ink); }
-.pred-fill.top { background:var(--red); }
-.pat-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.pat-info-item .pi-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; margin-bottom:2px; }
-.pat-info-item .pi-val   { font-size:.88rem; font-weight:500; }
-.field { margin-bottom:14px; }
-.field label { display:block; font-size:.73rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:5px; }
-.field textarea, .field input { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.87rem; outline:none; transition:border-color .2s; resize:vertical; }
-.field textarea:focus, .field input:focus { border-color:var(--teal2); }
-.field textarea { min-height:90px; }
-.btn-save { width:100%; background:var(--teal); color:#fff; border:none; padding:13px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.92rem; font-weight:500; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.btn-save:hover { background:var(--teal2); }
-.btn-complete { background:var(--green); }
-.btn-complete:hover { background:#15803d; }
-.btn-video { width:100%; background:#7c3aed; color:#fff; border:none; padding:13px; border-radius:6px; font-family:'DM Sans',sans-serif; font-size:.92rem; font-weight:500; cursor:pointer; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; }
-.btn-video:hover { background:#6d28d9; }
-.video-active { background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:12px 16px; margin-bottom:10px; font-size:.84rem; color:#166534; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.lab-checks { display:flex; flex-direction:column; gap:7px; max-height:240px; overflow-y:auto; }
-.lab-check { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1.5px solid var(--border); border-radius:7px; cursor:pointer; transition:all .12s; background:#fff; }
-.lab-check:hover { border-color:var(--teal2); }
-.lab-check input { accent-color:var(--teal); width:14px; height:14px; }
-.lab-check.checked { border-color:var(--teal); background:rgba(10,124,110,.06); font-weight:500; }
-.priority-row { display:flex; gap:8px; margin-bottom:12px; }
-.pri-btn { flex:1; padding:8px; border:1.5px solid var(--border); border-radius:6px; background:#fff; font-family:'DM Sans',sans-serif; font-size:.78rem; cursor:pointer; transition:all .15s; text-align:center; }
-.pri-btn:hover { border-color:var(--ink); }
-.pri-btn.active-normal { background:var(--teal); border-color:var(--teal); color:#fff; }
-.pri-btn.active-urgent { background:var(--red); border-color:var(--red); color:#fff; }
-.lab-order-item { padding:11px 14px; background:var(--cream); border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.lab-order-item:last-child { margin-bottom:0; }
-.order-status { font-size:.7rem; font-weight:600; padding:3px 9px; border-radius:20px; }
-.os-pending   { background:rgba(217,119,6,.1); color:var(--amber); }
-.os-completed { background:rgba(22,163,74,.1); color:var(--green); }
-.result-block { margin-top:8px; font-size:.78rem; color:var(--muted); background:#fff; padding:8px 12px; border-radius:6px; border:1px solid var(--border); }
-.abnormal-flag { color:var(--red); font-weight:700; font-size:.72rem; }
-.divider { border:none; border-top:1.5px solid var(--border); margin:16px 0; }
-@media(max-width:860px){ .grid-main{grid-template-columns:1fr} }
-@media(max-width:600px){ .page{padding:24px 16px} }
+.pred { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:3px 12px; padding:7px 0; font-size:var(--mai-fs-sm); }
+.pred b { font-variant-numeric:tabular-nums; }
+.pred .meter { grid-column:1 / -1; }
+.lab-pick { max-height:260px; overflow-y:auto; padding:2px; grid-template-columns:minmax(0,1fr); }
+.order { padding:14px 16px; border:1px solid var(--mai-border); border-left:4px solid var(--tone); border-radius:var(--mai-radius-sm); background:var(--mai-surface-raised); }
+.order + .order { margin-top:10px; }
+.order__result { margin-top:10px; font-size:var(--mai-fs-sm); background:var(--mai-surface-sunken); border-radius:var(--mai-radius-sm); padding:10px 12px; line-height:1.6; }
+.save-bar { display:flex; gap:10px; flex-wrap:wrap; }
+.save-bar .btn { flex:1 1 180px; }
+.video-live { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+@media (min-width: 901px) { .sticky-side { position:sticky; top:20px; } }
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <a href="/doctor" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+{% set st_tone = {'pending':'warning','in_review':'info','completed':'success'}.get(c.status, 'neutral') %}
+{% set risk_tone = 'danger' if c.risk_score >= 40 else ('warning' if c.risk_score >= 20 else 'success') %}
+{% set risk_lbl = 'High' if c.risk_score >= 40 else ('Moderate' if c.risk_score >= 20 else 'Low') %}
+<div class="container container--wide">
+  <nav aria-label="Breadcrumb" style="margin-bottom:var(--mai-s3);">
+    <ol class="breadcrumb">
+      <li><a href="/doctor"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Case queue</a></li>
+      <li aria-current="page">Consultation #{{ c.id }}</li>
+    </ol>
+  </nav>
 
-  <div class="top-row">
-    <div>
-      <div class="page-title">Patient Consultation <span>#{{ c.id }}</span></div>
-      <div style="font-size:.83rem;color:var(--muted);margin-top:4px;">
-        {{ c.patient_name }} · Assigned {{ c.created_at|string|truncate(16,true,'') }}
-      </div>
+  <header class="page-header">
+    <div class="page-header__text">
+      <span class="eyebrow">Patient consultation #{{ c.id }}</span>
+      <h1>{{ c.patient_name }}</h1>
+      <p>Assigned {{ c.created_at|string|truncate(16,true,'') }}{% if c.age %} · {{ c.age }} yrs{% endif %}{% if c.gender %} · {{ c.gender }}{% endif %}{% if c.city %} · {{ c.city }}{% endif %}</p>
     </div>
-    <div>
-      <span class="meta-chip {% if c.status=='completed' %}chip-green{% elif c.status=='in_review' %}chip-teal{% else %}chip-amber{% endif %}" style="font-size:.8rem;padding:6px 14px;">
-        {{ c.status.replace('_',' ').title() }}
-      </span>
-    </div>
-  </div>
+    <span class="chip chip--lg chip--dot tone-{{ st_tone }}">{{ c.status.replace('_',' ').title() }}</span>
+  </header>
 
-  <form action="/doctor/consultation/{{ c.id }}/save" method="post">
-  <div class="grid-main">
+  <form action="/doctor/consultation/{{ c.id }}/save" method="post" id="consult-form" data-loading>
+  <div class="grid grid--main-side">
 
-    <!-- LEFT -->
-    <div class="col-left">
-
-      <!-- AI Prediction -->
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-brain"></i> AI Diagnosis (for reference)</div>
-        <div class="ai-disease">{{ c.top_disease }}</div>
-        <div class="ai-meta">
-          <span class="meta-chip chip-plain">{{ c.confidence }}% confidence</span>
-          {% set rc = 'chip-red' if c.risk_score >= 40 else ('chip-amber' if c.risk_score >= 20 else 'chip-green') %}
-          <span class="meta-chip {{ rc }}">Risk Score: {{ c.risk_score }}</span>
-          <span class="meta-chip chip-teal">{{ c.doctor_type }}</span>
+    <div class="stack stack--lg stagger">
+      <!-- AI assessment -->
+      <section class="card" aria-labelledby="ai-title">
+        <h2 class="card__title" id="ai-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-brain" aria-hidden="true"></i> AI assessment · for reference</h2>
+        <p style="font-family:var(--mai-font-head);font-size:1.45rem;font-weight:800;letter-spacing:-0.03em;">{{ c.top_disease }}</p>
+        <div class="cluster" style="margin-top:10px;">
+          <span class="chip tone-neutral">Model confidence {{ c.confidence }}%</span>
+          <span class="chip chip--dot tone-{{ risk_tone }}">{{ risk_lbl }} risk · {{ c.risk_score }}</span>
+          <span class="chip tone-primary">{{ c.doctor_type }}</span>
         </div>
-        <div style="margin-top:16px;">
-          {% if c.predictions %}
-          {% set preds = c.predictions | from_json %}
+        {% if c.predictions %}
+        {% set preds = c.predictions | from_json %}
+        <div style="margin-top:var(--mai-s4);">
           {% for d, p in preds[:5] %}
-          <div class="pred-bar-row"><span>{{ d }}</span><span style="font-weight:700;">{{ (p*100)|round(1) }}%</span></div>
-          <div class="pred-bar"><div class="pred-fill {% if loop.first %}top{% endif %}" style="width:{{ (p*100)|round(1) }}%"></div></div>
+          {% set pct = (p*100)|round(1) %}
+          <div class="pred"><span>{{ d }}</span><b>{{ pct }}%</b>
+            <div class="meter meter--thin" aria-hidden="true"><div class="meter__fill {{ 'tone-primary' if loop.first else 'tone-neutral' }}" style="--value: {{ pct }}%; --delay: {{ 100 + loop.index0 * 50 }}ms;"></div></div></div>
           {% endfor %}
-          {% endif %}
         </div>
-        <div class="card-title" style="margin-top:16px;"><i class="fa-solid fa-list"></i> Reported Symptoms</div>
-        <div class="sym-tags">
-          {% if c.symptoms %}
-          {% for s in c.symptoms | from_json %}
-          <span class="sym-tag">{{ s.replace('_',' ').title() }}</span>
-          {% endfor %}
-          {% endif %}
-        </div>
-      </div>
+        {% endif %}
+        {% if c.symptoms %}
+        <h3 class="card__title" style="margin:var(--mai-s4) 0 var(--mai-s2);"><i class="fa-solid fa-list" aria-hidden="true"></i> Reported symptoms</h3>
+        <div class="tag-list">{% for s in c.symptoms | from_json %}<span class="tag">{{ s.replace('_',' ').title() }}</span>{% endfor %}</div>
+        {% endif %}
+      </section>
 
-      <!-- Doctor's Clinical Notes -->
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-pen-nib"></i> Your Clinical Notes</div>
+      <!-- Clinical notes -->
+      <section class="card" aria-labelledby="notes-title">
+        <h2 class="card__title" id="notes-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Your clinical notes</h2>
         <div class="field">
-          <label>Clinical Observations</label>
-          <textarea name="doctor_notes" placeholder="Enter your clinical observations, examination findings, history taken…">{{ c.doctor_notes or '' }}</textarea>
+          <label for="doctor_notes">Clinical observations</label>
+          <textarea id="doctor_notes" name="doctor_notes" placeholder="Examination findings, history taken…">{{ c.doctor_notes or '' }}</textarea>
         </div>
         <div class="field">
-          <label>Final Diagnosis</label>
-          <input type="text" name="final_diagnosis" value="{{ c.final_diagnosis or '' }}" placeholder="Your confirmed diagnosis (may differ from AI)">
+          <label for="final_diagnosis">Final diagnosis</label>
+          <input type="text" id="final_diagnosis" name="final_diagnosis" value="{{ c.final_diagnosis or '' }}" placeholder="Your confirmed diagnosis (may differ from the AI)">
         </div>
         <div class="field">
-          <label>Prescription / Treatment Plan</label>
-          <textarea name="prescription" placeholder="Medications, dosage, duration, lifestyle advice…">{{ c.prescription or '' }}</textarea>
+          <label for="prescription">Prescription / treatment plan</label>
+          <textarea id="prescription" name="prescription" placeholder="Medications, dosage, duration, lifestyle advice…">{{ c.prescription or '' }}</textarea>
         </div>
-        <div class="field">
-          <label>Follow-up Date</label>
-          <input type="date" name="follow_up_date" value="{{ c.follow_up_date or '' }}">
+        <div class="field" style="max-width:260px;">
+          <label for="follow_up_date">Follow-up date</label>
+          <input type="date" id="follow_up_date" name="follow_up_date" value="{{ c.follow_up_date or '' }}">
         </div>
         <input type="hidden" name="status" id="status-hidden" value="{{ c.status }}">
 
-        <!-- Video Call -->
-        {% if c.video_active %}
-        <div class="video-active">
-          <div>
-            <div style="font-weight:700;font-size:.88rem;margin-bottom:3px;"><i class="fa-solid fa-video"></i> Video call is active</div>
-            <div style="font-size:.75rem;color:#15803d;display:flex;align-items:center;gap:5px;">
-              <i class="fa-solid fa-clock"></i>
-              Started: {{ c.video_started_at.strftime('%d %b %Y, %I:%M %p') if c.video_started_at else '—' }}
-            </div>
-          </div>
-          <a href="/video/{{ c.id }}" target="_blank" style="background:#16a34a;color:#fff;padding:7px 14px;border-radius:6px;text-decoration:none;font-size:.82rem;font-weight:600;white-space:nowrap;">
-            <i class="fa-solid fa-phone"></i> Join Call
-          </a>
+        <div class="save-bar" style="margin-top:var(--mai-s2);">
+          <button type="submit" class="btn btn--primary btn--lg" data-status="in_review"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <span>Save notes</span></button>
+          <button type="submit" class="btn btn--success btn--lg" data-status="completed"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> <span>Mark complete</span></button>
         </div>
-        {% else %}
-        <button type="button" class="btn-video" onclick="startVideoCall({{ c.id }})">
-          <i class="fa-solid fa-video"></i> Start Video Call with Patient
-        </button>
-        {% endif %}
+        <p class="xsmall muted" style="margin-top:8px;">Saving also places any lab tests selected on the right.</p>
+      </section>
 
-        <div style="display:flex;gap:10px;">
-          <button type="submit" class="btn-save" onclick="setStatus('in_review')">
-            <i class="fa-solid fa-floppy-disk"></i> Save Notes
-          </button>
-          <button type="submit" class="btn-save btn-complete" onclick="setStatus('completed')">
-            <i class="fa-solid fa-circle-check"></i> Mark Complete
-          </button>
-        </div>
-      </div>
-
-      <!-- Lab Orders placed -->
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-flask"></i> Lab Orders & Results</div>
+      <!-- Lab orders -->
+      <section class="card" aria-labelledby="lo-title">
+        <h2 class="card__title" id="lo-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-flask" aria-hidden="true"></i> Lab orders &amp; results</h2>
         {% if orders %}
           {% for o in orders %}
-          <div class="lab-order-item">
-            <div>
-              <div style="font-weight:600;font-size:.88rem;">{{ o.test_type }}</div>
-              <div style="font-size:.74rem;color:var(--muted);">Priority: {{ o.priority }} · Ordered {{ o.created_at|string|truncate(16,true,'') }}</div>
-              {% if o.result_text %}
-              <div class="result-block">
-                <b>Result:</b> {{ o.result_value or '' }} {{ o.unit or '' }}
-                {% if o.normal_range %}<span style="color:var(--muted);"> (Normal: {{ o.normal_range }})</span>{% endif %}
-                {% if o.is_abnormal %}<span class="abnormal-flag"> ⚠ ABNORMAL</span>{% endif %}<br>
-                {{ o.result_text }}
-                {% if o.remarks %}<br><i>{{ o.remarks }}</i>{% endif %}
+          {% set ot = 'danger' if o.is_abnormal else ('success' if o.status == 'completed' else 'warning') %}
+          <article class="order tone-{{ ot }}">
+            <div class="spread">
+              <div>
+                <div style="font-weight:600;">{{ o.test_type }}</div>
+                <div class="xsmall muted">Ordered {{ o.created_at|string|truncate(16,true,'') }}</div>
               </div>
-              {% endif %}
+              <div class="cluster">
+                {% if o.priority == 'urgent' %}<span class="chip tone-danger"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Urgent</span>{% endif %}
+                <span class="chip chip--dot tone-{{ 'success' if o.status == 'completed' else 'warning' }}">{{ o.status.title() }}</span>
+              </div>
             </div>
-            <span class="order-status {% if o.status=='completed' %}os-completed{% else %}os-pending{% endif %}">
-              {{ o.status.title() }}
-            </span>
-          </div>
+            {% if o.result_text %}
+            <div class="order__result">
+              {% if o.is_abnormal %}<div class="chip tone-danger" style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Abnormal</div>{% endif %}
+              <div><b>Result:</b> {{ o.result_value or '' }} {{ o.unit or '' }}{% if o.normal_range %} <span class="muted">(normal: {{ o.normal_range }})</span>{% endif %}</div>
+              <div>{{ o.result_text }}</div>
+              {% if o.remarks %}<div class="muted" style="font-style:italic;">{{ o.remarks }}</div>{% endif %}
+            </div>
+            {% endif %}
+          </article>
           {% endfor %}
         {% else %}
-          <p style="font-size:.83rem;color:var(--muted);">No lab tests ordered yet.</p>
+          <div class="empty empty--compact"><p>No lab tests ordered yet.</p></div>
         {% endif %}
-      </div>
+      </section>
     </div>
 
-    <!-- RIGHT -->
-    <div class="col-right">
-
-      <!-- Patient Info -->
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-user"></i> Patient Information</div>
-        <div class="pat-info-grid">
-          <div class="pat-info-item"><div class="pi-label">Name</div><div class="pi-val">{{ c.patient_name }}</div></div>
-          <div class="pat-info-item"><div class="pi-label">Age</div><div class="pi-val">{{ c.age or '—' }}</div></div>
-          <div class="pat-info-item"><div class="pi-label">Gender</div><div class="pi-val">{{ c.gender or '—' }}</div></div>
-          <div class="pat-info-item"><div class="pi-label">City</div><div class="pi-val">{{ c.city or '—' }}</div></div>
-          <div class="pat-info-item"><div class="pi-label">Diagnosis Date</div><div class="pi-val">{{ c.diagnosis_time|string|truncate(10,true,'') }}</div></div>
+    <div class="stack stack--lg sticky-side">
+      <!-- Video -->
+      <section class="card" aria-labelledby="vc-title">
+        <h2 class="card__title" id="vc-title" style="margin-bottom:var(--mai-s3);"><i class="fa-solid fa-video" aria-hidden="true"></i> Video consultation</h2>
+        {% if c.video_active %}
+        <div class="video-live">
+          <div>
+            <span class="chip chip--dot tone-success">Call active</span>
+            <div class="xsmall muted" style="margin-top:6px;">Started {{ c.video_started_at.strftime('%d %b %Y, %I:%M %p') if c.video_started_at else '—' }}</div>
+          </div>
+          <a href="/video/{{ c.id }}" target="_blank" rel="noopener" class="btn btn--success"><i class="fa-solid fa-phone" aria-hidden="true"></i> Join call</a>
         </div>
-      </div>
+        {% else %}
+        <p class="small muted" style="margin-bottom:var(--mai-s3);">Opens in a new window. The patient can join from their consultation page.</p>
+        <button type="button" class="btn btn--ink btn--block" onclick="startVideoCall({{ c.id }})"><i class="fa-solid fa-video" aria-hidden="true"></i> Start video call</button>
+        {% endif %}
+      </section>
 
-      <!-- Order Lab Tests -->
-      <div class="card">
-        <div class="card-title"><i class="fa-solid fa-vial-circle-check"></i> Order Lab Tests</div>
-        <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">Select all tests needed. They will be auto-assigned to a lab technician.</div>
-        <div style="margin-bottom:10px;">
-          <div style="font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;">Priority</div>
-          <div class="priority-row">
-            <button type="button" class="pri-btn active-normal" id="pri-normal" onclick="setPriority('normal')">Normal</button>
-            <button type="button" class="pri-btn" id="pri-urgent" onclick="setPriority('urgent')">🔴 Urgent</button>
+      <!-- Patient -->
+      <section class="card" aria-labelledby="pt-title">
+        <h2 class="card__title" id="pt-title" style="margin-bottom:var(--mai-s4);"><i class="fa-solid fa-user" aria-hidden="true"></i> Patient information</h2>
+        <dl class="kv kv--2">
+          <div><dt>Name</dt><dd>{{ c.patient_name }}</dd></div>
+          <div><dt>Age</dt><dd>{{ c.age or '—' }}</dd></div>
+          <div><dt>Gender</dt><dd>{{ c.gender or '—' }}</dd></div>
+          <div><dt>City</dt><dd>{{ c.city or '—' }}</dd></div>
+          <div><dt>Assessment date</dt><dd>{{ c.diagnosis_time|string|truncate(10,true,'') }}</dd></div>
+        </dl>
+      </section>
+
+      <!-- Order tests -->
+      <section class="card" aria-labelledby="ot-title">
+        <h2 class="card__title" id="ot-title" style="margin-bottom:6px;"><i class="fa-solid fa-vial-circle-check" aria-hidden="true"></i> Order lab tests</h2>
+        <p class="xsmall muted" style="margin-bottom:var(--mai-s4);">Selected tests are sent to an available lab when you save.</p>
+        <fieldset class="field" style="border:none;">
+          <legend class="field__label" style="margin-bottom:6px;">Priority</legend>
+          <div class="option-row">
+            <button type="button" class="option-btn tone-primary" data-priority="normal" aria-pressed="true">Normal</button>
+            <button type="button" class="option-btn tone-danger" data-priority="urgent" aria-pressed="false"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Urgent</button>
           </div>
           <input type="hidden" name="priority" id="priority-val" value="normal">
+        </fieldset>
+        <div class="field">
+          <span class="field__label" id="tests-label">Tests <span class="opt" id="tests-count">(0 selected)</span></span>
+          <div class="tile-grid lab-pick" role="group" aria-labelledby="tests-label">
+            {% for t in lab_tests %}
+            <label class="tile"><input type="checkbox" name="lab_tests" value="{{ t }}"> {{ t }}</label>
+            {% endfor %}
+          </div>
         </div>
-        <div class="lab-checks">
-          {% for t in lab_tests %}
-          <label class="lab-check">
-            <input type="checkbox" name="lab_tests" value="{{ t }}" onchange="this.closest('.lab-check').classList.toggle('checked',this.checked)">
-            {{ t }}
-          </label>
-          {% endfor %}
+        <div class="field" style="margin-bottom:0;">
+          <label for="lab_test_notes">Instructions for the lab</label>
+          <textarea id="lab_test_notes" name="lab_test_notes" placeholder="e.g. fasting required" style="min-height:64px;"></textarea>
         </div>
-        <div class="field" style="margin-top:12px;">
-          <label>Test Instructions</label>
-          <textarea name="lab_test_notes" placeholder="Special instructions for the lab (e.g. fasting required, urgent, etc.)" style="min-height:60px;"></textarea>
-        </div>
-      </div>
-
+      </section>
     </div>
   </div>
   </form>
@@ -256,8 +197,13 @@ function startVideoCall(cid) {
 }
 function setPriority(val) {
   document.getElementById('priority-val').value = val;
-  document.getElementById('pri-normal').className = 'pri-btn' + (val==='normal'?' active-normal':'');
-  document.getElementById('pri-urgent').className = 'pri-btn' + (val==='urgent'?' active-urgent':'');
+  document.querySelectorAll('[data-priority]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.priority === val)));
 }
+document.querySelectorAll('[data-priority]').forEach(b => b.addEventListener('click', () => setPriority(b.dataset.priority)));
+document.querySelectorAll('[data-status]').forEach(b => b.addEventListener('click', () => setStatus(b.dataset.status)));
+const testBoxes = document.querySelectorAll('input[name="lab_tests"]');
+testBoxes.forEach(cb => cb.addEventListener('change', () => {
+  document.getElementById('tests-count').textContent = `(${[...testBoxes].filter(x => x.checked).length} selected)`;
+}));
 </script>
 {% endblock %}

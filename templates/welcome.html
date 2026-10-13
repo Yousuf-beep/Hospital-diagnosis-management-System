@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}MediAI — Intelligent Care. Human First.{% endblock %}
+{% block body_class %}wl-body{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_style %}
+/* ── Welcome page (scoped with the wl- prefix) ─────────────────────────── */
+.wl-body { min-height:100vh; display:flex; flex-direction:column; }
+.wl-body > main { flex:1; display:flex; flex-direction:column; }
+
+/* Background: soft glows + one waveform. Cheap transform-only drift. */
+.wl-bg { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; background:var(--mai-bg); animation:wl-fade 400ms var(--mai-ease) both; }
+.wl-bg::before, .wl-bg::after { content:''; position:absolute; border-radius:50%; filter:blur(70px); will-change:transform; }
+.wl-bg::before { width:620px; height:620px; top:-180px; right:-120px; background:color-mix(in srgb, var(--mai-primary) 22%, transparent); animation:wl-drift 26s ease-in-out infinite alternate; }
+.wl-bg::after { width:460px; height:460px; bottom:-200px; left:-140px; background:color-mix(in srgb, var(--mai-accent) 13%, transparent); animation:wl-drift 32s ease-in-out infinite alternate-reverse; }
+.wl-wave { position:absolute; left:0; right:0; bottom:14%; width:100%; height:120px; opacity:.5; }
+.wl-wave path { fill:none; stroke:var(--mai-primary); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; opacity:.35; stroke-dasharray:2400; stroke-dashoffset:0; animation:wl-draw 1100ms var(--mai-ease) both; }
+
+/* Top bar */
+.wl-nav { max-width:1240px; width:100%; margin:0 auto; padding:calc(18px + env(safe-area-inset-top, 0px)) var(--mai-gutter) 0; display:flex; align-items:center; gap:var(--mai-s4); }
+.wl-nav__links { display:flex; align-items:center; gap:4px; margin-left:auto; }
+.wl-nav__links .navlink { min-height:40px; }
+.wl-mark { width:34px; height:34px; border-radius:10px; background:var(--mai-primary); display:grid; place-items:center; flex-shrink:0; }
+.wl-mark svg { width:22px; height:22px; }
+.wl-mark path { fill:none; stroke:var(--mai-on-primary); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Hero */
+.wl-hero { max-width:1240px; width:100%; margin:0 auto; padding:clamp(32px, 7vh, 88px) var(--mai-gutter) var(--mai-s7); display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.05fr); gap:clamp(32px, 5vw, 72px); align-items:center; flex:1; }
+.wl-brand { display:flex; align-items:center; gap:16px; }
+.wl-brand .wl-mark { width:58px; height:58px; border-radius:17px; box-shadow:0 10px 30px color-mix(in srgb, var(--mai-primary) 35%, transparent); }
+.wl-brand .wl-mark svg { width:36px; height:36px; }
+.wl-brand .wl-mark path { stroke-dasharray:60; animation:wl-draw-sm 900ms 200ms var(--mai-ease) both; }
+.wl-word { font-family:var(--mai-font-head); font-weight:800; font-size:clamp(2.6rem, 1.8rem + 3.4vw, 4.2rem); letter-spacing:-0.05em; line-height:1; }
+.wl-word span { color:var(--mai-accent); }
+.wl-tagline { font-family:var(--mai-font-head); font-weight:700; font-size:clamp(1.3rem, 1.05rem + 1vw, 1.75rem); letter-spacing:-0.025em; line-height:1.2; margin-top:var(--mai-s5); }
+.wl-tagline em { font-style:normal; color:var(--mai-primary); }
+.wl-desc { font-size:1.04rem; color:var(--mai-muted); line-height:1.7; margin-top:var(--mai-s3); max-width:46ch; }
+.wl-note { display:flex; gap:9px; align-items:flex-start; font-size:var(--mai-fs-xs); color:var(--mai-muted); margin-top:var(--mai-s5); max-width:46ch; }
+.wl-note i { color:var(--mai-primary); margin-top:2px; }
+
+/* Option cards with hover / focus popups */
+.wl-options { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; }
+.wl-opt { position:relative; }
+.wl-card {
+  position:relative; display:flex; flex-direction:column; gap:14px; width:100%; height:100%; min-height:150px;
+  padding:20px; text-align:left; cursor:pointer; font:inherit; color:var(--mai-ink); text-decoration:none;
+  background:var(--mai-surface); border:1px solid var(--mai-border); border-radius:var(--mai-radius-md);
+  box-shadow:var(--mai-shadow-card);
+  transition:transform 240ms var(--mai-ease), box-shadow 240ms var(--mai-ease), border-color 240ms var(--mai-ease), background-color 240ms var(--mai-ease);
+}
+.wl-card:hover { color:var(--mai-ink); }
+.wl-card__icon { width:44px; height:44px; border-radius:13px; display:grid; place-items:center; font-size:1.05rem; background:var(--tone-soft); color:var(--tone); transition:transform 240ms var(--mai-ease); }
+.wl-card__title { font-family:var(--mai-font-head); font-weight:700; font-size:1.08rem; letter-spacing:-0.02em; display:flex; align-items:center; gap:8px; margin-top:auto; }
+.wl-card__arrow { margin-left:auto; font-size:.85rem; color:var(--mai-muted); opacity:0; transform:translateX(-6px); transition:opacity 220ms var(--mai-ease), transform 220ms var(--mai-ease), color 220ms var(--mai-ease); }
+.wl-card__desc { font-size:var(--mai-fs-sm); color:var(--mai-muted); line-height:1.5; display:none; }
+.wl-card--primary { background:var(--mai-primary); color:var(--mai-on-primary); border-color:var(--mai-primary); }
+.wl-card--primary:hover { color:var(--mai-on-primary); }
+.wl-card--primary .wl-card__icon { background:color-mix(in srgb, var(--mai-on-primary) 16%, transparent); color:var(--mai-on-primary); }
+.wl-card--primary .wl-card__arrow, .wl-card--primary .wl-card__desc { color:color-mix(in srgb, var(--mai-on-primary) 80%, transparent); }
+.wl-card__badge { position:absolute; top:16px; right:16px; font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:3px 9px; border-radius:var(--mai-radius-pill); background:color-mix(in srgb, var(--mai-on-primary) 16%, transparent); }
+
+.wl-pop {
+  position:absolute; left:50%; bottom:calc(100% + 12px); z-index:30; width:max-content; max-width:min(280px, 80vw);
+  padding:12px 14px; border-radius:12px; background:var(--mai-ink); color:var(--mai-bg);
+  font-size:var(--mai-fs-sm); line-height:1.45; box-shadow:var(--mai-shadow-pop);
+  display:flex; gap:10px; align-items:flex-start;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translate(-50%, 8px) scale(.97); transform-origin:bottom center;
+  transition:opacity 220ms var(--mai-ease), transform 220ms var(--mai-ease), visibility 0s linear 220ms;
+}
+.wl-pop i { color:var(--mai-primary-soft); margin-top:3px; }
+:root[data-theme="dark"] .wl-pop i { color:var(--mai-primary); }
+.wl-pop::after { content:''; position:absolute; left:50%; top:100%; width:12px; height:12px; background:inherit; transform:translate(-50%, -6px) rotate(45deg); border-radius:2px; }
+/* Invisible bridge so the pointer can travel from card to popup without flicker */
+.wl-pop::before { content:''; position:absolute; left:0; right:0; top:100%; height:16px; }
+
+@media (hover:hover) and (pointer:fine) {
+  .wl-opt:hover .wl-card, .wl-opt:focus-within .wl-card { transform:translateY(-5px); box-shadow:var(--mai-shadow-hover); border-color:color-mix(in srgb, var(--mai-primary) 55%, var(--mai-border)); }
+  .wl-opt:hover .wl-card--primary, .wl-opt:focus-within .wl-card--primary { background:var(--mai-primary-hover); border-color:var(--mai-primary-hover); box-shadow:0 14px 34px color-mix(in srgb, var(--mai-primary) 35%, transparent); }
+  .wl-opt:hover .wl-card__icon, .wl-opt:focus-within .wl-card__icon { transform:scale(1.06); }
+  .wl-opt:hover .wl-card__arrow, .wl-opt:focus-within .wl-card__arrow { opacity:1; transform:none; color:inherit; }
+  .wl-opt:hover .wl-pop, .wl-opt:focus-within .wl-pop { opacity:1; visibility:visible; transform:translate(-50%, 0) scale(1); transition-delay:0s; }
+  /* Only a hovered popup takes the pointer (so it stays open while you move onto it);
+     a popup shown for keyboard focus never blocks clicks on neighbouring cards. */
+  .wl-opt:hover .wl-pop { pointer-events:auto; }
+}
+/* Touch: no hover dependency — descriptions live inside the cards */
+@media (hover:none), (pointer:coarse) {
+  .wl-pop { display:none; }
+  .wl-card__desc { display:block; }
+  .wl-card__arrow { opacity:1; transform:none; }
+  .wl-card { min-height:0; }
+  .wl-card:active { transform:scale(.985); }
+}
+
+/* Explore panel */
+.wl-explore { max-width:1240px; width:100%; margin:0 auto; padding:0 var(--mai-gutter) var(--mai-s7); scroll-margin-top:16px; }
+.wl-explore[hidden] { display:none; }
+.wl-explore__panel { background:var(--mai-surface); border:1px solid var(--mai-border); border-radius:var(--mai-radius-lg); box-shadow:var(--mai-shadow-card); padding:clamp(20px, 4vw, 40px); animation:mai-pop 320ms var(--mai-ease) both; }
+.wl-feats { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-top:var(--mai-s5); }
+.wl-feat { padding:18px; border-radius:var(--mai-radius-md); background:var(--mai-surface-sunken); }
+.wl-feat i { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:var(--mai-surface-raised); color:var(--tone, var(--mai-primary)); margin-bottom:12px; }
+.wl-feat h3 { font-size:.98rem; margin-bottom:4px; }
+.wl-feat p { font-size:var(--mai-fs-sm); color:var(--mai-muted); line-height:1.55; }
+.wl-steps { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-top:var(--mai-s5); list-style:none; counter-reset:wl; }
+.wl-steps li { counter-increment:wl; display:flex; gap:12px; align-items:flex-start; font-size:var(--mai-fs-sm); }
+.wl-steps li::before { content:counter(wl); width:28px; height:28px; flex-shrink:0; border-radius:50%; display:grid; place-items:center; background:var(--mai-ink); color:var(--mai-bg); font-weight:700; font-size:.78rem; }
+.wl-steps b { display:block; }
+.wl-steps span { color:var(--mai-muted); }
+.wl-facts { display:flex; flex-wrap:wrap; gap:8px; margin-top:var(--mai-s5); }
+
+.wl-foot { max-width:1240px; width:100%; margin:0 auto; padding:var(--mai-s4) var(--mai-gutter) calc(var(--mai-s5) + env(safe-area-inset-bottom, 0px)); display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between; font-size:var(--mai-fs-xs); color:var(--mai-muted); border-top:1px solid var(--mai-border); }
+
+/* Entrance: ~900ms total, skipped when returning in the same session */
+.wl-in { animation:mai-enter 360ms var(--mai-ease) both; animation-delay:var(--d, 0ms); }
+.wl-seen .wl-in, .wl-seen .wl-bg, .wl-seen .wl-wave path, .wl-seen .wl-brand .wl-mark path { animation:none; }
+
+@keyframes wl-fade { from { opacity:0; } }
+@keyframes wl-drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(-60px, 40px, 0) scale(1.08); } }
+@keyframes wl-draw { from { stroke-dashoffset:2400; } }
+@keyframes wl-draw-sm { from { stroke-dashoffset:60; } }
+
+@media (max-width:960px) {
+  .wl-hero { grid-template-columns:minmax(0,1fr); padding-top:var(--mai-s6); }
+  .wl-feats { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .wl-steps { grid-template-columns:minmax(0,1fr); }
+  .wl-wave { bottom:4%; }
+}
+@media (max-width:560px) {
+  .wl-options, .wl-feats { grid-template-columns:minmax(0,1fr); }
+  .wl-nav__links .navlink span, .wl-nav__links .hide-xs { display:none; }
+  .wl-brand .wl-mark { width:48px; height:48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wl-bg::before, .wl-bg::after { animation:none; }
+  .wl-opt:hover .wl-card, .wl-opt:focus-within .wl-card { transform:none !important; }
+}
+{% endblock %}
+
+{% block topnav %}
+<script>try{if(sessionStorage.getItem('mediai-welcome-seen'))document.documentElement.classList.add('wl-seen');}catch(e){}</script>
+<div class="wl-bg" aria-hidden="true">
+  <svg class="wl-wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
+    <path d="M0 70 H420 L450 70 L470 40 L490 100 L515 15 L540 95 L560 70 H900 L925 70 L942 52 L958 84 L975 70 H1440"/>
+  </svg>
+</div>
+<header class="wl-nav wl-in" style="--d:0ms;">
+  <a href="{{ url_for('welcome') }}" class="brand" aria-label="MediAI home">
+    <span class="wl-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 2-5h8"/></svg></span>
+    <span class="brand__word">Medi<span class="brand__ai">AI</span></span>
+  </a>
+  <nav class="wl-nav__links" aria-label="Welcome navigation">
+    <button type="button" class="navlink" style="border:none;background:none;cursor:pointer;" data-explore aria-expanded="false" aria-controls="explore"><i class="fa-solid fa-compass" aria-hidden="true"></i><span>Explore</span></button>
+    <a href="{{ url_for('apply') }}" class="navlink"><i class="fa-solid fa-briefcase-medical" aria-hidden="true"></i><span>Join our team</span></a>
+    <button type="button" class="icon-btn" data-theme-toggle aria-label="Switch theme"><i class="fa-solid fa-moon"></i></button>
+    <a href="{{ url_for('login') }}" class="btn btn--primary btn--sm">Sign in</a>
+  </nav>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="wl-hero" aria-labelledby="wl-title">
+  <div>
+    <div class="wl-brand wl-in" style="--d:80ms;">
+      <span class="wl-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 2-5h8"/></svg></span>
+      <h1 class="wl-word" id="wl-title">Medi<span>AI</span></h1>
+    </div>
+    <p class="wl-tagline wl-in" style="--d:180ms;">Intelligent Care. <em>Human First.</em></p>
+    <p class="wl-desc wl-in" style="--d:250ms;">AI-assisted symptom assessment, connected consultations, and coordinated care — with verified doctors and laboratories reviewing every case.</p>
+    <p class="wl-note wl-in" style="--d:300ms;"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i><span>MediAI gives AI-generated assessments to support — never replace — a licensed clinician. In an emergency, call 112.</span></p>
+  </div>
+
+  <div class="wl-options" role="list" aria-label="Get started">
+    <div class="wl-opt wl-in" role="listitem" style="--d:340ms;">
+      <a href="{{ url_for('login') }}" class="wl-card wl-card--primary" aria-describedby="pop-signin">
+        <span class="wl-card__badge">Start here</span>
+        <span class="wl-card__icon" aria-hidden="true"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>
+        <span class="wl-card__title">Sign in <i class="fa-solid fa-arrow-right wl-card__arrow" aria-hidden="true"></i></span>
+        <span class="wl-card__desc">Access your MediAI account and continue your care journey.</span>
+      </a>
+      <div class="wl-pop" role="tooltip" id="pop-signin"><i class="fa-solid fa-circle-user" aria-hidden="true"></i><span>Access your MediAI account and continue your care journey.</span></div>
+    </div>
+
+    <div class="wl-opt wl-in" role="listitem" style="--d:400ms;">
+      <a href="{{ url_for('register') }}" class="wl-card tone-accent" aria-describedby="pop-register">
+        <span class="wl-card__icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
+        <span class="wl-card__title">Create account <i class="fa-solid fa-arrow-right wl-card__arrow" aria-hidden="true"></i></span>
+        <span class="wl-card__desc">Create a patient account to record symptoms and manage consultations.</span>
+      </a>
+      <div class="wl-pop" role="tooltip" id="pop-register"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i><span>Create a patient account to record symptoms and manage consultations.</span></div>
+    </div>
+
+    <div class="wl-opt wl-in" role="listitem" style="--d:460ms;">
+      <button type="button" class="wl-card tone-info" data-explore aria-expanded="false" aria-controls="explore" aria-describedby="pop-explore">
+        <span class="wl-card__icon" aria-hidden="true"><i class="fa-solid fa-compass"></i></span>
+        <span class="wl-card__title">Explore MediAI <i class="fa-solid fa-chevron-down wl-card__arrow" aria-hidden="true"></i></span>
+        <span class="wl-card__desc">Discover AI-assisted assessments, symptom tracking and connected care.</span>
+      </button>
+      <div class="wl-pop" role="tooltip" id="pop-explore"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span>Discover AI-assisted assessments, symptom tracking and connected care.</span></div>
+    </div>
+
+    <div class="wl-opt wl-in" role="listitem" style="--d:520ms;">
+      <a href="{{ url_for('apply') }}" class="wl-card tone-primary" aria-describedby="pop-join">
+        <span class="wl-card__icon" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="wl-card__title">Join our medical team <i class="fa-solid fa-arrow-right wl-card__arrow" aria-hidden="true"></i></span>
+        <span class="wl-card__desc">Apply to join the MediAI doctor or laboratory team.</span>
+      </a>
+      <div class="wl-pop" role="tooltip" id="pop-join"><i class="fa-solid fa-flask" aria-hidden="true"></i><span>Apply to join the MediAI doctor or laboratory team.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wl-explore" id="explore" aria-labelledby="explore-title" hidden>
+  <div class="wl-explore__panel">
+    <div class="spread">
+      <div>
+        <span class="eyebrow">Explore MediAI</span>
+        <h2 id="explore-title" style="font-size:clamp(1.35rem, 1.1rem + 1vw, 1.8rem);margin-top:6px;">What you can do with MediAI</h2>
+      </div>
+      <button type="button" class="btn btn--ghost btn--sm" data-explore aria-expanded="false" aria-controls="explore"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Close</button>
+    </div>
+
+    <div class="wl-feats">
+      <article class="wl-feat"><i class="fa-solid fa-brain" aria-hidden="true"></i><h3>AI symptom assessment</h3><p>An ensemble of Random Forest, Naive Bayes and SVM models suggests likely conditions, with model confidence and precautions.</p></article>
+      <article class="wl-feat tone-info"><i class="fa-solid fa-comments" aria-hidden="true"></i><h3>Guided chatbot</h3><p>Answer short yes / no questions and rate severity — no medical vocabulary needed.</p></article>
+      <article class="wl-feat tone-accent"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><h3>Symptom diary</h3><p>Log how you feel each day and see your 14-day trend.</p></article>
+      <article class="wl-feat"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i><h3>Doctor consultations</h3><p>Your assessment is assigned to a matching specialist, who can review it and start a video call.</p></article>
+      <article class="wl-feat tone-info"><i class="fa-solid fa-vials" aria-hidden="true"></i><h3>Coordinated lab tests</h3><p>Doctors order tests that are routed to a verified laboratory; results come back to your consultation.</p></article>
+      <article class="wl-feat tone-accent"><i class="fa-solid fa-user-shield" aria-hidden="true"></i><h3>Verified staff, private data</h3><p>Every doctor and lab is verified and interviewed. Role-based access means people see only what they should.</p></article>
+    </div>
+
+    <ol class="wl-steps" aria-label="How it works">
+      <li><div><b>Create an account</b><span>Register as a patient in under a minute.</span></div></li>
+      <li><div><b>Assess your symptoms</b><span>Use the checklist or the guided chat.</span></div></li>
+      <li><div><b>Get reviewed by a doctor</b><span>A specialist reviews your case and follows up.</span></div></li>
+    </ol>
+
+    <div class="wl-facts" aria-label="About the model">
+      <span class="chip chip--lg tone-primary">41 conditions</span>
+      <span class="chip chip--lg tone-primary">130+ symptoms</span>
+      <span class="chip chip--lg tone-primary">3-model ensemble</span>
+    </div>
+
+    <div class="cluster cluster--lg" style="margin-top:var(--mai-s5);">
+      <a href="{{ url_for('register') }}" class="btn btn--primary btn--lg"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Create a patient account</a>
+      <a href="{{ url_for('login') }}" class="btn btn--lg">Sign in</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+<footer class="wl-foot">
+  <span>© MediAI · Intelligent Care, Human First</span>
+  <span>AI assessments support — and never replace — a licensed clinician.</span>
+</footer>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+(() => {
+  try { sessionStorage.setItem('mediai-welcome-seen', '1'); } catch (e) {}
+  const panel = document.getElementById('explore');
+  const toggles = document.querySelectorAll('[data-explore]');
+  const setOpen = open => {
+    panel.hidden = !open;
+    toggles.forEach(t => t.setAttribute('aria-expanded', String(open)));
+    if (open) {
+      panel.scrollIntoView({ behavior: MediAI.reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+      document.getElementById('explore-title').setAttribute('tabindex', '-1');
+      document.getElementById('explore-title').focus({ preventScroll: true });
+    }
+  };
+  toggles.forEach(t => t.addEventListener('click', () => {
+    const closing = !panel.hidden;
+    setOpen(!closing);
+    if (closing) document.querySelector('.wl-card[data-explore]').focus();
+  }));
+  if (location.hash === '#explore') setOpen(true);
+  // Escape closes any popup that is open because of keyboard focus
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.activeElement && document.activeElement.closest('.wl-opt')) document.activeElement.blur();
+  });
+})();
+</script>
+{% endblock %}

@@ -2,179 +2,176 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>{% block title %}MediAI{% endblock %}</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<script>(function(){try{var m=localStorage.getItem('mediai-theme');if(m==='dark'||m==='light')document.documentElement.dataset.theme=m;}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mediai.css') }}">
 <style>
-:root {
-  --ink:    #0d1117;
-  --paper:  #f5f3ef;
-  --cream:  #ede9e1;
-  --red:    #e8341c;
-  --red2:   #ff6b4a;
-  --teal:   #0a7c6e;
-  --teal2:  #12b0a0;
-  --amber:  #d97706;
-  --green:  #16a34a;
-  --muted:  #6b6660;
-  --border: #d4cfc8;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
-
-/* ── NAV ── */
-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 48px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--paper);
-  position: sticky; top: 0; z-index: 200;
-}
-.logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; letter-spacing:-0.03em; color:var(--ink); text-decoration:none; }
-.logo span { color: var(--red); }
-.nav-links { display:flex; gap:28px; align-items:center; }
-.nav-link { font-size:0.82rem; font-weight:500; color:var(--muted); text-decoration:none; letter-spacing:0.05em; text-transform:uppercase; transition:color .2s; }
-.nav-link:hover, .nav-link.active { color:var(--ink); }
-.nav-btn {
-  background: var(--ink); color:#fff; border:none; padding:9px 20px;
-  border-radius:6px; font-family:'DM Sans',sans-serif; font-size:0.82rem;
-  font-weight:500; cursor:pointer; text-decoration:none; transition:background .2s;
-}
-.nav-btn:hover { background: var(--red); }
-.nav-btn.outline {
-  background:transparent; color:var(--ink);
-  border:1.5px solid var(--border);
-}
-.nav-btn.outline:hover { border-color:var(--ink); background:transparent; }
-.nav-user { font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:8px; }
-.nav-user i { color:var(--teal); }
-
-/* ── FLASH MESSAGES ── */
-.flash-wrap { position:fixed; top:72px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
-.flash-msg {
-  padding:12px 18px; border-radius:8px; font-size:0.85rem; font-weight:500;
-  display:flex; align-items:center; gap:10px;
-  animation: slideIn .3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
-  max-width: 320px;
-}
-@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
-.flash-success { background:#f0fdf4; border:1px solid #86efac; color:#166534; }
-.flash-danger  { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; }
-.flash-warning { background:#fffbeb; border:1px solid #fcd34d; color:#92400e; }
-.flash-info    { background:#eff6ff; border:1px solid #93c5fd; color:#1e40af; }
-
-/* ── LOADING SPINNER ── */
-#global-spinner {
-  display:none; position:fixed; inset:0; background:rgba(13,17,23,.6);
-  z-index:9999; align-items:center; justify-content:center; flex-direction:column; gap:16px;
-}
-#global-spinner.active { display:flex; }
-.spinner-ring {
-  width:56px; height:56px; border:4px solid rgba(255,255,255,.2);
-  border-top-color:#fff; border-radius:50%;
-  animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-#global-spinner p { color:#fff; font-size:0.9rem; font-weight:500; }
-
 {% block extra_style %}{% endblock %}
 </style>
 </head>
-<body>
+{%- set _mai_signed_in = session.get('user_id') -%}
+{%- set _mai_role = current_role if _mai_signed_in else None -%}
+{%- set _mai_shell = _mai_role in ('doctor', 'lab', 'admin') -%}
+{%- set _mai_path = request.path -%}
+{%- macro navlink(href, icon, label, active=False, count=None) -%}
+<a href="{{ href }}" class="navlink" {% if active %}aria-current="page"{% endif %}><i class="fa-solid {{ icon }}" aria-hidden="true"></i><span>{{ label }}</span>{% if count %}<span class="count">{{ count }}</span>{% endif %}</a>
+{%- endmacro %}
+<body class="{% block body_class %}{% endblock %}">
+<a class="skip-link" href="#main">Skip to main content</a>
 
-<!-- Loading Spinner -->
-<div id="global-spinner">
-  <div class="spinner-ring"></div>
-  <p>Analyzing symptoms…</p>
-</div>
-
-<!-- Flash Messages -->
+<!-- Notifications (flash messages) -->
+<div class="toasts" aria-live="polite" aria-relevant="additions">
 {% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-<div class="flash-wrap">
   {% for cat, msg in messages %}
-  <div class="flash-msg flash-{{ cat }}">
-    <i class="fa-solid fa-{% if cat=='success' %}check-circle{% elif cat=='danger' %}triangle-exclamation{% elif cat=='warning' %}circle-info{% else %}circle-info{% endif %}"></i>
-    {{ msg }}
+  {% set kind = cat if cat in ('success', 'danger', 'warning', 'info') else 'info' %}
+  <div class="toast toast--{{ kind }}" data-kind="{{ kind }}" role="{{ 'alert' if kind == 'danger' else 'status' }}">
+    <i class="fa-solid fa-{{ {'success':'circle-check','danger':'triangle-exclamation','warning':'circle-exclamation'}.get(kind, 'circle-info') }}" aria-hidden="true"></i>
+    <div class="toast__msg">{{ msg }}</div>
+    <button type="button" class="icon-btn" data-toast-close aria-label="Dismiss notification"><i class="fa-solid fa-xmark"></i></button>
   </div>
   {% endfor %}
-</div>
-<script>
-  setTimeout(() => document.querySelectorAll('.flash-msg').forEach(el => el.remove()), 4000);
-</script>
-{% endif %}
 {% endwith %}
+</div>
 
-<!-- Nav -->
-<nav>
-  <a href="/" class="logo">Medi<span>AI</span></a>
-  <div class="nav-links">
-    {% if can('diagnosis.run') %}
-    <a href="/"          class="nav-link {% if request.path=='/' %}active{% endif %}">Diagnose</a>
-    <a href="/chatbot"   class="nav-link {% if request.path=='/chatbot' %}active{% endif %}">Chatbot</a>
-    {% endif %}
-    {% if can('diary.manage') %}
-    <a href="/diary" class="nav-link {% if request.path=='/diary' %}active{% endif %}">Diary</a>
-    {% endif %}
-    {% if can('consultation.view_own') %}
-    <a href="/my_consultations" class="nav-link {% if request.path=='/my_consultations' %}active{% endif %}">My Doctor</a>
-    {% endif %}
-    {% if can('application.manage_own') %}
-    <a href="/application" class="nav-link {% if request.path=='/application' %}active{% endif %}">My Application</a>
-    {% endif %}
-    {% if can('analytics.view') %}
-    <a href="/analytics" class="nav-link {% if request.path=='/analytics' %}active{% endif %}">Analytics</a>
-    {% endif %}
-    {% if session.get('user_id') %}
-      <a href="/profile" class="nav-link {% if request.path=='/profile' %}active{% endif %}">
-        <i class="fa-solid fa-user" style="color:var(--teal)"></i> {{ session.username }}
+{% if _mai_shell %}
+<div class="shell" id="app-shell">
+  <aside class="sidebar" aria-label="Main navigation">
+    <a href="/" class="brand"><span class="brand__mark" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span><span class="brand__word">Medi<span class="brand__ai">AI</span></span></a>
+
+    <nav>
+      {% if can('consultation.review') %}
+      <div class="sidebar__group">
+        <div class="sidebar__label">Clinical</div>
+        {{ navlink('/doctor', 'fa-inbox', 'Case queue', _mai_path == '/doctor' or _mai_path.startswith('/doctor/')) }}
+        {% if _mai_path.startswith('/video/') %}{{ navlink(_mai_path, 'fa-video', 'Video call', True) }}{% endif %}
+      </div>
+      {% endif %}
+
+      {% if can('lab.process') %}
+      <div class="sidebar__group">
+        <div class="sidebar__label">Laboratory</div>
+        {{ navlink('/lab', 'fa-vials', 'Lab orders', _mai_path == '/lab' or _mai_path.startswith('/lab/')) }}
+      </div>
+      {% endif %}
+
+      {% if can('staff.manage') or can('staff.verify') %}
+      <div class="sidebar__group">
+        <div class="sidebar__label">Overview</div>
+        {{ navlink('/admin', 'fa-gauge-high', 'Dashboard', _mai_path == '/admin') }}
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__label">Staff</div>
+        {% if can('staff.verify') %}{{ navlink('/admin#applications', 'fa-file-signature', 'Applications', _mai_path.startswith('/admin/applications') or _mai_path.startswith('/interview/')) }}{% endif %}
+        {{ navlink('/admin#doctors', 'fa-user-doctor', 'Doctors') }}
+        {{ navlink('/admin#labs', 'fa-flask', 'Lab technicians') }}
+      </div>
+      {% if can('rbac.view') %}
+      <div class="sidebar__group">
+        <div class="sidebar__label">Access</div>
+        {{ navlink('/admin#rbac', 'fa-user-shield', 'Roles & permissions') }}
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if can('analytics.view') %}
+      <div class="sidebar__group">
+        <div class="sidebar__label">Insights</div>
+        {{ navlink('/analytics', 'fa-chart-line', 'Analytics', _mai_path == '/analytics') }}
+      </div>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar__foot">
+      <a href="/profile" class="sidebar__user" style="text-decoration:none;color:inherit;" {% if _mai_path == '/profile' %}aria-current="page"{% endif %}>
+        <span class="avatar">{{ (session.username or '?')[:1]|upper }}</span>
+        <div><div class="name">{{ session.username }}</div><div class="role">{{ _mai_role }} · Profile</div></div>
       </a>
-      {% if can('consultation.review') %}<a href="/doctor" class="nav-btn outline">Doctor Panel</a>{% endif %}
-      {% if can('lab.process') %}<a href="/lab" class="nav-btn outline">Lab Panel</a>{% endif %}
-      {% if can('staff.manage') %}<a href="/admin" class="nav-btn outline">Admin Panel</a>{% endif %}
-      <a href="/logout" class="nav-btn outline">Logout</a>
-    {% else %}
-      <a href="/apply"    class="nav-link {% if request.path=='/apply' %}active{% endif %}">Join as Staff</a>
-      <a href="/login"    class="nav-link">Login</a>
-      <a href="/register" class="nav-btn">Register</a>
-    {% endif %}
+      <button type="button" class="navlink" data-theme-toggle style="border:none;background:none;cursor:pointer;width:100%;"><i class="fa-solid fa-moon" aria-hidden="true"></i><span data-theme-label>Dark theme</span></button>
+      {{ navlink('/logout', 'fa-arrow-right-from-bracket', 'Log out') }}
+    </div>
+  </aside>
+  <div class="shell__backdrop" data-nav-close aria-hidden="true"></div>
+
+  <div class="shell__main">
+    <header class="shell__topbar">
+      <button type="button" class="icon-btn icon-btn--bordered" data-nav-toggle="app-shell" aria-expanded="false" aria-label="Open navigation menu"><i class="fa-solid fa-bars"></i></button>
+      <a href="/" class="brand"><span class="brand__word">Medi<span class="brand__ai">AI</span></span></a>
+      <button type="button" class="icon-btn" data-theme-toggle style="margin-left:auto;" aria-label="Switch theme"><i class="fa-solid fa-moon"></i></button>
+    </header>
+{% else %}
+{% block topnav %}
+<header class="topnav" id="topnav">
+  <div class="topnav__inner">
+    <a href="/" class="brand"><span class="brand__mark" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span><span class="brand__word">Medi<span class="brand__ai">AI</span></span></a>
+    <nav class="topnav__links" aria-label="Main navigation">
+      {% if can('diagnosis.run') %}
+        {{ navlink('/', 'fa-stethoscope', 'Assessment', _mai_path == '/' or _mai_path == '/predict_form') }}
+        {{ navlink('/chatbot', 'fa-comments', 'Chatbot', _mai_path.startswith('/chat')) }}
+      {% endif %}
+      {% if can('diary.manage') %}{{ navlink('/diary', 'fa-book-medical', 'Diary', _mai_path.startswith('/diary')) }}{% endif %}
+      {% if can('consultation.view_own') %}{{ navlink('/my_consultations', 'fa-user-doctor', 'My consultations', _mai_path == '/my_consultations' or _mai_path.startswith('/consultation/') or _mai_path.startswith('/video/')) }}{% endif %}
+      {% if can('application.manage_own') %}{{ navlink('/application', 'fa-file-signature', 'My application', _mai_path.startswith('/application') or _mai_path.startswith('/interview/')) }}{% endif %}
+      {% if can('analytics.view') %}{{ navlink('/analytics', 'fa-chart-line', 'Analytics', _mai_path == '/analytics') }}{% endif %}
+      {% if not _mai_signed_in %}
+        {{ navlink('/apply', 'fa-briefcase-medical', 'Join as staff', _mai_path == '/apply') }}
+      {% else %}
+        <a href="/logout" class="navlink show-sm"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Log out</span></a>
+      {% endif %}
+    </nav>
+    <div class="topnav__actions">
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Switch theme"><i class="fa-solid fa-moon"></i></button>
+      {% if _mai_signed_in %}
+        <a href="/profile" class="user-pill" {% if _mai_path == '/profile' %}aria-current="page"{% endif %} aria-label="Profile: {{ session.username }}">
+          <span class="avatar">{{ (session.username or '?')[:1]|upper }}</span><span class="user-pill__name">{{ session.username }}</span>
+        </a>
+        <a href="/logout" class="btn btn--ghost btn--sm hide-sm"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out</a>
+      {% else %}
+        <a href="/login" class="btn btn--ghost btn--sm">Log in</a>
+        <a href="/register" class="btn btn--ink btn--sm">Register</a>
+      {% endif %}
+      <button type="button" class="icon-btn icon-btn--bordered topnav__toggle" data-nav-toggle="topnav" aria-expanded="false" aria-controls="topnav" aria-label="Toggle navigation menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
   </div>
-</nav>
+</header>
+{% endblock %}
+{% endif %}
 
+<main id="main" tabindex="-1" class="{% block main_class %}page-enter{% endblock %}">
 {% block content %}{% endblock %}
+</main>
 
-<script>
-// CSRF: add the token to every POST form and every same-origin fetch()
-(() => {
-  const token = document.querySelector('meta[name="csrf-token"]').content;
-  document.querySelectorAll('form').forEach(form => {
-    if ((form.method || '').toLowerCase() !== 'post' || form.querySelector('input[name="csrf_token"]')) return;
-    const input = document.createElement('input');
-    input.type = 'hidden'; input.name = 'csrf_token'; input.value = token;
-    form.appendChild(input);
-  });
-  const origFetch = window.fetch;
-  window.fetch = (resource, init = {}) => {
-    const url = new URL(typeof resource === 'string' ? resource : resource.url, location.href);
-    if (url.origin === location.origin) {
-      init.headers = new Headers(init.headers || {});
-      init.headers.set('X-CSRFToken', token);
-    }
-    return origFetch(resource, init);
-  };
-})();
+{% if _mai_shell %}
+  </div>
+</div>
+{% else %}
+{% block footer %}
+<footer class="site-foot">
+  <span>© MediAI · Intelligent Care, Human First</span>
+  <span>AI assessments support — and never replace — a licensed clinician.</span>
+</footer>
+{% endblock %}
+{% endif %}
 
-// Show spinner on form submit
-document.querySelectorAll('form[data-loading]').forEach(form => {
-  form.addEventListener('submit', () => {
-    document.getElementById('global-spinner').classList.add('active');
-  });
-});
-</script>
+<!-- Shared confirmation dialog for consequential actions -->
+<dialog class="modal" id="mai-confirm" aria-labelledby="mai-confirm-title">
+  <form method="dialog" class="modal__body">
+    <div class="modal__icon tone-danger" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <h2 id="mai-confirm-title" data-confirm-title>Are you sure?</h2>
+    <p class="modal__text" data-confirm-text style="margin-top:6px;"></p>
+    <div class="modal__actions">
+      <button type="button" class="btn btn--ghost" data-dialog-close>Cancel</button>
+      <button type="button" class="btn btn--danger" data-confirm-ok><span>Confirm</span></button>
+    </div>
+  </form>
+</dialog>
+
+<script src="{{ url_for('static', filename='js/mediai.js') }}"></script>
 {% block extra_script %}{% endblock %}
 </body>
 </html>
